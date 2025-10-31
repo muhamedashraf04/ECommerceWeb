@@ -1,16 +1,34 @@
-﻿namespace ECommerceWeb.Models.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ECommerceWeb.Models.Models
 {
     public class Product
     {
+        [Key]
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
+
+        [Required]
+        public string? Name { get; set; }
+
+        [Required]
+        public string? Description { get; set; }
+
+        [Required]
         public decimal Price { get; set; }
+
+        [Required]
         public int Vendor_ID { get; set; }
+        public Vendor? Vendor { get; set; }
+        [Required]
         public int Category_ID { get; set; }
+        public Category? Category { get; set; }
+
         public decimal Discount { get; set; }
-        public decimal PriceDiscount { get; set; }
+        [Required]
         public int Quantity { get; set; }
-        public decimal ratings { get; set; }
+        public decimal Ratings { get; set; } = 0;
+        [Url]
+        public string? ImageUrl { get; set; }
     }
 }
