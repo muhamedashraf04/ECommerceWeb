@@ -8,5 +8,6 @@ namespace ECommerceWeb.Models.Models
         [Required]
         public int CartId { get; set; }
         public virtual Cart? Cart { get; set; }
+
     }
 }

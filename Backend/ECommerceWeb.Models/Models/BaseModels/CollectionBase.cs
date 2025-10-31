@@ -2,7 +2,7 @@
 
 namespace ECommerceWeb.Models.Models.BaseModels
 {
-    public class CollectionBase
+    public abstract class CollectionBase
     {
         [Key]
         public int Id { get; set; }
