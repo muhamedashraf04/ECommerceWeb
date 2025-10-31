@@ -8,5 +8,6 @@ namespace ECommerceWeb.Models.Models
         public string? CompanyName { get; set; }
         [Url]
         public string? NationalIdImage { get; set; }
+        public virtual ICollection<Product> VendorProducts { get; set; } = new List<Product>();
     }
 }

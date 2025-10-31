@@ -2,7 +2,7 @@
 
 namespace ECommerceWeb.Models.Models.BaseModels
 {
-    public class BaseUser
+    public abstract class BaseUser
     {
         [Key]
         public int Id { get; set; }
