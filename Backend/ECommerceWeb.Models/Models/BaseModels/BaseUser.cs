@@ -9,7 +9,7 @@ namespace ECommerceWeb.Models.Models.BaseModels
         [Required]
         public string? FirstName { get; set; }
         [Required]
-        public string? LastName {  get; set; }
+        public string? LastName { get; set; }
         [EmailAddress]
         [Required]
         public string? Email { get; set; }
@@ -19,5 +19,8 @@ namespace ECommerceWeb.Models.Models.BaseModels
         [Required]
         public string? Phone { get; set; }
         public string? Address { get; set; } = string.Empty;
+        [Required]
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+
     }
 }
