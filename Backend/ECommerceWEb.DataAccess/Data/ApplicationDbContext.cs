@@ -1,6 +1,5 @@
-﻿    // In: ECommercerWEb.DataAccess/Data/ApplicationDbContext.cs
+﻿// In: ECommercerWEb.DataAccess/Data/ApplicationDbContext.cs
 using ECommerceWeb.Models.Models;
-using ECommerceWeb.Models.Models.BaseModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceWeb.DataAccess.Data
@@ -129,7 +128,7 @@ namespace ECommerceWeb.DataAccess.Data
             );
 
             modelBuilder.Entity<Cart>().HasData(
-                new Cart { Id = 1, UserId = 1, TotalAmount = 0 }
+                new Cart { Id = 1, UserId = 1, TotalAmount = 0, NumOfItems = 1 }
             );
 
             modelBuilder.Entity<CartItem>().HasData(
