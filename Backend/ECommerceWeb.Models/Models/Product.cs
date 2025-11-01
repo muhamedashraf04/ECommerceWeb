@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ECommerceWeb.Models.Models
 {
@@ -18,10 +17,10 @@ namespace ECommerceWeb.Models.Models
         public decimal Price { get; set; }
 
         [Required]
-        public int Vendor_ID { get; set; }
+        public int VendorId { get; set; }
         public Vendor? Vendor { get; set; }
         [Required]
-        public int Category_ID { get; set; }
+        public int CategoryId { get; set; }
         public Category? Category { get; set; }
 
         public decimal Discount { get; set; }
