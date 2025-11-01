@@ -55,14 +55,14 @@ namespace ECommerceWeb.DataAccess.Data
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Vendor)
                 .WithMany(v => v.VendorProducts)
-                .HasForeignKey(p => p.Vendor_ID)
+                .HasForeignKey(p => p.VendorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // 🔗 Category ↔ Products (1-to-many)
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
                 .WithMany(c => c.SameCategoryProducts)
-                .HasForeignKey(p => p.Category_ID)
+                .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // 🧩 Dummy Data
@@ -107,8 +107,8 @@ namespace ECommerceWeb.DataAccess.Data
                     Description = "Gaming Laptop",
                     Price = 1500,
                     Quantity = 5,
-                    Vendor_ID = 1,
-                    Category_ID = 1,
+                    VendorId = 1,
+                    CategoryId = 1,
                     Discount = 0.1m,
                     Ratings = 4.8m,
                     ImageUrl = "https://example.com/laptop.jpg"
@@ -120,8 +120,8 @@ namespace ECommerceWeb.DataAccess.Data
                     Description = "Cotton T-Shirt",
                     Price = 20,
                     Quantity = 50,
-                    Vendor_ID = 1,
-                    Category_ID = 2,
+                    VendorId = 1,
+                    CategoryId = 2,
                     Discount = 0,
                     Ratings = 4.5m,
                     ImageUrl = "https://example.com/tshirt.jpg"
