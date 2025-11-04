@@ -1,5 +1,4 @@
-﻿using ECommerceWeb.DataAccess.Repositories;
-using ECommerceWeb.Models.Models;
+﻿using ECommerceWeb.Models.Models;
 
 namespace ECommerceWeb.DataAccess.Repositories
 {
