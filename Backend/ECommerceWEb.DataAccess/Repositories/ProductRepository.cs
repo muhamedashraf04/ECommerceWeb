@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ECommerceWeb.Models.Models;
 
-namespace ECommerceWeb.DataAccess.Interfaces
+namespace ECommerceWeb.DataAccess.Repositories
 {
-    internal class IProductRepository
+    public class IProductRepository : BaseRepository<Product>
     {
     }
 }
