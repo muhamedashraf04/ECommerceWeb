@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ECommerceWeb.DataAccess\ECommerceWeb.DataAccess.csproj" />
-    <ProjectReference Include="..\ECommerceWeb.Models\ECommerceWeb.Models.csproj" />
     <ProjectReference Include="..\ECommerceWeb.Utilities\ECommerceWeb.Utilities.csproj" />
   </ItemGroup>
 
