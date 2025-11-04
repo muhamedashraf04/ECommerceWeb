@@ -74,10 +74,9 @@ namespace ECommerceWeb.DataAccess.Data
                 new Vendor
                 {
                     Id = 1,
-                    FirstName = "John",
-                    LastName = "Vendor",
+                    Name = "John Vendor",
                     Email = "vendor@example.com",
-                    Password = "1234",
+                    PasswordHash = "1234",
                     Phone = "01000000001",
                     Address = "Vendor Street 1",
                     CompanyName = "TechVendor",
@@ -89,10 +88,9 @@ namespace ECommerceWeb.DataAccess.Data
                 new Customer
                 {
                     Id = 1,
-                    FirstName = "Omar",
-                    LastName = "Shoulkamy",
+                    Name = "Omar Shoulkamy",
                     Email = "omar@example.com",
-                    Password = "1234",
+                    PasswordHash = "1234",
                     Phone = "01000000002",
                     Address = "Cairo, Egypt"
                 }
