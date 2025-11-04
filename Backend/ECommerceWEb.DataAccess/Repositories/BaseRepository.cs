@@ -6,42 +6,68 @@ namespace ECommerceWeb.DataAccess.Repositories
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
-        private readonly ApplicationDbContext _db ;
-        private readonly DbSet<T> _dbSet ;
+        private readonly ApplicationDbContext _db;
+        private readonly DbSet<T> _dbSet;
         public BaseRepository(ApplicationDbContext db)
         {
             _db = db;
             _dbSet = _db.Set<T>();
         }
 
-        public Task<T> CreateAsync(T obj)
+        public async Task<bool> CreateAsync(T obj)
         {
-            throw new NotImplementedException();
+            if (obj == null)
+            {
+                return false;
+            }
+            var success = await _dbSet.AddAsync(obj);
+            return await SaveChangesAsync();
         }
 
-        public Task EditAsync(T Obj)
+        public async Task<bool> EditAsync(T obj)
         {
-            throw new NotImplementedException();
+            if (obj == null) return false;
+
+            _dbSet.Update(obj);
+            return await SaveChangesAsync();
         }
 
-        public Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null)
         {
-            throw new NotImplementedException();
+            IQueryable<T> query = _dbSet;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            return await query.ToListAsync();
         }
 
-        public Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            throw new NotImplementedException();
+
+            return await _dbSet.ToListAsync();
         }
 
-        public Task<T> GetAsync(Expression<Func<T, bool>> Filter)
+        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter)
         {
-            throw new NotImplementedException();
+            return await _dbSet.FirstOrDefaultAsync(filter);
         }
 
-        public Task<bool> RemoveAsync(int id)
+        public async Task<bool> RemoveAsync(int id)
         {
-            throw new NotImplementedException();
+            if (id <= 0)
+                return false;
+
+            var entity = await _dbSet.FindAsync(id);
+            if (entity == null)
+                return false;
+
+            _dbSet.Remove(entity);
+            return await SaveChangesAsync();
+        }
+        public async Task<bool> SaveChangesAsync()
+        {
+            return await _db.SaveChangesAsync() > 0;
         }
     }
 }
