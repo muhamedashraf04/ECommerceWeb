@@ -54,7 +54,7 @@ namespace ECommerceWeb.DataAccess.Repositories
         }
 
         public async Task<bool> RemoveAsync(int id)
-{
+        {
             if (id <= 0)
                 return false;
 
@@ -66,7 +66,7 @@ namespace ECommerceWeb.DataAccess.Repositories
             return await SaveChangesAsync();
         }
         public async Task<bool> SaveChangesAsync()
-    {
+        {
             return await _db.SaveChangesAsync() > 0;
         }
     }
