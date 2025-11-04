@@ -1,25 +1,30 @@
 ﻿using System.Linq.Expressions;
+using ECommerceWeb.DataAccess.Data;
 using ECommerceWeb.DataAccess.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 namespace ECommerceWeb.DataAccess.Repositories
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
-        public void Create(T obj)
+        private readonly ApplicationDbContext _db ;
+        private readonly DbSet<T> _dbSet ;
+        public BaseRepository(ApplicationDbContext db)
+        {
+            _db = db;
+            _dbSet = _db.Set<T>();
+        }
+
+        public Task<T> CreateAsync(T obj)
         {
             throw new NotImplementedException();
         }
 
-        public void Edit(T Obj)
+        public Task EditAsync(T Obj)
         {
             throw new NotImplementedException();
         }
 
-        public T Get(Expression<Func<T, bool>> Filter)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null)
+        public Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null)
         {
             throw new NotImplementedException();
         }
@@ -29,12 +34,12 @@ namespace ECommerceWeb.DataAccess.Repositories
             throw new NotImplementedException();
         }
 
-        public Task GetAsync(Expression<Func<bool>> filter)
+        public Task<T> GetAsync(Expression<Func<T, bool>> Filter)
         {
             throw new NotImplementedException();
         }
 
-        public bool Remove(int id)
+        public Task<bool> RemoveAsync(int id)
         {
             throw new NotImplementedException();
         }
