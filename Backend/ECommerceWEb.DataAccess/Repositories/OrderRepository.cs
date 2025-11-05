@@ -1,8 +1,15 @@
-﻿using ECommerceWeb.Models.Models;
+﻿using ECommerceWeb.DataAccess.Data;
+using ECommerceWeb.DataAccess.Repositories.Interfaces;
+using ECommerceWeb.Models.Models;
 
 namespace ECommerceWeb.DataAccess.Repositories
 {
-    public class IOrderRepository : BaseRepository<Order>
+    public class OrderRepository : BaseRepository<Order>, IOrderRepository
     {
+        ApplicationDbContext _dbContext;
+        public OrderRepository(ApplicationDbContext dbContext) : base(dbContext)
+        {
+            _dbContext = dbContext;
+        }
     }
 }
