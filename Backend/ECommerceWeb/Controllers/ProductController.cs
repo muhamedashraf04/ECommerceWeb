@@ -29,7 +29,7 @@ public class ProductController : Controller
         };
         await _uow.ProductRepository.CreateAsync(product);
         var result = await _uow.SaveChangesAsync();
-        if (result != 0)
+        if (result)
         {
             return Ok(product);
         }
@@ -81,7 +81,7 @@ public class ProductController : Controller
         await _uow.ProductRepository.EditAsync(product);
 
         var result = await _uow.SaveChangesAsync();
-        if (result > 0)
+        if (result)
         {
             return Ok(product);
         }
@@ -106,8 +106,7 @@ public class ProductController : Controller
         {
             return BadRequest("Failed to delete product.");
         }
-        result = await _uow.SaveChangesAsync() == 0;
-        if (result)
+        if (await _uow.SaveChangesAsync())
         {
             return Ok("Product deleted successfully.");
         }
