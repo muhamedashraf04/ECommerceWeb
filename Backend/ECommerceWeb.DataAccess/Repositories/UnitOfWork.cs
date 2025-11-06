@@ -34,7 +34,7 @@ namespace ECommerceWeb.DataAccess.Repositories
         }
         public async Task<bool> SaveChangesAsync()
         {
-            return await DbContext.SaveChangesAsync() != 0;
+            return await DbContext.SaveChangesAsync() == 0;
         }
 
     }

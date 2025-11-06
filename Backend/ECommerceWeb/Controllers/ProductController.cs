@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerceWeb.Controllers;
 
-public class ProductController : Controller
+[Route("api/[controller]")]
+[ApiController]
+public class ProductController : ControllerBase
 {
     private readonly IUnitOfWork _uow;
     public ProductController(IUnitOfWork uow)
@@ -14,9 +16,14 @@ public class ProductController : Controller
         _uow = uow;
     }
     [Authorize(Roles = "Vendor")]
-    [HttpGet("create")]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateAsync(CreateProductDTO dto)
     {
+        var Category = await _uow.CategoryRepository.GetAsync(c => c.Id == dto.CategoryId);
+        if (Category == null)
+        {
+            return BadRequest("Invalid category.");
+        }
         var product = new Product
         {
             Name = dto.Name,
@@ -27,19 +34,23 @@ public class ProductController : Controller
             ImageUrl = dto.ImageUrl,
             VendorId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!)
         };
-        await _uow.ProductRepository.CreateAsync(product);
-        var result = await _uow.SaveChangesAsync();
+        bool result = await _uow.ProductRepository.CreateAsync(product);
+        if (!result)
+        {
+            return BadRequest("Could not create product.");
+        }
+        result = await _uow.SaveChangesAsync();
         if (result)
         {
             return Ok(product);
         }
         else
         {
-            return BadRequest("Could not create product.");
+            return BadRequest("Could not save product.");
         }
     }
     [Authorize(Roles = "Vendor")]
-    [HttpPut("get")]
+    [HttpGet("get")]
     public async Task<IActionResult> GetByIdAsync(int id)
     {
         var product = await _uow.ProductRepository.GetAsync(p => p.Id == id);
@@ -58,6 +69,11 @@ public class ProductController : Controller
     [HttpPut("edit")]
     public async Task<IActionResult> EditAsync([FromBody] UpdateProductDTO dto)
     {
+        var Category = await _uow.CategoryRepository.GetAsync(c => c.Id == dto.CategoryId);
+        if (dto.CategoryId != null && Category == null)
+        {
+            return BadRequest("Invalid category.");
+        }
         if (dto == null || dto.Id <= 0)
         {
             return BadRequest("Invalid product data.");
@@ -88,7 +104,7 @@ public class ProductController : Controller
         return BadRequest("Failed to update product.");
     }
     [Authorize(Roles = "Vendor")]
-    [HttpPut("delete")]
+    [HttpDelete("delete")]
     public async Task<IActionResult> DeleteAsync(int id)
     {
         var product = await _uow.ProductRepository.GetAsync(p => p.Id == id);
