@@ -12,6 +12,6 @@ namespace ECommerceWeb.DataAccess.Repositories.Interfaces
         IProductRepository ProductRepository { get; }
         IVendorRepository VendorRepository { get; }
         ApplicationDbContext DbContext { get; }
-        Task<int> SaveChangesAsync();
+        Task<bool> SaveChangesAsync();
     }
 }
