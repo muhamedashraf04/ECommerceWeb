@@ -32,9 +32,9 @@ namespace ECommerceWeb.DataAccess.Repositories
             ProductRepository = new ProductRepository(DbContext);
             VendorRepository = new VendorRepository(DbContext);
         }
-        public async Task<int> SaveChangesAsync()
+        public async Task<bool> SaveChangesAsync()
         {
-            return await DbContext.SaveChangesAsync();
+            return await DbContext.SaveChangesAsync() != 0;
         }
 
     }
