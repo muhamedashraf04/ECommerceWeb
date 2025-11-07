@@ -1,6 +1,9 @@
 ﻿using System.Security.Claims;
 using ECommerceWeb.DataAccess.Repositories.Interfaces;
-using ECommerceWeb.Models.Models;
+using ECommerceWeb.Models.DTOs.ProductDTOs;
+using ECommerceWeb.Utilities.Service.ProductService;
+using ECommerceWeb.Utilities.Validators.ProductValidators;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,43 +14,39 @@ namespace ECommerceWeb.Controllers;
 public class ProductController : ControllerBase
 {
     private readonly IUnitOfWork _uow;
-    public ProductController(IUnitOfWork uow)
+    private readonly IValidator<CreateProductDTO> _validator;
+    private readonly ProductService _ProductService;
+
+    public ProductController(IUnitOfWork uow, IValidator<CreateProductDTO> validator, ProductService productService)
     {
         _uow = uow;
+        _validator = validator;
+        _ProductService = productService;
     }
+
     [Authorize(Roles = "Vendor")]
     [HttpPost("create")]
     public async Task<IActionResult> CreateAsync(CreateProductDTO dto)
     {
-        var Category = await _uow.CategoryRepository.GetAsync(c => c.Id == dto.CategoryId);
-        if (Category == null)
+        var validationResult = await _validator.ValidateAsync(dto);
+
+        if (!validationResult.IsValid)
         {
-            return BadRequest("Invalid category.");
+            return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
         }
-        var product = new Product
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null)
         {
-            Name = dto.Name,
-            Description = dto.Description,
-            Price = dto.Price,
-            CategoryId = dto.CategoryId,
-            Quantity = dto.Quantity,
-            ImageUrl = dto.ImageUrl,
-            VendorId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!)
-        };
-        bool result = await _uow.ProductRepository.CreateAsync(product);
-        if (!result)
+            return Unauthorized();
+        }
+        int vendorId = int.Parse(userIdClaim);
+        var product = await _ProductService.CreateProductAsync(dto, vendorId);
+
+        if (product == null)
         {
             return BadRequest("Could not create product.");
         }
-        result = await _uow.SaveChangesAsync();
-        if (result)
-        {
-            return Ok(product);
-        }
-        else
-        {
-            return BadRequest("Could not save product.");
-        }
+        return Ok(product);
     }
     [Authorize(Roles = "Vendor")]
     [HttpGet("get")]
