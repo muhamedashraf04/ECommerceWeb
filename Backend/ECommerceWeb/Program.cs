@@ -1,6 +1,10 @@
 using ECommerceWeb.DataAccess.Data;
 using ECommerceWeb.DataAccess.Repositories;
 using ECommerceWeb.DataAccess.Repositories.Interfaces;
+using ECommerceWeb.Models.DTOs.ProductDTOs;
+using ECommerceWeb.Utilities.Service.ProductService;
+using ECommerceWeb.Utilities.Validators.ProductValidators;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -22,6 +26,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 //Unit Of Work and Repository Registrations
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<IValidator<CreateProductDTO>, ProductValidator>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -37,6 +43,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .GetBytes(builder.Configuration.GetValue<string>("AppSettings:Token"))),
 
         };
+
     });
 builder.Services.AddAuthorization();
 var app = builder.Build();

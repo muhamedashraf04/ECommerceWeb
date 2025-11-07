@@ -1,4 +1,4 @@
-﻿namespace ECommerceWeb.Controllers
+﻿namespace ECommerceWeb.Models.DTOs.ProductDTOs
 {
     public class UpdateProductDTO
     {

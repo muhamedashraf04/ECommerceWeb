@@ -1,6 +1,4 @@
-﻿using ECommerceWeb.Models.Models;
-
-namespace ECommerceWeb.Controllers
+﻿namespace ECommerceWeb.Models.DTOs.ProductDTOs
 {
     public class CreateProductDTO
     {
