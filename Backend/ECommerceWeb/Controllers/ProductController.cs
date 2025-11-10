@@ -2,7 +2,6 @@
 using ECommerceWeb.DataAccess.Repositories.Interfaces;
 using ECommerceWeb.Models.DTOs.ProductDTOs;
 using ECommerceWeb.Utilities.Service.ProductService;
-using ECommerceWeb.Utilities.Validators.ProductValidators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,13 +12,11 @@ namespace ECommerceWeb.Controllers;
 [ApiController]
 public class ProductController : ControllerBase
 {
-    private readonly IUnitOfWork _uow;
     private readonly IValidator<CreateProductDTO> _validator;
     private readonly ProductService _ProductService;
 
-    public ProductController(IUnitOfWork uow, IValidator<CreateProductDTO> validator, ProductService productService)
+    public ProductController(IValidator<CreateProductDTO> validator, ProductService productService)
     {
-        _uow = uow;
         _validator = validator;
         _ProductService = productService;
     }
@@ -48,36 +45,49 @@ public class ProductController : ControllerBase
         }
         return Ok(product);
     }
-    [Authorize(Roles = "Vendor")]
-    [HttpGet("get")]
-    public async Task<IActionResult> GetByIdAsync(int id)
+
+    [HttpGet("GetProductByID")]
+    public async Task<IActionResult> GetByIdAsync(int productId)
     {
-        var product = await _uow.ProductRepository.GetAsync(p => p.Id == id);
-        if (product == null)
+        var product = await _ProductService.GetProductByIdAsync(productId);
+        if(product == null)
         {
             return NotFound("Product not found.");
         }
-        var vendorId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (product.VendorId != vendorId)
-        {
-            return Forbid("You are not authorized to view this product.");
-        }
         return Ok(product);
+    }
+    [HttpGet("GetAllProducts")]
+    public async Task<IActionResult> GetAllProductsAsync()
+    {
+        var products = await _ProductService.GetProductsAsync();
+        if(products == null || !products.Any())
+        {
+            return NotFound("No products found.");
+        }
+        return Ok(products);
+    }
+    [HttpGet("GetProductByCategory")]
+    public async Task<IActionResult> GetProductsByCategoryAsync(string category)
+    {
+        var products = await _ProductService.GetProductsByCategoryAsync(category);
+        if(products == null || !products.Any())
+        {
+            return NotFound("No products found in this category.");
+        }
+        return Ok(products);
+    }
+    [HttpGet("GetProductByVendor")]
+    public async Task<IActionResult> GetProductsByVendorAsync(int vendorId)
+    {
+        var products = await _ProductService.GetProductsByVendorAsync(vendorId);
+        return Ok(products);
     }
     [Authorize(Roles = "Vendor")]
     [HttpPut("edit")]
     public async Task<IActionResult> EditAsync([FromBody] UpdateProductDTO dto)
     {
-        var Category = await _uow.CategoryRepository.GetAsync(c => c.Id == dto.CategoryId);
-        if (dto.CategoryId != null && Category == null)
-        {
-            return BadRequest("Invalid category.");
-        }
-        if (dto == null || dto.Id <= 0)
-        {
-            return BadRequest("Invalid product data.");
-        }
-        var product = await _uow.ProductRepository.GetAsync(p => p.Id == dto.Id);
+
+        var product = await _ProductService.GetProductByIdAsync(dto.Id);
         if (product == null)
         {
             return NotFound("Product not found.");
@@ -87,26 +97,19 @@ public class ProductController : ControllerBase
         {
             return Forbid("You are not authorized to edit this product.");
         }
-        product.Name = dto.Name ?? product.Name;
-        product.Description = dto.Description ?? product.Description;
-        product.Price = dto.Price ?? product.Price;
-        product.CategoryId = dto.CategoryId ?? product.CategoryId;
-        product.ImageUrl = dto.ImageUrl ?? product.ImageUrl;
-
-        await _uow.ProductRepository.EditAsync(product);
-
-        var result = await _uow.SaveChangesAsync();
-        if (result)
+        var result = await _ProductService.EditProductAsync(dto);
+        if (!result)
         {
-            return Ok(product);
+            return BadRequest("Failed to update product.");
         }
-        return BadRequest("Failed to update product.");
+        var updatedProduct = await _ProductService.GetProductByIdAsync(dto.Id);
+        return Ok(updatedProduct);
     }
     [Authorize(Roles = "Vendor")]
     [HttpDelete("delete")]
     public async Task<IActionResult> DeleteAsync(int id)
     {
-        var product = await _uow.ProductRepository.GetAsync(p => p.Id == id);
+        var product = await _ProductService.GetProductByIdAsync(id);
         if (product == null)
         {
             return NotFound("Product not found.");
@@ -116,15 +119,12 @@ public class ProductController : ControllerBase
         {
             return Forbid("You are not authorized to delete this product.");
         }
-        var result = await _uow.ProductRepository.RemoveAsync(id);
+        var result = await _ProductService.DeleteProductAsync(id);
         if (!result)
         {
             return BadRequest("Failed to delete product.");
         }
-        if (await _uow.SaveChangesAsync())
-        {
-            return Ok("Product deleted successfully.");
-        }
-        return BadRequest("Failed to delete product.");
+        return Ok("Product deleted successfully.");
     }
+
 }
