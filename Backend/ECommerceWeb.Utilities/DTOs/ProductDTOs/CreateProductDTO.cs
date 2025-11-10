@@ -1,4 +1,5 @@
-﻿namespace ECommerceWeb.Models.DTOs.ProductDTOs
+﻿
+namespace ECommerceWeb.Application.DTOs.ProductDTOs
 {
     public class CreateProductDTO
     {

@@ -1,4 +1,5 @@
-﻿namespace ECommerceWeb.Models.Models
+﻿
+namespace ECommerceWeb.Domain.Models
 {
     public class Customer : BaseModels.BaseUser
     {

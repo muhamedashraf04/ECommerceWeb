@@ -1,4 +1,4 @@
-﻿namespace ECommerceWeb.Models.Models
+﻿namespace ECommerceWeb.Domain.Models
 {
     public class Cart : BaseModels.CollectionBase
     {

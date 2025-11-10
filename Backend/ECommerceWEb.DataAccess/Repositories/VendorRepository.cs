@@ -1,8 +1,8 @@
-﻿using ECommerceWeb.DataAccess.Data;
-using ECommerceWeb.DataAccess.Repositories.Interfaces;
-using ECommerceWeb.Models.Models;
+﻿using ECommerceWeb.Infrastructure.Data;
+using ECommerceWeb.Application.Interfaces;
+using ECommerceWeb.Domain.Models;
 
-namespace ECommerceWeb.DataAccess.Repositories
+namespace ECommerceWeb.Infrastructure.Repositories
 {
     public class VendorRepository : BaseRepository<Vendor>, IVendorRepository
     {

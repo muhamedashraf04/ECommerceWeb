@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
-using ECommerceWeb.DataAccess.Repositories.Interfaces;
-using ECommerceWeb.Models.DTOs.ProductDTOs;
-using ECommerceWeb.Utilities.Service.ProductService;
+using ECommerceWeb.Application.DTOs.ProductDTOs;
+using ECommerceWeb.Application.Service.ProductService;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

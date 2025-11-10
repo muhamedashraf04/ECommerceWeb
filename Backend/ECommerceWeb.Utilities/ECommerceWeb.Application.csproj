@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ECommerceWeb.DataAccess\ECommerceWeb.DataAccess.csproj" />
+    <ProjectReference Include="..\ECommerceWeb.Models\ECommerceWeb.Domain.csproj" />
   </ItemGroup>
 
 </Project>

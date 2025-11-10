@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ECommerceWeb.Models.Models.BaseModels
+
+namespace ECommerceWeb.Domain.Models.BaseModels
 {
     public abstract class BaseUser
     {

@@ -1,8 +1,8 @@
-﻿using ECommerceWeb.DataAccess.Repositories.Interfaces;
-using ECommerceWeb.Models.DTOs.ProductDTOs;
-using ECommerceWeb.Models.Models;
+﻿using ECommerceWeb.Application.Interfaces;
+using ECommerceWeb.Application.DTOs.ProductDTOs;
+using ECommerceWeb.Domain.Models;
 
-namespace ECommerceWeb.Utilities.Service.ProductService
+namespace ECommerceWeb.Application.Service.ProductService
 {
     public class ProductService
     {

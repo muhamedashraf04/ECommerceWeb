@@ -1,9 +1,8 @@
-﻿using ECommerceWeb.DataAccess.Repositories.Interfaces;
-using ECommerceWeb.Models.DTOs.ProductDTOs;
-using ECommerceWeb.Models.Models;
+﻿using ECommerceWeb.Application.Interfaces;
+using ECommerceWeb.Application.DTOs.ProductDTOs;
 using FluentValidation;
 
-namespace ECommerceWeb.Utilities.Validators.ProductValidators
+namespace ECommerceWeb.Application.Validators.ProductValidators
 {
     public class ProductValidator : AbstractValidator<CreateProductDTO>
     {
