@@ -1,8 +1,8 @@
-﻿using ECommerceWeb.DataAccess.Data;
-using ECommerceWeb.DataAccess.Repositories.Interfaces;
-using ECommerceWeb.Models.Models;
+﻿using ECommerceWeb.Application.Interfaces;
+using ECommerceWeb.Domain.Models;
+using ECommerceWeb.Infrastructure.Data;
 
-namespace ECommerceWeb.DataAccess.Repositories
+namespace ECommerceWeb.Infrastructure.Repositories
 {
     public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
     {

@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ECommerceWeb.Models.Models
+
+namespace ECommerceWeb.Domain.Models
 {
     public class Product
     {

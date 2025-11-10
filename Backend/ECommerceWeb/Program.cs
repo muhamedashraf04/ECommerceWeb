@@ -1,15 +1,16 @@
-using ECommerceWeb.DataAccess.Data;
-using ECommerceWeb.DataAccess.Repositories;
-using ECommerceWeb.DataAccess.Repositories.Interfaces;
-using ECommerceWeb.Models.DTOs.ProductDTOs;
-using ECommerceWeb.Utilities.Service.ProductService;
-using ECommerceWeb.Utilities.Validators.ProductValidators;
+using ECommerceWeb.Application;
+using ECommerceWeb.Infrastructure.Repositories;
+using ECommerceWeb.Application.Interfaces;
+using ECommerceWeb.Application.DTOs.ProductDTOs;
+using ECommerceWeb.Application.Service.ProductService;
+using ECommerceWeb.Application.Validators.ProductValidators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
+using ECommerceWeb.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

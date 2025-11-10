@@ -1,8 +1,9 @@
 ﻿using System.Linq.Expressions;
-using ECommerceWeb.DataAccess.Data;
-using ECommerceWeb.DataAccess.Repositories.Interfaces;
+using ECommerceWeb.Infrastructure.Data;
+using ECommerceWeb.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
-namespace ECommerceWeb.DataAccess.Repositories
+
+namespace ECommerceWeb.Infrastructure.Repositories
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : class
     {

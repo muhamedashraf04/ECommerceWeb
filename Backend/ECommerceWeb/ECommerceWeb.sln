@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36603.0 d17.14
+VisualStudioVersion = 17.14.36603.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb", "ECommerceWeb.csproj", "{74FD1C02-4237-4686-8153-D81B9D6DE088}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Models", "..\ECommerceWeb.Models\ECommerceWeb.Models.csproj", "{AE941628-9CF9-448E-A351-60DA6E3E2080}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Domain", "..\ECommerceWeb.Models\ECommerceWeb.Domain.csproj", "{AE941628-9CF9-448E-A351-60DA6E3E2080}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Utilities", "..\ECommerceWeb.Utilities\ECommerceWeb.Utilities.csproj", "{A0CCFF4F-3B89-425F-97C5-5BA2236D1597}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Application", "..\ECommerceWeb.Utilities\ECommerceWeb.Application.csproj", "{A0CCFF4F-3B89-425F-97C5-5BA2236D1597}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.DataAccess", "..\ECommerceWeb.DataAccess\ECommerceWeb.DataAccess.csproj", "{E968B2D9-492D-4D55-9161-32A836E19403}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Infrastucture", "..\ECommerceWeb.DataAccess\ECommerceWeb.Infrastucture.csproj", "{E968B2D9-492D-4D55-9161-32A836E19403}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

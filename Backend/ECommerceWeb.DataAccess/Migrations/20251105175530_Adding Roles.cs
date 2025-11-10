@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace ECommerceWeb.DataAccess.Migrations
+namespace ECommerceWeb.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class AddingRoles : Migration

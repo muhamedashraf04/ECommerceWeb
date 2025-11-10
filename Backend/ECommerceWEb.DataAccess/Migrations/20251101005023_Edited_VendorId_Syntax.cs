@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace ECommerceWeb.DataAccess.Migrations
+namespace ECommerceWeb.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class Edited_VendorId_Syntax : Migration

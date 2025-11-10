@@ -1,6 +1,4 @@
-﻿using ECommerceWeb.DataAccess.Data;
-
-namespace ECommerceWeb.DataAccess.Repositories.Interfaces
+﻿namespace ECommerceWeb.Application.Interfaces
 {
     public interface IUnitOfWork
     {
@@ -11,7 +9,6 @@ namespace ECommerceWeb.DataAccess.Repositories.Interfaces
         IOrderRepository OrderRepository { get; }
         IProductRepository ProductRepository { get; }
         IVendorRepository VendorRepository { get; }
-        ApplicationDbContext DbContext { get; }
         Task<bool> SaveChangesAsync();
     }
 }

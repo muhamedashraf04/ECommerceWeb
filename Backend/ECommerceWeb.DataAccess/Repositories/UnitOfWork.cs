@@ -1,7 +1,7 @@
-﻿using ECommerceWeb.DataAccess.Data;
-using ECommerceWeb.DataAccess.Repositories.Interfaces;
+﻿using ECommerceWeb.Application.Interfaces;
+using ECommerceWeb.Infrastructure.Data;
 
-namespace ECommerceWeb.DataAccess.Repositories
+namespace ECommerceWeb.Infrastructure.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {

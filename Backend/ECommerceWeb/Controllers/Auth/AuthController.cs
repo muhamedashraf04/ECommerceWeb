@@ -1,7 +1,7 @@
-﻿using ECommerceWeb.DataAccess.Repositories.Interfaces;
-using ECommerceWeb.Models.DTOs;
-using ECommerceWeb.Models.Models;
-using ECommerceWeb.Models.Models.BaseModels;
+﻿using ECommerceWeb.Application.Interfaces;
+using ECommerceWeb.Application.DTOs;
+using ECommerceWeb.Domain.Models;
+using ECommerceWeb.Domain.Models.BaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

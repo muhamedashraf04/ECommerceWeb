@@ -4,7 +4,7 @@
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace ECommerceWeb.DataAccess.Migrations
+namespace ECommerceWeb.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
