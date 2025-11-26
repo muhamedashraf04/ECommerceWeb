@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ECommerceWeb.Utilities\ECommerceWeb.Application.csproj" />
+    <ProjectReference Include="..\ECommerceWeb.Application\ECommerceWeb.Application.csproj" />
   </ItemGroup>
 
 </Project>
