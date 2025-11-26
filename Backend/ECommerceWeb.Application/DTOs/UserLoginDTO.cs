@@ -10,9 +10,4 @@ namespace ECommerceWeb.Application.DTOs
         [Required]
         public string? Password { get; set; }
     }
-    public class UserLoginResponseDTO
-    {
-        public string? Token { get; set; }
-        public DateTime Expiration { get; set; }
-    }
 }

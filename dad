@@ -1,0 +1,310 @@
+[33mcommit 414b8e1f0e7c61ebd142a06b1e3d593c7cfe91f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mControllers[m[33m, [m[1;31morigin/Controllers[m[33m)[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Mon Nov 10 16:42:01 2025 +0200
+
+    Ressturctured the whole solution to match the clean archticture :)
+
+[33mcommit e64573cb7adad419403b572bef327c93d32aa395[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Mon Nov 10 09:53:53 2025 +0200
+
+    Updated the product controller and removed unitofwork from it  and made service
+
+[33mcommit edf89fbd3388128cd619a518e339813f6cf70800[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Fri Nov 7 16:19:09 2025 +0200
+
+    created Product Validator
+    created Product Service
+    removed Data annotation from product
+    removed Data annotation from Category
+    created the CreatProductAsync using service and validator
+
+[33mcommit 9f4e84b73ae0504915ff94f07ba7dee102bcef83[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Thu Nov 6 23:10:46 2025 +0200
+
+    tested the Product Controller succecfully
+
+[33mcommit a4b39564821827a5352e3634e74e8a759c33d043[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Thu Nov 6 22:48:05 2025 +0200
+
+    corrected some mistakes
+
+[33mcommit 13586ef3e0a5323e60a532c0b79c0582a355ad5a[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Thu Nov 6 22:43:50 2025 +0200
+
+    Made the Product CRUD operations
+    Made the DTO's and
+    small edit in the UOF
+
+[33mcommit 7de8d1395270c65816da9b496bf417ae32429334[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m
+Merge: e474f6b 97c7951
+Author: Mohamed Ashraf Allam <allammohamed303@gmail.com>
+Date:   Wed Nov 5 22:55:17 2025 +0200
+
+    Merge pull request #11 from muhamedashraf04/Auth
+    
+    Authorization completed
+
+[33mcommit 97c7951b9db4e279b4309e566eaa93488848b1b8[m[33m ([m[1;31morigin/Auth[m[33m, [m[1;32mAuth[m[33m)[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Wed Nov 5 22:53:48 2025 +0200
+
+    Authurization Completed
+
+[33mcommit f259b2102ca56be4621ada34345f028e9b219d40[m
+Merge: bd7b482 641e010
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Wed Nov 5 01:29:26 2025 +0200
+
+    Merge branch 'Auth' of https://github.com/muhamedashraf04/ECommerceWeb into Auth
+
+[33mcommit bd7b48297f092a574a2e137a360841035802652c[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Tue Nov 4 20:40:37 2025 +0200
+
+    Adding Scalar to the project
+
+[33mcommit 7010764d22cf3a641c08bd18a408a7cbe414b0f5[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Tue Nov 4 20:40:37 2025 +0200
+
+    Adding Scalar to the project
+
+[33mcommit 3a99e69a8ec2c37cf3f0b2b0889a22e0932836c0[m[33m ([m[1;31morigin/DbSetup&Models[m[33m)[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Wed Nov 5 01:28:48 2025 +0200
+
+    Finalize Models and Repos
+
+[33mcommit e474f6ba69f221e775a76fa0467fe6d737b8d7a1[m[33m ([m[1;31morigin/Repositories&Interfaces[m[33m, [m[1;32mController[m[33m)[m
+Merge: 5a987ba ef84877
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Wed Nov 5 00:56:48 2025 +0200
+
+    Rebasing
+
+[33mcommit 5a987bab8db28750df91deacbc713782d218b851[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:04:42 2025 +0200
+
+    made the IBaseRepo and made setup for all interfaces
+
+[33mcommit c44f63618497b490901a7bf261dbedf317e24050[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 09:45:48 2025 +0200
+
+    BaseRepo done for now
+
+[33mcommit 0d38765c7276789899434f39ed186e043cb2eaa0[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:34:05 2025 +0200
+
+    setup for base repo and changes in IBaserepo going ro change the functions
+
+[33mcommit 1dacddc6357ca4806f667f03f9a9202491e09fdd[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:13:29 2025 +0200
+
+    removed some mistakes in the repo's
+
+[33mcommit d8d7fc45ac7a5c075d0a0c8ae4b7db8f873ee547[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:12:12 2025 +0200
+
+    made all the repo's
+
+[33mcommit 6ae5ff66642b4fa660aa7291d7a6e62b1102c19f[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:04:42 2025 +0200
+
+    made the IBaseRepo and made setup for all interfaces
+
+[33mcommit ef84877b0c9674779a1f04d6e1893d513851cbca[m
+Merge: 7943421 1719869
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Wed Nov 5 00:44:41 2025 +0200
+
+    Merge branch 'master' of https://github.com/muhamedashraf04/ECommerceWeb
+
+[33mcommit 7943421e7f536350662f0816e8158098cd1c988c[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 09:45:48 2025 +0200
+
+    BaseRepo done for now
+
+[33mcommit 4fc8dd9975594245bfbbc022baac73505758790d[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:34:05 2025 +0200
+
+    setup for base repo and changes in IBaserepo going ro change the functions
+
+[33mcommit fa9966909c283b31044fec6878017e23a9ff5845[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:13:29 2025 +0200
+
+    removed some mistakes in the repo's
+
+[33mcommit 72cbd5e0ca5c0dc7c5f8a90cf0fb8cdb41fa8327[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:12:12 2025 +0200
+
+    made all the repo's
+
+[33mcommit 1adf0616f5393657634b6c5a5c3d3e69ac495996[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:04:42 2025 +0200
+
+    made the IBaseRepo and made setup for all interfaces
+
+[33mcommit 641e010088a87d22c8372c2c0941ebec00e7fc21[m
+Merge: 3ddc07a 1826806
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Wed Nov 5 00:35:50 2025 +0200
+
+    Merge branch 'Auth' of https://github.com/muhamedashraf04/ECommerceWeb into Auth
+
+[33mcommit 3ddc07ae5f121878fb04ddfc0361964ad6585a76[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Tue Nov 4 20:40:37 2025 +0200
+
+    Adding Scalar to the project
+
+[33mcommit 2d6dea4d40baf26869c4162810d46078c5264bf5[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Wed Nov 5 00:29:20 2025 +0200
+
+    Chekpoint until Repo's Finalized
+
+[33mcommit 1826806edd03d5045a8ef7a9925b39ec0601dee1[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Tue Nov 4 20:40:37 2025 +0200
+
+    Adding Scalar to the project
+
+[33mcommit 1719869a43c5bc609f5933f1ce84fb80aa86ce9d[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 09:45:48 2025 +0200
+
+    BaseRepo done for now
+
+[33mcommit 79802d084ea572aa4729ef2f200086be4ea227ab[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:34:05 2025 +0200
+
+    setup for base repo and changes in IBaserepo going ro change the functions
+
+[33mcommit 2d2f11074d1caecbcbf5b1a5cd56c053b55cd094[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:13:29 2025 +0200
+
+    removed some mistakes in the repo's
+
+[33mcommit 8314bb87aa1d5d22fc8535d07d65d63f10a17a07[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:12:12 2025 +0200
+
+    made all the repo's
+
+[33mcommit 858163a53fa7d651a7bba76d34189f9d9cfe3dc1[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Tue Nov 4 06:04:42 2025 +0200
+
+    made the IBaseRepo and made setup for all interfaces
+
+[33mcommit e77e131f376111ad0295dd5c8e745ec0bb88181d[m
+Merge: d498156 253ba40
+Author: Mohamed Ashraf Allam <allammohamed303@gmail.com>
+Date:   Sat Nov 1 23:08:59 2025 +0200
+
+    Merge pull request #9 from muhamedashraf04/DbSetup&Models
+    
+    Db setup&models
+
+[33mcommit 253ba401f68133c7da246e44653f6b4360eb997a[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Sat Nov 1 23:05:37 2025 +0200
+
+    final touches to Data Base
+
+[33mcommit 0bc1ad27003c8dc615b5e3aec95c398c9daddd70[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Sat Nov 1 02:52:12 2025 +0200
+
+    migration
+
+[33mcommit bf0dbd6b68339fbbefbe2afc7327d10ff87b4539[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Sat Nov 1 02:49:27 2025 +0200
+
+    compeleted
+
+[33mcommit c9bcd97e6c00e8798393bd6bdd2c103d81f3d382[m
+Merge: 5ec74bb b391fc4
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Sat Nov 1 02:47:03 2025 +0200
+
+    Merge branch 'DbSetup&Models' of https://github.com/muhamedashraf04/ECommerceWeb into DbSetup&Models
+
+[33mcommit 5ec74bbc31ff370483d2d7d6b412fdce8e976be4[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Sat Nov 1 02:46:49 2025 +0200
+
+    made some dummy data and made some edits in the relations
+
+[33mcommit b391fc42b6beea303100a0dbe86b9cc98f3caf5a[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Sat Nov 1 02:00:16 2025 +0200
+
+    small tweaks
+
+[33mcommit 8a08ecfb891566b5c2bc1cc115c394de4a1161eb[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Sat Nov 1 00:55:39 2025 +0200
+
+    making some edits on the models
+
+[33mcommit 265ab56e3a7ed6e27da75bda14cb06ddf4868fb5[m
+Author: omar emad <omaremad11113@gmail.com>
+Date:   Sat Nov 1 00:38:49 2025 +0200
+
+    Made the Models for the database
+
+[33mcommit 3b6a9b7c6ac72117f18223f73e66046b69dbe95a[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Fri Oct 31 22:21:54 2025 +0200
+
+    editData
+
+[33mcommit 874a3cb551c2a2e946dfd4f98e7fff3a9a3906df[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Fri Oct 31 22:16:28 2025 +0200
+
+    DataBase_SetUp
+
+[33mcommit d4981563eb1aa1f596e62ab4ab655c7596facd5d[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Fri Oct 31 18:25:05 2025 +0200
+
+    changes in files
+
+[33mcommit a804ad2d7847c121a580931d351cbfac0076ad7b[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Fri Oct 31 18:22:51 2025 +0200
+
+    changes in file arch
+
+[33mcommit 726d1cc270580dac63d9b574ccf07fe2cbea1ae5[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Thu Oct 30 02:05:41 2025 +0300
+
+    Add project files.
+
+[33mcommit 0263523f6d3548e9937d69af9c09abc8efc27250[m
+Author: muhammedashraf04 <allammohamed303@gmail.com>
+Date:   Thu Oct 30 02:05:39 2025 +0300
+
+    Add .gitattributes, .gitignore, and README.md.
