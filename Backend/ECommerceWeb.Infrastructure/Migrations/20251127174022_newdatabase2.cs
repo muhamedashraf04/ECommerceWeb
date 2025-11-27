@@ -7,56 +7,18 @@
 namespace ECommerceWeb.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class newdatabase2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_Products",
-                table: "Products");
-
-            migrationBuilder.DropColumn(
-                name: "PriceDiscount",
-                table: "Products");
-
-            migrationBuilder.RenameTable(
-                name: "Products",
-                newName: "Product");
-
-            migrationBuilder.RenameColumn(
-                name: "ratings",
-                table: "Product",
-                newName: "Ratings");
-
-            migrationBuilder.AlterColumn<decimal>(
-                name: "Ratings",
-                table: "Product",
-                type: "decimal(18,2)",
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldType: "decimal(3,1)",
-                oldPrecision: 3,
-                oldScale: 1);
-
-            migrationBuilder.AddColumn<string>(
-                name: "ImageUrl",
-                table: "Product",
-                type: "nvarchar(max)",
-                nullable: true);
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_Product",
-                table: "Product",
-                column: "Id");
-
             migrationBuilder.CreateTable(
                 name: "Category",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -69,10 +31,9 @@ namespace ECommerceWeb.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -89,10 +50,9 @@ namespace ECommerceWeb.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CompanyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NationalIdImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -107,6 +67,7 @@ namespace ECommerceWeb.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    NumOfItems = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
@@ -144,14 +105,47 @@ namespace ECommerceWeb.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Product",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    VendorId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Ratings = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Product", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Product_Category_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Category",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Product_Vendor_VendorId",
+                        column: x => x.VendorId,
+                        principalTable: "Vendor",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CartItem",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CartId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    CartId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -176,10 +170,10 @@ namespace ECommerceWeb.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderId = table.Column<int>(type: "int", nullable: false),
-                    PriceATM = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    PriceATM = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -209,37 +203,32 @@ namespace ECommerceWeb.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Customer",
-                columns: new[] { "Id", "Address", "Email", "FirstName", "LastName", "Password", "Phone" },
-                values: new object[] { 1, "Cairo, Egypt", "omar@example.com", "Omar", "Shoulkamy", "1234", "01000000002" });
-
-            migrationBuilder.UpdateData(
-                table: "Product",
-                keyColumn: "Id",
-                keyValue: 1,
-                columns: new[] { "Description", "Discount", "ImageUrl", "Name", "Price", "Quantity", "Ratings" },
-                values: new object[] { "Gaming Laptop", 0.1m, "https://example.com/laptop.jpg", "Laptop", 1500m, 5, 4.8m });
-
-            migrationBuilder.UpdateData(
-                table: "Product",
-                keyColumn: "Id",
-                keyValue: 2,
-                columns: new[] { "Description", "Discount", "ImageUrl", "Name", "Price", "Ratings" },
-                values: new object[] { "Cotton T-Shirt", 0m, "https://example.com/tshirt.jpg", "T-Shirt", 20m, 4.5m });
+                columns: new[] { "Id", "Address", "Email", "Name", "PasswordHash", "Phone" },
+                values: new object[] { 1, "Cairo, Egypt", "omar@example.com", "Omar Shoulkamy", "1234", "01000000002" });
 
             migrationBuilder.InsertData(
                 table: "Vendor",
-                columns: new[] { "Id", "Address", "CompanyName", "Email", "FirstName", "LastName", "NationalIdImage", "Password", "Phone" },
-                values: new object[] { 1, "Vendor Street 1", "TechVendor", "vendor@example.com", "John", "Vendor", "https://example.com/nationalid.jpg", "1234", "01000000001" });
+                columns: new[] { "Id", "Address", "CompanyName", "Email", "Name", "NationalIdImage", "PasswordHash", "Phone" },
+                values: new object[] { 1, "Vendor Street 1", "TechVendor", "vendor@example.com", "John Vendor", "https://example.com/nationalid.jpg", "1234", "01000000001" });
 
             migrationBuilder.InsertData(
                 table: "Cart",
-                columns: new[] { "Id", "TotalAmount", "UserId" },
-                values: new object[] { 1, 0m, 1 });
+                columns: new[] { "Id", "NumOfItems", "TotalAmount", "UserId" },
+                values: new object[] { 1, 1, 0m, 1 });
 
             migrationBuilder.InsertData(
                 table: "Order",
                 columns: new[] { "Id", "Address", "OrderStatus", "TotalAmount", "UserId" },
                 values: new object[] { 1, "Cairo, Egypt", "Pending", 1500m, 1 });
+
+            migrationBuilder.InsertData(
+                table: "Product",
+                columns: new[] { "Id", "CategoryId", "Description", "Discount", "ImageUrl", "Name", "Price", "Quantity", "Ratings", "VendorId" },
+                values: new object[,]
+                {
+                    { 1, 1, "Gaming Laptop", 0.1m, "https://example.com/laptop.jpg", "Laptop", 1500m, 5, 4.8m, 1 },
+                    { 2, 2, "Cotton T-Shirt", 0m, "https://example.com/tshirt.jpg", "T-Shirt", 20m, 50, 4.5m, 1 }
+                });
 
             migrationBuilder.InsertData(
                 table: "CartItem",
@@ -250,16 +239,6 @@ namespace ECommerceWeb.Infrastructure.Migrations
                 table: "OrderItem",
                 columns: new[] { "Id", "OrderId", "PriceATM", "ProductId", "Quantity" },
                 values: new object[] { 1, 1, 1500m, 1, 1 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Product_Category_ID",
-                table: "Product",
-                column: "Category_ID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Product_Vendor_ID",
-                table: "Product",
-                column: "Vendor_ID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cart_UserId",
@@ -292,45 +271,25 @@ namespace ECommerceWeb.Infrastructure.Migrations
                 table: "OrderItem",
                 column: "ProductId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Product_Category_Category_ID",
+            migrationBuilder.CreateIndex(
+                name: "IX_Product_CategoryId",
                 table: "Product",
-                column: "Category_ID",
-                principalTable: "Category",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+                column: "CategoryId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Product_Vendor_Vendor_ID",
+            migrationBuilder.CreateIndex(
+                name: "IX_Product_VendorId",
                 table: "Product",
-                column: "Vendor_ID",
-                principalTable: "Vendor",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+                column: "VendorId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Product_Category_Category_ID",
-                table: "Product");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Product_Vendor_Vendor_ID",
-                table: "Product");
-
             migrationBuilder.DropTable(
                 name: "CartItem");
 
             migrationBuilder.DropTable(
-                name: "Category");
-
-            migrationBuilder.DropTable(
                 name: "OrderItem");
-
-            migrationBuilder.DropTable(
-                name: "Vendor");
 
             migrationBuilder.DropTable(
                 name: "Cart");
@@ -339,70 +298,16 @@ namespace ECommerceWeb.Infrastructure.Migrations
                 name: "Order");
 
             migrationBuilder.DropTable(
+                name: "Product");
+
+            migrationBuilder.DropTable(
                 name: "Customer");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_Product",
-                table: "Product");
+            migrationBuilder.DropTable(
+                name: "Category");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Product_Category_ID",
-                table: "Product");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Product_Vendor_ID",
-                table: "Product");
-
-            migrationBuilder.DropColumn(
-                name: "ImageUrl",
-                table: "Product");
-
-            migrationBuilder.RenameTable(
-                name: "Product",
-                newName: "Products");
-
-            migrationBuilder.RenameColumn(
-                name: "Ratings",
-                table: "Products",
-                newName: "ratings");
-
-            migrationBuilder.AlterColumn<decimal>(
-                name: "ratings",
-                table: "Products",
-                type: "decimal(3,1)",
-                precision: 3,
-                scale: 1,
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldType: "decimal(18,2)");
-
-            migrationBuilder.AddColumn<decimal>(
-                name: "PriceDiscount",
-                table: "Products",
-                type: "decimal(18,2)",
-                precision: 18,
-                scale: 2,
-                nullable: false,
-                defaultValue: 0m);
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_Products",
-                table: "Products",
-                column: "Id");
-
-            migrationBuilder.UpdateData(
-                table: "Products",
-                keyColumn: "Id",
-                keyValue: 1,
-                columns: new[] { "Description", "Discount", "Name", "Price", "PriceDiscount", "Quantity", "ratings" },
-                values: new object[] { "This is the first sample product.", 0m, "Sample Product 1", 19.99m, 19.99m, 100, 4.5m });
-
-            migrationBuilder.UpdateData(
-                table: "Products",
-                keyColumn: "Id",
-                keyValue: 2,
-                columns: new[] { "Description", "Discount", "Name", "Price", "PriceDiscount", "ratings" },
-                values: new object[] { "This is the second sample product.", 5.00m, "Sample Product 2", 45.50m, 40.50m, 4.2m });
+            migrationBuilder.DropTable(
+                name: "Vendor");
         }
     }
 }
