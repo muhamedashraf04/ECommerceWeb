@@ -21,7 +21,7 @@ namespace ECommerceWeb.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Cart", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Cart", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -55,7 +55,7 @@ namespace ECommerceWeb.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.CartItem", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.CartItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -90,7 +90,7 @@ namespace ECommerceWeb.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Category", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,7 +99,6 @@ namespace ECommerceWeb.Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -119,7 +118,7 @@ namespace ECommerceWeb.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Customer", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Customer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -162,7 +161,7 @@ namespace ECommerceWeb.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Order", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Order", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -200,7 +199,7 @@ namespace ECommerceWeb.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.OrderItem", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.OrderItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -239,7 +238,7 @@ namespace ECommerceWeb.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Product", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -251,7 +250,6 @@ namespace ECommerceWeb.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Discount")
@@ -261,7 +259,6 @@ namespace ECommerceWeb.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
@@ -313,7 +310,7 @@ namespace ECommerceWeb.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Vendor", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Vendor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -365,26 +362,26 @@ namespace ECommerceWeb.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Cart", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Cart", b =>
                 {
-                    b.HasOne("ECommerceWeb.Models.Models.Customer", "Customer")
+                    b.HasOne("ECommerceWeb.Domain.Models.Customer", "Customer")
                         .WithOne("Cart")
-                        .HasForeignKey("ECommerceWeb.Models.Models.Cart", "UserId")
+                        .HasForeignKey("ECommerceWeb.Domain.Models.Cart", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.CartItem", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.CartItem", b =>
                 {
-                    b.HasOne("ECommerceWeb.Models.Models.Cart", "Cart")
+                    b.HasOne("ECommerceWeb.Domain.Models.Cart", "Cart")
                         .WithMany("CartItems")
                         .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ECommerceWeb.Models.Models.Product", "Product")
+                    b.HasOne("ECommerceWeb.Domain.Models.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -395,9 +392,9 @@ namespace ECommerceWeb.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Order", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Order", b =>
                 {
-                    b.HasOne("ECommerceWeb.Models.Models.Customer", "Customer")
+                    b.HasOne("ECommerceWeb.Domain.Models.Customer", "Customer")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -406,15 +403,15 @@ namespace ECommerceWeb.Infrastructure.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.OrderItem", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.OrderItem", b =>
                 {
-                    b.HasOne("ECommerceWeb.Models.Models.Order", "Order")
+                    b.HasOne("ECommerceWeb.Domain.Models.Order", "Order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ECommerceWeb.Models.Models.Product", "Product")
+                    b.HasOne("ECommerceWeb.Domain.Models.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -425,15 +422,15 @@ namespace ECommerceWeb.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Product", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Product", b =>
                 {
-                    b.HasOne("ECommerceWeb.Models.Models.Category", "Category")
+                    b.HasOne("ECommerceWeb.Domain.Models.Category", "Category")
                         .WithMany("SameCategoryProducts")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ECommerceWeb.Models.Models.Vendor", "Vendor")
+                    b.HasOne("ECommerceWeb.Domain.Models.Vendor", "Vendor")
                         .WithMany("VendorProducts")
                         .HasForeignKey("VendorId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -444,29 +441,29 @@ namespace ECommerceWeb.Infrastructure.Migrations
                     b.Navigation("Vendor");
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Cart", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Cart", b =>
                 {
                     b.Navigation("CartItems");
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Category", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Category", b =>
                 {
                     b.Navigation("SameCategoryProducts");
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Customer", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Customer", b =>
                 {
                     b.Navigation("Cart");
 
                     b.Navigation("Orders");
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Order", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Order", b =>
                 {
                     b.Navigation("OrderItems");
                 });
 
-            modelBuilder.Entity("ECommerceWeb.Models.Models.Vendor", b =>
+            modelBuilder.Entity("ECommerceWeb.Domain.Models.Vendor", b =>
                 {
                     b.Navigation("VendorProducts");
                 });
