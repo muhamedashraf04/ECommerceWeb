@@ -1,0 +1,14 @@
+/* src/layouts/MainLayout.module.css */
+
+.navbar {
+    padding: 1rem;
+    border-bottom: 1px solid #ccc;
+  background-color: #f8f9fa; /* Let's add a light grey background too */
+    font-weight: bold;
+}
+
+.content {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto; /* Centers the content */
+}
