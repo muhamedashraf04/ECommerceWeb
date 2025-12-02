@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
-using ECommerceWeb.Infrastructure.Data;
 using ECommerceWeb.Application.Interfaces;
+using ECommerceWeb.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceWeb.Infrastructure.Repositories

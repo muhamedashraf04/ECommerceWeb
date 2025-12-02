@@ -4,7 +4,7 @@ using ECommerceWeb.Infrastructure.Data;
 
 namespace ECommerceWeb.Infrastructure.Repositories
 {
-    public class CartItemRepository : BaseRepository<CartItem> , ICartItemRepository
+    public class CartItemRepository : BaseRepository<CartItem>, ICartItemRepository
     {
         ApplicationDbContext _dbContext;
 

@@ -1,5 +1,5 @@
-﻿using ECommerceWeb.Application.Interfaces;
-using ECommerceWeb.Application.DTOs.ProductDTOs;
+﻿using ECommerceWeb.Application.DTOs.ProductDTOs;
+using ECommerceWeb.Application.Interfaces;
 using ECommerceWeb.Domain.Models;
 
 namespace ECommerceWeb.Application.Service.ProductService

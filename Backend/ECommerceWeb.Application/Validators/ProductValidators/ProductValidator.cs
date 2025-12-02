@@ -1,5 +1,5 @@
-﻿using ECommerceWeb.Application.Interfaces;
-using ECommerceWeb.Application.DTOs.ProductDTOs;
+﻿using ECommerceWeb.Application.DTOs.ProductDTOs;
+using ECommerceWeb.Application.Interfaces;
 using FluentValidation;
 
 namespace ECommerceWeb.Application.Validators.ProductValidators
