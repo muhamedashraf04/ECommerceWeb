@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-
-
-namespace ECommerceWeb.Domain.Models
+﻿namespace ECommerceWeb.Domain.Models
 {
     public class Category
     {
