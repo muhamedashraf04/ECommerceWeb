@@ -167,6 +167,27 @@
     font-weight: 500;
 }
 
+.rememberRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 5px;
+    user-select: none; /* Prevents text selection when clicking */
+}
+
+.rememberRow label {
+    cursor: pointer;
+}
+
+.rememberRow input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #0066cc; /* Modern way to color checkboxes */
+}
+
 .submitBtn {
     background: #0066cc;
     color: white;
@@ -204,6 +225,7 @@
     color: #444;
     cursor: pointer;
     transition: background 0.2s;
+    text-decoration: none;
 }
 
 .socialBtn:hover {
@@ -258,9 +280,6 @@
     /* 6. Adjust the Feature Grid (Icons) */
     .featureGrid {
         display: none; /* Optional: Hide icons on mobile to save space? */
-        /* OR keep them but center them: */
-        /* justify-content: center; */
-        /* width: 100%; */
     }
 
     /* 7. Make the Form fit the screen */

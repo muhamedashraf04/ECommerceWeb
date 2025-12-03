@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaGoogle, FaFacebookF, FaLock, FaEnvelope, FaBox, FaTruck, FaHeadset, FaUndo } from 'react-icons/fa';
+import { FaGoogle, FaFacebookF, FaLock, FaEnvelope, FaUser, FaPhone } from 'react-icons/fa';
 import styles from './AuthPage.module.css';
 import Logo from '../images/finalHighQuality.png';
 
@@ -47,6 +47,23 @@ export default function authPage(){
             </p>
 
             <form className={styles.form}>
+            {/* Name, and Phone number for Sign Up */}
+            {!isLogin && (
+              <>
+                <div className={styles.inputGroup}>
+                  <FaUser className={styles.inputIcon} />
+                  <input type="text" placeholder="First Name" />
+                </div>
+                <div className={styles.inputGroup}>
+                  <FaUser className={styles.inputIcon} />
+                  <input type="text" placeholder="Last Name" />
+                </div>
+                <div className={styles.inputGroup}>
+                  <FaPhone className={styles.inputIcon} />
+                  <input type="tel" placeholder="Phone Number" />
+                </div>
+              </>
+            )}
             {/* Email Input */}
             <div className={styles.inputGroup}>
                 <FaEnvelope className={styles.inputIcon} />
@@ -59,6 +76,14 @@ export default function authPage(){
                 <input type="password" placeholder="Enter your password" />
                 {isLogin && <a href="#" className={styles.forgotPass}>Forgot?</a>}
             </div>
+
+            {/* Re-enter Password for Sign Up */}
+            {!isLogin && (
+              <div className={styles.inputGroup}>
+                <FaLock className={styles.inputIcon} />
+                <input type="password" placeholder="Re-enter your password" />
+              </div>
+            )}
 
             {/* Remember Me Checkbox */}
             {isLogin && (
@@ -76,8 +101,8 @@ export default function authPage(){
             <div className={styles.divider}>Or continue with</div>
 
             <div className={styles.socialButtons}>
-            <button className={styles.socialBtn}><FaGoogle /> Google</button>
-            <button className={styles.socialBtn}><FaFacebookF /> Facebook</button>
+            <a href="https://accounts.google.com" target="_blank" rel="noopener noreferrer" className={styles.socialBtn}><FaGoogle /> Google</a>
+            <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className={styles.socialBtn}><FaFacebookF /> Facebook</a>
             </div>
         </div>
         </div>
