@@ -3,7 +3,7 @@ import { FaGoogle, FaFacebookF, FaLock, FaEnvelope, FaUser, FaPhone } from 'reac
 import styles from './AuthPage.module.css';
 import Logo from '../images/finalHighQuality.png';
 
-export default function authPage(){
+export default function AuthPage(){
     const [isLogin, setIsLogin]=useState(true); //if the user is logging in then it's true, if he's signing up then it's false
     return (
     

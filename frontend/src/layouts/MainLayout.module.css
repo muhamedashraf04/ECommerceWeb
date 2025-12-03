@@ -1,14 +1,29 @@
 /* src/layouts/MainLayout.module.css */
 
 .navbar {
-    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
     border-bottom: 1px solid #ccc;
-  background-color: #f8f9fa; /* Let's add a light grey background too */
+    background-color: #f8f9fa; /* Let's add a light grey background too */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     font-weight: bold;
 }
 
+.navLink {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    margin: 0 1rem;
+    transition: color 0.2s;
+}
+
+.navLink:hover {
+    color: #007bff;
+}
+
 .content {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto; /* Centers the content */
+    padding: 0;
+    margin: 0;
 }
