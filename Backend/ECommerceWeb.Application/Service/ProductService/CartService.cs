@@ -21,56 +21,63 @@ namespace ECommerceWeb.Application.Service.CartService
             }
             return true;
         }
-        public async Task<ICollection<CartItem>> GetCartByUserIdAsync(int userId)
+        public async Task<CartDTO> GetCartByUserIdAsync(int userId)
         {
+            var cart = await _uow.CartRepository.GetAsync(c => c.UserId == userId);
+            if (cart == null)
+                return new CartDTO { UserId = userId };
+
+            return new CartDTO
+            {
+                UserId = cart.UserId,
+                NumOfItems = cart.NumOfItems,
+                CartItems = cart.CartItems?.Select(ci => new CartItemDTO
+                {
+                    ProductId = ci.ProductId,
+                    Quantity = ci.Quantity
+                }).ToList() ?? new List<CartItemDTO>()
+            };
+        }
+
+
+        public async Task AddItemToCartAsync(CartItemDTO item, int userId)
+        {
+            var customer = await _uow.CustomerRepository.GetAsync(c => c.Id == userId);
+            if (customer == null)
+                throw new Exception("Customer not found");
+
             var cart = await _uow.CartRepository.GetAsync(c => c.UserId == userId);
 
             if (cart == null)
             {
-                return new List<CartItem>();
-            }
-            return cart.CartItems ?? new List<CartItem>();
-        }
-
-        public async Task AddItemToCartAsync(AddItemDTO item, int userId)
-        {
-            var customer = await _uow.CustomerRepository.GetAsync(c => c.Id == userId);
-            if (customer == null)
-            {
-                throw new Exception("Customer not found");
-            }
-            if (customer.Cart == null)
-            {
-                customer.Cart = new Cart
+                cart = new Cart
                 {
                     UserId = userId,
                     CartItems = new List<CartItem>()
                 };
-                await _uow.CartRepository.CreateAsync(customer.Cart);
+                await _uow.CartRepository.CreateAsync(cart);
                 await _uow.SaveChangesAsync();
             }
-            var cart = customer.Cart;
 
-            var existing = cart.CartItems!.FirstOrDefault(ci => ci.ProductId == item.ProductId);
+            cart.CartItems ??= new List<CartItem>();
+
+            var existing = cart.CartItems.FirstOrDefault(ci => ci.ProductId == item.ProductId);
             if (existing != null)
-            {
                 throw new Exception("Product already exists in cart");
-            }
-            cart.CartItems?.Add(new CartItem
+
+            cart.CartItems.Add(new CartItem
             {
                 ProductId = item.ProductId,
                 Quantity = item.Quantity,
                 CartId = cart.Id
             });
-            if (cart.CartItems == null)
-            {
-                cart.CartItems = new List<CartItem>();
-            }
+
             cart.NumOfItems = cart.CartItems.Sum(ci => ci.Quantity);
 
             await _uow.CartRepository.EditAsync(cart);
             await _uow.SaveChangesAsync();
         }
+
         public async Task RemoveItemFromCartAsync(int userId, int productId)
         {
             var customer = await _uow.CustomerRepository.GetAsync(c => c.Id == userId);
@@ -97,13 +104,19 @@ namespace ECommerceWeb.Application.Service.CartService
         }
         public async Task ClearCartAsync(int userId)
         {
-            var customer = await _uow.CustomerRepository.GetAsync(c => c.Id == userId);
-            if (customer?.Cart == null) return;
+            var cart = await _uow.CartRepository.GetAsync(c => c.UserId == userId);
+            if (cart == null || cart.CartItems == null || !cart.CartItems.Any())
+                return;
 
-            customer.Cart.CartItems.Clear();
-            customer.Cart.NumOfItems = 0;
+            foreach (var item in cart.CartItems.ToList())
+            {
+                await _uow.CartItemRepository.RemoveAsync(item.Id);
+            }
 
-            await _uow.CartRepository.EditAsync(customer.Cart);
+            cart.CartItems.Clear();
+            cart.NumOfItems = 0;
+
+            await _uow.CartRepository.EditAsync(cart);
             await _uow.SaveChangesAsync();
         }
     }
