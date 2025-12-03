@@ -1,0 +1,408 @@
+/* src/pages/CartPage.module.css */
+
+/* 1. The Main Container - Covers the whole screen with the same Gradient */
+.container {
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(135deg, #c1e9f5 0%, #a0dff0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', sans-serif;
+    padding: 2rem;
+}
+
+/* 2. The Wrapper - Keeps everything centered and neat */
+.contentWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1200px;
+    gap: 4rem;
+}
+
+/* --- LEFT SIDE (Text & Features) --- */
+.leftSide {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #333;
+}
+
+.brand {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.logoImage {
+    width: 580px;
+    height: auto;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    margin-left: -330px;
+    margin-bottom: -20px;
+}
+
+.heroTitle {
+    font-size: 3.5rem;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    position: relative;
+    top: -200px;
+    margin-left: -190px;
+}
+
+.heroSubtitle {
+    font-size: 1.15rem;
+    margin-bottom: 3rem;
+    opacity: 0.9;
+    line-height: 1.6;
+    max-width: 500px;
+    position: relative;
+    top: -200px;
+    margin-left: -190px;
+}
+
+/* --- RIGHT SIDE (The Cart) --- */
+.rightSide {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.cartCard {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 3rem;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Cart Header */
+.cartHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0.5rem;
+}
+
+.cartHeader h2 {
+    font-size: 1.8rem;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.subText {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 2rem;
+}
+
+/* --- Cart Items --- */
+.itemsContainer {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 1rem;
+    margin-right: -1rem;
+}
+
+.cartItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.cartItem:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.itemImage {
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 1.5rem;
+}
+
+.itemDetails {
+    flex-grow: 1;
+}
+
+.itemDetails h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+}
+
+.itemPrice {
+    font-size: 0.9rem;
+    color: #777;
+    margin: 0;
+}
+
+/* Quantity Controls */
+.quantityControl {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 1.5rem;
+}
+
+.quantityBtn {
+    background: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.quantityBtn:hover {
+    background: #e0e0e0;
+}
+
+.quantity {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.itemTotal {
+    font-size: 1.1rem;
+    font-weight: 600;
+    min-width: 70px;
+    text-align: right;
+}
+
+.removeBtn {
+    background: none;
+    border: none;
+    color: #ff6b6b;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-left: 1.5rem;
+    transition: color 0.2s;
+}
+
+.removeBtn:hover {
+    color: #e04f4f;
+}
+
+/* Empty Cart */
+.emptyCart {
+    text-align: center;
+    padding: 3rem 0;
+    color: #888;
+}
+
+.emptyIcon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* --- Summary Section --- */
+.summary {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.summaryRow.total {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 1rem;
+}
+
+.summaryLabel {
+    color: #555;
+}
+
+.summaryValue {
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+/* --- Checkout Button --- */
+.checkoutBtn {
+    background: #0097a7; /* Darker cyan for better contrast */
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 1rem;
+    width: 100%;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: background 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.checkoutBtn:hover {
+    background: #00838f; /* Adjusted hover color */
+}
+
+.checkoutBtn:active {
+    transform: scale(0.98);
+}
+
+/* --- MOBILE & TABLET RESPONSIVENESS --- */
+@media (max-width: 1000px) {
+    
+    /* 1. Stack everything vertically (Column mode) */
+    .contentWrapper {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        text-align: center;
+        padding-top: 1rem;
+    }
+
+    /* 2. Reset the Left Side alignment */
+    .leftSide {
+        width: 100%;
+        align-items: center;
+    }
+
+    /* 3. Fix the Logo for Mobile */
+    .logoImage {
+        width: 220px;
+        margin-left: 0;
+        margin-bottom: 0;
+    }
+
+    /* 4. Fix the Title for Mobile */
+    .heroTitle {
+        font-size: 2.5rem;
+        position: static;
+        top: 0;
+        margin-top: 0;
+        margin-left: 0;
+    }
+
+    /* 5. Center the Subtitle */
+    .heroSubtitle {
+        margin: 0 auto 2rem auto;
+        font-size: 1rem;
+        margin-left: 0;
+    }
+
+    /* 6. Make the Cart fit the screen */
+    .rightSide {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .cartCard {
+        padding: 2rem;
+        max-width: 100%;
+    }
+
+    /* 7. Adjust items container for mobile */
+    .itemsContainer {
+        max-height: 300px;
+    }
+
+    /* 8. Responsive cart item layout */
+    .cartItem {
+        flex-wrap: wrap;
+        gap: 0.8rem;
+    }
+
+    .itemImage {
+        width: 60px;
+        height: 60px;
+    }
+
+    .quantityControl {
+        order: 4;
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .itemTotal {
+        order: 5;
+        flex: 1;
+        min-width: 80px;
+    }
+
+    .removeBtn {
+        order: 6;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .cartCard {
+        padding: 1.5rem;
+    }
+
+    .cartHeader h2 {
+        font-size: 1.5rem;
+    }
+
+    .itemsContainer {
+        max-height: 250px;
+    }
+
+    .cartItem {
+        padding: 0.8rem;
+        gap: 0.6rem;
+    }
+
+    .itemImage {
+        width: 50px;
+        height: 50px;
+    }
+
+    .itemDetails h3 {
+        font-size: 0.85rem;
+    }
+
+    .quantityControl {
+        padding: 2px;
+    }
+
+    .quantityBtn {
+        padding: 2px 6px;
+    }
+
+    .actions {
+        gap: 0.8rem;
+    }
+
+    .continueBtn,
+    .checkoutBtn {
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+}
