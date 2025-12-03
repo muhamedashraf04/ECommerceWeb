@@ -49,7 +49,7 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> GetByIdAsync(int productId)
     {
         var product = await _ProductService.GetProductByIdAsync(productId);
-        if(product == null)
+        if (product == null)
         {
             return NotFound("Product not found.");
         }
@@ -59,7 +59,7 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> GetAllProductsAsync()
     {
         var products = await _ProductService.GetProductsAsync();
-        if(products == null || !products.Any())
+        if (products == null || !products.Any())
         {
             return NotFound("No products found.");
         }
@@ -69,7 +69,7 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> GetProductsByCategoryAsync(string category)
     {
         var products = await _ProductService.GetProductsByCategoryAsync(category);
-        if(products == null || !products.Any())
+        if (products == null || !products.Any())
         {
             return NotFound("No products found in this category.");
         }
