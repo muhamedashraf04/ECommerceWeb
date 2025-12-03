@@ -19,6 +19,8 @@ namespace ECommerceWeb.Infrastructure.Repositories
 
         public IVendorRepository VendorRepository { get; set; }
 
+        public ICartItemRepository CartItemRepository { get; set; }
+
         public ApplicationDbContext DbContext { get; set; }
 
         public UnitOfWork(ApplicationDbContext dbContext)
@@ -31,6 +33,7 @@ namespace ECommerceWeb.Infrastructure.Repositories
             OrderRepository = new OrderRepository(DbContext);
             ProductRepository = new ProductRepository(DbContext);
             VendorRepository = new VendorRepository(DbContext);
+            CartItemRepository = new CartItemRepository(DbContext);
         }
         public async Task<bool> SaveChangesAsync()
         {

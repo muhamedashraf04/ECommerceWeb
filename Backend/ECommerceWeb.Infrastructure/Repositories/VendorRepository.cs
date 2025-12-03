@@ -1,6 +1,6 @@
-﻿using ECommerceWeb.Infrastructure.Data;
-using ECommerceWeb.Application.Interfaces;
+﻿using ECommerceWeb.Application.Interfaces;
 using ECommerceWeb.Domain.Models;
+using ECommerceWeb.Infrastructure.Data;
 
 namespace ECommerceWeb.Infrastructure.Repositories
 {
