@@ -9,6 +9,8 @@
         IOrderRepository OrderRepository { get; }
         IProductRepository ProductRepository { get; }
         IVendorRepository VendorRepository { get; }
+
+        ICartItemRepository CartItemRepository { get; }
         Task<bool> SaveChangesAsync();
     }
 }

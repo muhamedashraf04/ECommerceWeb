@@ -1,11 +1,13 @@
 ﻿using System.Security.Claims;
 using ECommerceWeb.Application.DTOs.CartDTOs;
 using ECommerceWeb.Application.Service.CartService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerceWeb.Controllers
 {
 
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CartController : ControllerBase
@@ -24,7 +26,7 @@ namespace ECommerceWeb.Controllers
             return Ok(cart);
         }
         [HttpPost("add")]
-        public async Task<IActionResult> UpsertToCart(AddItemDTO item)
+        public async Task<IActionResult> UpsertToCart(CartItemDTO item)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
