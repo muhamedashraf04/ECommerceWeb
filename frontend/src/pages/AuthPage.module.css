@@ -1,97 +1,115 @@
 /* src/pages/AuthPage.module.css */
 
-/* 1. The Main Container - Covers the whole screen with your Gradient */
+/* --- COLOR PALETTE (Based on your Teal Image) --- */
+:root {
+    --teal-bg-gradient: linear-gradient(135deg, #AEECEC 0%, #90E0EF 100%); /* Soft Cyan Background */
+    --card-glass: rgba(255, 255, 255, 0.4); /* The semi-transparent big card */
+    --primary-teal: #00B4D8; /* The main Button color */
+    --text-dark: #1E293B;
+    --text-grey: #475569;
+}
+
+/* 1. Full Screen Background */
 .container {
     min-height: 100vh;
     width: 100%;
-    background: linear-gradient(300deg, #ace8f9 0%, #d4dee1 50%, #ffffff 100%);
+    background: var(--teal-bg-gradient);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Segoe UI', sans-serif;
     padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 2. The Wrapper - Keeps everything centered and neat */
-.contentWrapper {
-    display: flex;
+/* 2. The Main Big Card (Glass Effect) */
+.mainCard {
+    background: var(--card-glass); /* See-through white */
+    backdrop-filter: blur(10px);   /* Frosted glass effect */
+    border-radius: 30px;
+    width: 100%;
+    max-width: 1100px;
+    min-height: 600px;
+    display: flex; /* Puts Info and Form side-by-side inside the card */
     align-items: center;
     justify-content: space-between;
-    width: 100%;
-    max-width: 1200px; /* Stops it from getting too wide on big screens */
-    gap: 4rem;
+    padding: 3rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255,255,255,0.5);
 }
 
-/* --- LEFT SIDE (Text & Features) --- */
-.leftSide {
+/* --- LEFT SIDE: Info Section --- */
+.infoSection {
     flex: 1;
-    display: flex; /* Helps organize the logo and text vertically */
-    flex-direction: column;
-    justify-content: center;
-    color: #333;
+    padding: 3rem;
+    color: var(--text-dark);
+    
+    /* FLEXBOX SETTINGS */
+    display: flex;
+    flex-direction: column; 
+    justify-content: center; /* Keeps the whole group centered vertically */
+    align-items: flex-start; /* Aligns text/logo to the left */
+    gap: 1.5rem; /* This controls the distance between Logo, Title, and Subtitle */
 }
 
 .brand {
-    /* This container holds the logo. 
-     We already have margin on the logo, so we don't need much here. */
-    margin-bottom: 1rem; 
-    display: flex;
-    justify-content: flex-start;
+    /* Remove margins here so 'gap' controls the spacing */
+    margin: 0; 
+    line-height: 0; /* Prevents extra height from the div wrapper */
 }
 
 .logoImage {
-    width: 580px; 
-    height: auto; 
-    object-fit: contain;
-    mix-blend-mode: multiply; 
-    margin-left: -330px; 
-    margin-bottom: -20px;
+    /* 1. Set a size you like (try 350px) */
+    width: 350px; 
+    max-width: 100%; /* Ensures it doesn't overflow on small screens */
+    height: auto;
+    
+    /* 2. Remove negative margins that shift it off-screen */
+    margin-left: -7px; 
+    
+    /* Optional: If your image file has empty space on the left, use a small negative margin like -10px */
+    /* margin-left: -10px; */ 
 }
 
 .heroTitle {
-    font-size: 3.5rem;
+    font-size: 3rem;
     line-height: 1.1;
-    margin-bottom: 1.5rem;
     font-weight: 800;
-    color: #1a1a1a;
-    position: relative; 
-    top: -200px;
-    margin-left: -190px;
+    color: var(--text-dark);
+    
+    /* CRITICAL FIX: Set this to 0. The parent 'gap' handles the space now. */
+    margin-bottom: 0; 
 }
 
 .heroSubtitle {
-    font-size: 1.15rem;
-    margin-bottom: 3rem;
-    opacity: 0.9;
+    font-size: 1.1rem;
     line-height: 1.6;
-    max-width: 500px;
-    position: relative;
-    top: -200px;
-    margin-left: -190px;
+    color: var(--text-grey);
+    max-width: 450px;
+    margin-top: 0; /* Reset margin */
 }
-
-/* --- RIGHT SIDE (The Form) --- */
-.rightSide {
+/* --- RIGHT SIDE: Form Section --- */
+.formSection {
     flex: 1;
     display: flex;
-    justify-content: flex-end; /* Pushes form to the right */
+    justify-content: center;
 }
 
-.authCard {
-    background: white;
-    padding: 3rem;
+/* The White Login Box */
+.whiteFormCard {
+    background: #ffffff;
+    padding: 2.5rem;
     border-radius: 24px;
     width: 100%;
-    max-width: 500px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.08); /* Soft shadow */
+    max-width: 420px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
 /* Tabs */
 .tabs {
     display: flex;
-    gap: 1.5rem;
+    gap: 1rem;
     margin-bottom: 2rem;
-    background: #f5f7fa;
+    background: #f1f5f9;
     padding: 5px;
     border-radius: 12px;
     width: fit-content;
@@ -100,28 +118,35 @@
 .tab {
     background: none;
     border: none;
-    font-size: 0.95rem;
-    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
     padding: 8px 20px;
     border-radius: 8px;
-    color: #666;
+    cursor: pointer;
+    color: #64748b;
     transition: all 0.2s;
 }
 
 .activeTab {
     background: white;
-    color: #0066cc;
-    font-weight: 600;
+    color: var(--primary-teal);
+    font-weight: 700;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.subText {
-    color: #888;
-    margin-bottom: 2rem;
-    font-size: 0.9rem;
+.whiteFormCard h2 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
 }
 
-/* Form Styling */
+.subText {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 1.5rem;
+}
+
+/* Form Inputs */
 .form {
     display: flex;
     flex-direction: column;
@@ -137,23 +162,23 @@
     left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #bbb;
+    color: #cbd5e1;
 }
 
 .inputGroup input {
     width: 100%;
     padding: 14px 14px 14px 45px;
-    border: 1px solid #eee;
-    border-radius: 10px;
-    background-color: #f9f9f9;
-    font-size: 0.95rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background-color: #f8fafc;
     outline: none;
-    transition: border 0.2s;
+    transition: all 0.2s;
 }
 
 .inputGroup input:focus {
-    border-color: #0066cc;
     background: white;
+    border-color: var(--primary-teal);
+    box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
 }
 
 .forgotPass {
@@ -162,27 +187,44 @@
     top: 50%;
     transform: translateY(-50%);
     font-size: 0.8rem;
-    color: #0066cc;
+    color: var(--primary-teal);
     text-decoration: none;
-    font-weight: 500;
-}
-
-.submitBtn {
-    background: #0066cc;
-    color: white;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
     font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px;
 }
 
+.rememberRow {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-left: 5px;
+}
+
+/* Button */
+.submitBtn {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary-teal);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.2s;
+}
+
+.submitBtn:hover {
+    background: #0096c7;
+}
+
+/* Socials */
 .divider {
     text-align: center;
-    color: #aaa;
-    font-size: 0.85rem;
+    color: #cbd5e1;
+    font-size: 0.8rem;
     margin: 1.5rem 0;
 }
 
@@ -198,79 +240,35 @@
     justify-content: center;
     gap: 10px;
     padding: 10px;
-    border: 1px solid #eee;
+    border: 1px solid #e2e8f0;
     background: white;
     border-radius: 10px;
-    color: #444;
+    color: #475569;
+    font-weight: 500;
     cursor: pointer;
     transition: background 0.2s;
 }
 
 .socialBtn:hover {
-    background: #f5f5f5;
+    background: #f1f5f9;
 }
-/* src/pages/AuthPage.module.css */
 
-/* ... (Keep all your desktop styles above) ... */
-
-/* --- MOBILE & TABLET RESPONSIVENESS --- */
-@media (max-width: 1000px) {
-    
-    /* 1. Stack everything vertically (Column mode) */
-    .contentWrapper {
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2rem;
-        text-align: center; /* Centers the text */
-        padding-top: 1rem;
-    }
-
-  /* 2. Reset the Left Side alignment */
-    .leftSide {
-        width: 100%;
-        align-items: center; /* Forces logo to center */
-    }
-
-    /* 3. Fix the Logo for Mobile */
-    .logoImage {
-        width: 220px; /* Smaller size for phone */
-        margin-left: 0; /* Remove the left pull */
-        margin-bottom: 0; /* Remove desktop adjustments */
-    }
-
-    /* 4. Fix the Title for Mobile */
-    .heroTitle {
-        font-size: 2.5rem; /* Smaller text */
-    
-        /* CRITICAL: Reset the "Ghost Move" from desktop */
-        position: static; 
-        top: 0;
-        margin-top: 0; 
-    }
-
-    /* 5. Center the Subtitle */
-    .heroSubtitle {
-        margin: 0 auto 2rem auto; /* Centers it horizontally */
-        font-size: 1rem;
-    }
-
-    /* 6. Adjust the Feature Grid (Icons) */
-    .featureGrid {
-        display: none; /* Optional: Hide icons on mobile to save space? */
-        /* OR keep them but center them: */
-        /* justify-content: center; */
-        /* width: 100%; */
-    }
-
-    /* 7. Make the Form fit the screen */
-    .rightSide {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .authCard {
-        padding: 2rem;
-        max-width: 100%; /* Take full width of the phone */
-    }
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 900px) {
+.mainCard {
+    flex-direction: column; /* Stack them */
+    text-align: center;
+    padding: 2rem 1rem;
+    gap: 2rem;
+}
+.infoSection {
+    padding: 0;
+}
+.brand {
+    display: flex;
+    justify-content: center; /* Center logo on mobile */
+}
+.formSection {
+    width: 100%;
+}
 }
