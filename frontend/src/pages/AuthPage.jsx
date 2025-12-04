@@ -7,6 +7,8 @@ import Logo from '../images/finalHighQuality.png'; // Ensure this path is correc
 const AuthPage = () => {
     const [isLogin, setIsLogin] = useState(true);
 
+export default function AuthPage(){
+    const [isLogin, setIsLogin]=useState(true); //if the user is logging in then it's true, if he's signing up then it's false
     return (
     <div className={styles.container}>
         
