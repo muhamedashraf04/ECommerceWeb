@@ -4,9 +4,6 @@ import { FaGoogle, FaFacebookF, FaEnvelope, FaLock } from 'react-icons/fa';
 import styles from './AuthPage.module.css';
 import Logo from '../images/finalHighQuality.png'; // Ensure this path is correct!
 
-const AuthPage = () => {
-    const [isLogin, setIsLogin] = useState(true);
-
 export default function AuthPage(){
     const [isLogin, setIsLogin]=useState(true); //if the user is logging in then it's true, if he's signing up then it's false
     return (
@@ -91,5 +88,3 @@ export default function AuthPage(){
     </div>
     );
 };
-
-export default AuthPage;
