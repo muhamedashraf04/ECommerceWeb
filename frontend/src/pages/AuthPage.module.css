@@ -228,11 +228,7 @@
     margin: 1.5rem 0;
 }
 
-.socialButtons {
-    display: flex;
-    gap: 1rem;
-}
-
+/* Social Buttons - Restored styles */
 .socialBtn {
     flex: 1;
     display: flex;
@@ -252,6 +248,8 @@
 .socialBtn:hover {
     background: #f1f5f9;
 }
+
+/* src/pages/AuthPage.module.css */
 
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 900px) {
