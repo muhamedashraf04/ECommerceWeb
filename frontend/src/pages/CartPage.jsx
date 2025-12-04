@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { FaTrash, FaPlus, FaMinus, FaShoppingCart } from 'react-icons/fa';
 import styles from './CartPage.module.css';
 import Logo from '../images/finalHighQuality.png';
+import wirelessHeadphones from '../images/Wireless Headphones.png';
+import usbCable from '../images/USB-C Cable.png';
+import phoneCase from '../images/Phone case.png';
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState([
-    { id: 1, name: 'Wireless Headphones', price: 79.99, quantity: 1, image: 'https://via.placeholder.com/100' },
-    { id: 2, name: 'USB-C Cable', price: 12.99, quantity: 2, image: 'https://via.placeholder.com/100' },
-    { id: 3, name: 'Phone Case', price: 24.99, quantity: 1, image: 'https://via.placeholder.com/100' },
+    { id: 1, name: 'Wireless Headphones', price: 79.99, quantity: 1, image: wirelessHeadphones },
+    { id: 2, name: 'USB-C Cable', price: 12.99, quantity: 2, image: usbCable },
+    { id: 3, name: 'Phone Case', price: 24.99, quantity: 1, image: phoneCase },
   ]);
 
   const updateQuantity = (id, newQuantity) => {
