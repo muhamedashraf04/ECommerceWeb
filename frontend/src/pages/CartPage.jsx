@@ -1,129 +1,300 @@
-import { useState } from 'react';
-import { FaTrash, FaPlus, FaMinus, FaShoppingCart } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Trash2, Loader } from 'lucide-react';
 import styles from './CartPage.module.css';
-import Logo from '../images/finalHighQuality.png';
-import wirelessHeadphones from '../images/Wireless Headphones.png';
-import usbCable from '../images/USB-C Cable.png';
-import phoneCase from '../images/Phone case.png';
 
-export default function CartPage() {
-  const [cartItems, setCartItems] = useState([
-    { id: 1, name: 'Wireless Headphones', price: 79.99, quantity: 1, image: wirelessHeadphones },
-    { id: 2, name: 'USB-C Cable', price: 12.99, quantity: 2, image: usbCable },
-    { id: 3, name: 'Phone Case', price: 24.99, quantity: 1, image: phoneCase },
-  ]);
+const CartPage = () => {
+    const navigate = useNavigate();
 
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity < 1) return;
-    setCartItems(cartItems.map(item =>
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    ));
-  };
+    // --- STATE ---
+    const [cartItems, setCartItems] = useState([]); 
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-  };
+    // ==========================================
+    //  PHASE 4: API HANDLERS
+    // ==========================================
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const tax = subtotal * 0.1;
-  const total = subtotal + tax;
+    // FAKE BACKEND (CURRENTLY ACTIVE) ---
+    // Simulates database delay and response
+    const api = {
+        fetchCart: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve([
+                        { 
+                            id: 1, 
+                            name: "Nile Smart Watch", 
+                            category: "Electronics - Black", 
+                            price: 2500, 
+                            qty: 1, 
+                            image: "https://via.placeholder.com/100" 
+                        },
+                        { 
+                            id: 2, 
+                            name: "Wireless Earbuds", 
+                            category: "Audio - White", 
+                            price: 850, 
+                            qty: 2, 
+                            image: "https://via.placeholder.com/100" 
+                        }
+                    ]);
+                }, 1500); // 1.5s delay to show loading spinner
+            });
+        },
+        removeItem: (id) => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({ success: true, message: "Item removed" });
+                }, 500);
+            });
+        },
+        checkout: (total) => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({ success: true, orderId: "ORD-998877" });
+                }, 2000);
+            });
+        }
+    };
 
-  return (
-    <div className={styles.container}>
-      <div className={styles.contentWrapper}>
-        {/* LEFT SIDE: Branding */}
-        <div className={styles.leftSide}>
-          <div className={styles.brand}>
-            <img src={Logo} alt="Brand Logo" className={styles.logoImage}></img>
-          </div>
-          <h1 className={styles.heroTitle}>
-            Your Shopping Cart
-          </h1>
-          <p className={styles.heroSubtitle}>
-            Review your items, update quantities, and proceed to checkout. Fast delivery guaranteed on all orders.
-          </p>
-        </div>
+    /* // REAL BACKEND (USE THIS WHEN API IS READY) ---
+    const api = {
+        fetchCart: async () => {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/cart', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error("Failed to fetch cart");
+            const data = await response.json();
+            return data.items;
+        },
+        removeItem: async (id) => {
+              const token = localStorage.getItem('token');
+              await fetch(`http://localhost:5000/api/cart/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+        },
+        checkout: async (total) => {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/orders', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify({ total })
+            });
+            return await response.json();
+        }
+    };
+    */
 
-        {/* RIGHT SIDE: Cart Content */}
-        <div className={styles.rightSide}>
-          <div className={styles.cartCard}>
-            {/* Header */}
-            <div className={styles.cartHeader}>
-              <FaShoppingCart className={styles.cartIcon} />
-              <h2>Shopping Cart</h2>
+    // ==========================================
+    //  LOGIC & EVENT HANDLERS
+    // ==========================================
+
+    // 1. Load Cart on Mount
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const data = await api.fetchCart();
+                setCartItems(data);
+            } catch (err) {
+                setError("Could not load your cart.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadData();
+    }, []);
+
+    // 2. Handle Quantity (Client-side logic mostly)
+    const handleQuantity = (id, delta) => {
+        setCartItems(currentItems => 
+            currentItems.map(item => {
+                if (item.id === id) {
+                    const newQty = Math.max(1, item.qty + delta);
+                    return { ...item, qty: newQty };
+                }
+                return item;
+            })
+        );
+    };
+
+    // 3. Handle Remove
+    const handleRemove = async (id) => {
+        // Optimistic update (remove from UI first)
+        const originalItems = [...cartItems];
+        setCartItems(items => items.filter(item => item.id !== id));
+
+        try {
+            await api.removeItem(id);
+        } catch (err) {
+            // Revert if server fails
+            setCartItems(originalItems);
+            alert("Failed to remove item");
+        }
+    };
+
+    // 4. Handle Checkout
+    const handleCheckout = async () => {
+        if (cartItems.length === 0) return;
+        
+        const confirmBuy = window.confirm(`Proceed to payment for ${formatCurrency(finalTotal)}?`);
+        if (!confirmBuy) return;
+
+        try {
+            // alert("Processing payment...");
+            const result = await api.checkout(finalTotal);
+            alert(`Order Placed Successfully! ID: ${result.orderId}`);
+            setCartItems([]); // Clear cart
+            // navigate('/orders');
+        } catch (err) {
+            alert("Checkout failed. Please try again.");
+        }
+    };
+
+    // --- CALCULATIONS ---
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-EG', {
+            style: 'currency',
+            currency: 'EGP',
+            minimumFractionDigits: 0,
+        }).format(amount);
+    };
+
+    const subtotal = cartItems.reduce((total, item) => total + (item.price * item.qty), 0);
+    const shippingCost = subtotal > 5000 ? 0 : 50; 
+    const taxRate = 0.14; 
+    const taxAmount = subtotal * taxRate;
+    const finalTotal = subtotal + shippingCost + taxAmount;
+
+    // ==========================================
+    //  RENDER UI
+    // ==========================================
+
+    if (isLoading) {
+        return (
+            <div className={styles.container}>
+                <div style={{color: 'white', textAlign: 'center'}}>
+                    <Loader className="animate-spin" size={48} />
+                    <p style={{marginTop: '1rem'}}>Loading your bag...</p>
+                </div>
             </div>
-            <p className={styles.subText}>
-              {cartItems.length} item{cartItems.length !== 1 ? 's' : ''} in your cart
-            </p>
+        );
+    }
 
-            {/* Cart Items */}
-            <div className={styles.itemsContainer}>
-              {cartItems.length > 0 ? (
-                cartItems.map(item => (
-                  <div key={item.id} className={styles.cartItem}>
-                    <img src={item.image} alt={item.name} className={styles.itemImage} />
-                    <div className={styles.itemDetails}>
-                      <h3>{item.name}</h3>
-                      <p className={styles.itemPrice}>${item.price.toFixed(2)}</p>
-                    </div>
-                    <div className={styles.quantityControl}>
-                      <button
-                        className={styles.quantityBtn}
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      >
-                        <FaMinus />
-                      </button>
-                      <span className={styles.quantity}>{item.quantity}</span>
-                      <button
-                        className={styles.quantityBtn}
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      >
-                        <FaPlus />
-                      </button>
-                    </div>
-                    <div className={styles.itemTotal}>
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </div>
-                    <button
-                      className={styles.removeBtn}
-                      onClick={() => removeItem(item.id)}
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <div className={styles.emptyCart}>
-                  <FaShoppingCart className={styles.emptyIcon} />
-                  <p>Your cart is empty</p>
+    if (error) {
+        return (
+            <div className={styles.container}>
+                <div className={styles.cartCard} style={{justifyContent:'center', color: 'red'}}>
+                    <p>{error}</p>
                 </div>
-              )}
             </div>
+        );
+    }
 
-            {/* Summary */}
-            {cartItems.length > 0 && (
-              <div className={styles.summary}>
-                <div className={styles.summaryRow}>
-                  <span className={styles.summaryLabel}>Subtotal</span>
-                  <span className={styles.summaryValue}>${subtotal.toFixed(2)}</span>
+    return (
+        <div className={styles.container}>
+            <div className={styles.cartCard}>
+                
+                {/* LEFT: Items List */}
+                <div className={styles.itemsSection}>
+                    <div className={styles.header}>
+                        <h2>Shopping Bag</h2>
+                        <span className={styles.itemCount}>{cartItems.length} Items</span>
+                    </div>
+
+                    {cartItems.length === 0 ? (
+                        <div style={{textAlign: 'center', padding: '3rem', color: '#64748b'}}>
+                            <p>Your cart is empty.</p>
+                            <button 
+                                onClick={() => navigate('/')}
+                                style={{marginTop: '1rem', color: 'var(--primary-teal)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold'}}
+                            >
+                                ← Continue Shopping
+                            </button>
+                        </div>
+                    ) : (
+                        cartItems.map((item) => (
+                            <div key={item.id} className={styles.cartItem}>
+                                <img 
+                                    src={item.image} 
+                                    alt={item.name} 
+                                    className={styles.itemImage} 
+                                />
+                                <div className={styles.itemDetails}>
+                                    <h3>{item.name}</h3>
+                                    <p className={styles.itemCategory}>{item.category}</p>
+                                </div>
+                                
+                                <div className={styles.quantityControls}>
+                                    <button 
+                                        className={styles.qtyBtn}
+                                        onClick={() => handleQuantity(item.id, -1)}
+                                    >-</button>
+                                    
+                                    <span>{item.qty}</span>
+                                    
+                                    <button 
+                                        className={styles.qtyBtn}
+                                        onClick={() => handleQuantity(item.id, 1)}
+                                    >+</button>
+                                </div>
+
+                                <div className={styles.price}>
+                                    {formatCurrency(item.price * item.qty)}
+                                </div>
+
+                                <button 
+                                    className={styles.removeBtn}
+                                    onClick={() => handleRemove(item.id)}
+                                >
+                                    <Trash2 size={20} />
+                                </button>
+                            </div>
+                        ))
+                    )}
                 </div>
-                <div className={styles.summaryRow}>
-                  <span className={styles.summaryLabel}>Tax (10%)</span>
-                  <span className={styles.summaryValue}>${tax.toFixed(2)}</span>
-                </div>
-                <div className={`${styles.summaryRow} ${styles.total}`}>
-                  <span className={styles.summaryLabel}>Total</span>
-                  <span className={styles.summaryValue}>${total.toFixed(2)}</span>
-                </div>
-                <button className={styles.checkoutBtn}>
-                  <FaShoppingCart />
-                  <span>Proceed to Checkout</span>
-                </button>
-              </div>
-            )}
-          </div>
+
+                {/* RIGHT: Order Summary */}
+                {cartItems.length > 0 && (
+                    <div className={styles.summarySection}>
+                        <h2 className={styles.summaryTitle}>Order Summary</h2>
+                        
+                        <div className={styles.summaryRow}>
+                            <span>Subtotal</span>
+                            <span>{formatCurrency(subtotal)}</span>
+                        </div>
+                        <div className={styles.summaryRow}>
+                            <span>Shipping</span>
+                            <span>
+                                {shippingCost === 0 ? "Free" : formatCurrency(shippingCost)}
+                            </span>
+                        </div>
+                        <div className={styles.summaryRow}>
+                            <span>Tax Estimate (14%)</span>
+                            <span>{formatCurrency(taxAmount)}</span>
+                        </div>
+
+                        <div className={styles.totalRow}>
+                            <span>Total</span>
+                            <span>{formatCurrency(finalTotal)}</span>
+                        </div>
+
+                        <button 
+                            className={styles.checkoutBtn}
+                            onClick={handleCheckout}
+                        >
+                            Checkout ({formatCurrency(finalTotal)})
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
-      </div>
-    </div>
-  );
-}
+    );
+};
+
+export default CartPage;
