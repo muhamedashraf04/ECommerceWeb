@@ -2,7 +2,8 @@
 
 /* --- COLOR PALETTE (Based on your Teal Image) --- */
 :root {
-    --teal-bg-gradient: linear-gradient(135deg, #AEECEC 0%, #90E0EF 100%); /* Soft Cyan Background */
+    --primary-teal: #00B4D8; /* The main Button color */
+    --teal-bg-gradient: linear-gradient(135deg,#fff, #ccf3f3 , #90E0EF); /* Soft Cyan Background */
     --card-glass: rgba(255, 255, 255, 0.4); /* The semi-transparent big card */
     --primary-teal: #00B4D8; /* The main Button color */
     --text-dark: #1E293B;
