@@ -15,7 +15,7 @@ const CartPage = () => {
     //  PHASE 4: API HANDLERS
     // ==========================================
 
-    // FAKE BACKEND (CURRENTLY ACTIVE) ---
+    // --- OPTION A: FAKE BACKEND (CURRENTLY ACTIVE) ---
     // Simulates database delay and response
     const api = {
         fetchCart: () => {
@@ -58,7 +58,7 @@ const CartPage = () => {
         }
     };
 
-    /* // REAL BACKEND (USE THIS WHEN API IS READY) ---
+    /* // --- OPTION B: REAL BACKEND (USE THIS WHEN API IS READY) ---
     const api = {
         fetchCart: async () => {
             const token = localStorage.getItem('token');
@@ -70,11 +70,11 @@ const CartPage = () => {
             return data.items;
         },
         removeItem: async (id) => {
-                const token = localStorage.getItem('token');
-                await fetch(`http://localhost:5000/api/cart/${id}`, {
+             const token = localStorage.getItem('token');
+             await fetch(`http://localhost:5000/api/cart/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
-                });
+             });
         },
         checkout: async (total) => {
             const token = localStorage.getItem('token');
