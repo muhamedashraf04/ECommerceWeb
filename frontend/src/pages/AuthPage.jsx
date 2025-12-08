@@ -55,12 +55,9 @@ const AuthPage = () => {
         return isValid;
     };
 
-    // ==========================================
-    //  PHASE 4: API HANDLERS
-    // ==========================================
+    // --- PHASE 4: API HANDLERS ---
 
-    // FAKE BACKEND
-    // This allows you to test the UI while waiting for the backend.
+    // 1. FAKE BACKEND (Active)
     const apiCall = () => {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
@@ -73,29 +70,19 @@ const AuthPage = () => {
         });
     };
 
-    /* // REAL BACKEND 
-    //Replace 'https://your-api.com' with your actual server URL.
+    // 2. SOCIAL LOGIN HANDLER (New!)
+    const handleSocialLogin = (provider) => {
+        setIsLoading(true);
+        // Simulate a short delay before redirecting
+        setTimeout(() => {
+            setIsLoading(false);
+            alert(`Redirecting to ${provider} for authentication...`);
+        }, 1500);
+    };
 
+    /* // 3. REAL BACKEND (Future Use)
     const apiCall = async () => {
-        const endpoint = isLogin ? "/login" : "/signup";
-        const url = `https://your-api.com/api/auth${endpoint}`;
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            // Throw error message from server (e.g., "Wrong Password")
-            throw new Error(data.message || "Something went wrong");
-        }
-
-        return data; // Should return user token/data
+        // ... (Real fetch logic goes here later)
     };
     */
 
@@ -107,16 +94,10 @@ const AuthPage = () => {
         setIsLoading(true);
 
         try {
-            // This calls whichever 'apiCall' function is active above
             const response = await apiCall();
-            
             console.log("API Success:", response);
             alert(`Success! Welcome ${isLogin ? 'back' : ''}, ${formData.email}`);
-            
-            // TODO: Save token to localStorage
             // localStorage.setItem('token', response.token);
-            // navigate('/dashboard');
-
         } catch (error) {
             alert(error.message || error); 
         } finally {
@@ -227,8 +208,22 @@ const AuthPage = () => {
                         <div className={styles.divider}>Or continue with</div>
 
                         <div className={styles.socialButtons}>
-                            <button className={styles.socialBtn}><FaGoogle /> Google</button>
-                            <button className={styles.socialBtn}><FaFacebookF /> Facebook</button>
+                            <button 
+                                type="button" 
+                                className={styles.socialBtn}
+                                onClick={() => handleSocialLogin('Google')}
+                                disabled={isLoading}
+                            >
+                                <FaGoogle /> Google
+                            </button>
+                            <button 
+                                type="button" 
+                                className={styles.socialBtn}
+                                onClick={() => handleSocialLogin('Facebook')}
+                                disabled={isLoading}
+                            >
+                                <FaFacebookF /> Facebook
+                            </button>
                         </div>
 
                     </div>
@@ -237,4 +232,5 @@ const AuthPage = () => {
         </div>
     );
 };
+
 export default AuthPage;
