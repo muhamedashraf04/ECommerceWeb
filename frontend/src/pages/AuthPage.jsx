@@ -3,29 +3,123 @@ import { FaGoogle, FaFacebookF, FaEnvelope, FaLock, FaUser } from 'react-icons/f
 import styles from './AuthPage.module.css';
 import Logo from '../images/finalHighQuality.png'; 
 
-export default function AuthPage(){
-    const [isLogin, setIsLogin]=useState(true); //if the user is logging in then it's true, if he's signing up then it's false
-    return (
-    <div className={styles.container}>
-        
-        {/* THE MAIN BIG FLOATING CARD */}
-        <div className={styles.mainCard}>
-        
-        {/* LEFT SIDE (Inside the card): Text & Logo */}
-        <div className={styles.infoSection}>
-            <div className={styles.brand}>
-                <img src={Logo} alt="Nile Logo" className={styles.logoImage} />
-            </div>
+const AuthPage = () => {
+    const [isLogin, setIsLogin] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState({});
+
+    const [formData, setFormData] = useState({
+        fullName: '',
+        email: '',
+        password: ''
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value
+        }));
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+    };
+
+    const validateForm = () => {
+        let newErrors = {};
+        let isValid = true;
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.email) {
+            newErrors.email = "Email is required";
+            isValid = false;
+        } else if (!emailRegex.test(formData.email)) {
+            newErrors.email = "Please enter a valid email address";
+            isValid = false;
+        }
+
+        if (!formData.password) {
+            newErrors.password = "Password is required";
+            isValid = false;
+        } else if (formData.password.length < 6) {
+            newErrors.password = "Password must be at least 6 characters";
+            isValid = false;
+        }
+
+        if (!isLogin && !formData.fullName.trim()) {
+            newErrors.fullName = "Full Name is required";
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    };
+
+    // ==========================================
+    //  PHASE 4: API HANDLERS
+    // ==========================================
+
+    // --- OPTION A: FAKE BACKEND (CURRENTLY ACTIVE) ---
+    // This allows you to test the UI while waiting for the backend.
+    const apiCall = () => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (formData.email === "test@error.com") {
+                    reject("User not found. Please sign up.");
+                } else {
+                    resolve({ token: "fake-jwt-token-123", user: formData });
+                }
+            }, 2000); 
+        });
+    };
+
+    /* // --- OPTION B: REAL BACKEND (USE THIS WHEN API IS READY) ---
+    // Instructions: 
+    // 1. Comment out the "OPTION A" function above.
+    // 2. Uncomment this "OPTION B" function below.
+    // 3. Replace 'https://your-api.com' with your actual server URL.
+
+    const apiCall = async () => {
+        const endpoint = isLogin ? "/login" : "/signup";
+        const url = `https://your-api.com/api/auth${endpoint}`;
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            // Throw error message from server (e.g., "Wrong Password")
+            throw new Error(data.message || "Something went wrong");
+        }
+
+        return data; // Should return user token/data
+    };
+    */
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         
         if (!validateForm()) return;
 
         setIsLoading(true);
 
         try {
+            // This calls whichever 'apiCall' function is active above
             const response = await apiCall();
+            
             console.log("API Success:", response);
             alert(`Success! Welcome ${isLogin ? 'back' : ''}, ${formData.email}`);
+            
+            // TODO: Save token to localStorage
             // localStorage.setItem('token', response.token);
+            // navigate('/dashboard');
+
         } catch (error) {
             alert(error.message || error); 
         } finally {
@@ -136,22 +230,8 @@ export default function AuthPage(){
                         <div className={styles.divider}>Or continue with</div>
 
                         <div className={styles.socialButtons}>
-                            <button 
-                                type="button" 
-                                className={styles.socialBtn}
-                                onClick={() => handleSocialLogin('Google')}
-                                disabled={isLoading}
-                            >
-                                <FaGoogle /> Google
-                            </button>
-                            <button 
-                                type="button" 
-                                className={styles.socialBtn}
-                                onClick={() => handleSocialLogin('Facebook')}
-                                disabled={isLoading}
-                            >
-                                <FaFacebookF /> Facebook
-                            </button>
+                            <button className={styles.socialBtn}><FaGoogle /> Google</button>
+                            <button className={styles.socialBtn}><FaFacebookF /> Facebook</button>
                         </div>
 
                     </div>
@@ -160,3 +240,5 @@ export default function AuthPage(){
         </div>
     );
 };
+
+export default AuthPage;
