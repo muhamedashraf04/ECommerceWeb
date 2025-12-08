@@ -70,11 +70,11 @@ const CartPage = () => {
             return data.items;
         },
         removeItem: async (id) => {
-              const token = localStorage.getItem('token');
-              await fetch(`http://localhost:5000/api/cart/${id}`, {
+                const token = localStorage.getItem('token');
+                await fetch(`http://localhost:5000/api/cart/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
-              });
+                });
         },
         checkout: async (total) => {
             const token = localStorage.getItem('token');
