@@ -3,91 +3,19 @@ import { FaGoogle, FaFacebookF, FaEnvelope, FaLock, FaUser } from 'react-icons/f
 import styles from './AuthPage.module.css';
 import Logo from '../images/finalHighQuality.png'; 
 
-const AuthPage = () => {
-    const [isLogin, setIsLogin] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState({});
-
-    const [formData, setFormData] = useState({
-        fullName: '',
-        email: '',
-        password: ''
-    });
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value
-        }));
-        if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
-        }
-    };
-
-    const validateForm = () => {
-        let newErrors = {};
-        let isValid = true;
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email) {
-            newErrors.email = "Email is required";
-            isValid = false;
-        } else if (!emailRegex.test(formData.email)) {
-            newErrors.email = "Please enter a valid email address";
-            isValid = false;
-        }
-
-        if (!formData.password) {
-            newErrors.password = "Password is required";
-            isValid = false;
-        } else if (formData.password.length < 6) {
-            newErrors.password = "Password must be at least 6 characters";
-            isValid = false;
-        }
-
-        if (!isLogin && !formData.fullName.trim()) {
-            newErrors.fullName = "Full Name is required";
-            isValid = false;
-        }
-
-        setErrors(newErrors);
-        return isValid;
-    };
-
-    // --- PHASE 4: API HANDLERS ---
-
-    // 1. FAKE BACKEND (Active)
-    const apiCall = () => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                if (formData.email === "test@error.com") {
-                    reject("User not found. Please sign up.");
-                } else {
-                    resolve({ token: "fake-jwt-token-123", user: formData });
-                }
-            }, 2000); 
-        });
-    };
-
-    // 2. SOCIAL LOGIN HANDLER (New!)
-    const handleSocialLogin = (provider) => {
-        setIsLoading(true);
-        // Simulate a short delay before redirecting
-        setTimeout(() => {
-            setIsLoading(false);
-            alert(`Redirecting to ${provider} for authentication...`);
-        }, 1500);
-    };
-
-    /* // 3. REAL BACKEND (Future Use)
-    const apiCall = async () => {
-        // ... (Real fetch logic goes here later)
-    };
-    */
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+export default function AuthPage(){
+    const [isLogin, setIsLogin]=useState(true); //if the user is logging in then it's true, if he's signing up then it's false
+    return (
+    <div className={styles.container}>
+        
+        {/* THE MAIN BIG FLOATING CARD */}
+        <div className={styles.mainCard}>
+        
+        {/* LEFT SIDE (Inside the card): Text & Logo */}
+        <div className={styles.infoSection}>
+            <div className={styles.brand}>
+                <img src={Logo} alt="Nile Logo" className={styles.logoImage} />
+            </div>
         
         if (!validateForm()) return;
 
@@ -232,5 +160,3 @@ const AuthPage = () => {
         </div>
     );
 };
-
-export default AuthPage;

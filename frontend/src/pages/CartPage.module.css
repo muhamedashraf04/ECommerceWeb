@@ -1,0 +1,204 @@
+
+/* src/pages/CartPage.module.css */
+
+/* --- REUSING YOUR PALETTE --- */
+:root {
+    --primary-teal: #00B4D8;
+    --teal-bg-gradient: linear-gradient(135deg,#fff, #ccf3f3 , #90E0EF);
+    --card-glass: rgba(255, 255, 255, 0.4);
+    --text-dark: #1E293B;
+    --text-grey: #475569;
+}
+
+/* 1. Full Screen Wrapper (Same as Auth) */
+.container {
+    min-height: 100vh;
+    width: 100%;
+    background: var(--teal-bg-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 2. The Main Cart Card (Modified Auth Card) */
+.cartCard {
+    background: #ffffff; /* Solid white for better readability on cart */
+    /* If you prefer the glass look, switch back to var(--card-glass) and backdrop-filter */
+    border-radius: 30px;
+    width: 100%;
+    max-width: 1200px; /* Slightly wider than Auth for 2 cols */
+    min-height: 600px;
+    display: flex;
+    overflow: hidden; /* Ensures inner children align with border radius */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255,255,255,0.5);
+}
+
+/* --- LEFT SIDE: Cart Items (65%) --- */
+.itemsSection {
+    flex: 2;
+    padding: 3rem;
+    overflow-y: auto; /* Scrollable if list is long */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 1rem;
+}
+
+.header h2 {
+    font-size: 1.8rem;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.itemCount {
+    color: var(--text-grey);
+    font-size: 1rem;
+}
+
+/* Individual Item Row */
+.cartItem {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.itemImage {
+    width: 100px;
+    height: 100px;
+    background: #f8fafc;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #e2e8f0;
+}
+
+.itemDetails {
+    flex: 1;
+}
+
+.itemDetails h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+}
+
+.itemCategory {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.quantityControls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f1f5f9;
+    padding: 5px 10px;
+    border-radius: 8px;
+    margin-right: 2rem;
+}
+
+.qtyBtn {
+    background: none;
+    border: none;
+    color: var(--text-dark);
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.price {
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    width: 100px;
+    text-align: right;
+}
+
+.removeBtn {
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: color 0.2s;
+    margin-left: 1rem;
+}
+
+.removeBtn:hover {
+    color: #ef4444; /* Red on hover */
+}
+
+/* --- RIGHT SIDE: Order Summary (35%) --- */
+.summarySection {
+    flex: 1;
+    background: #f8fafc; /* Slight contrast background */
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.summaryTitle {
+    font-size: 1.4rem;
+    color: var(--text-dark);
+    margin-bottom: 2rem;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    color: var(--text-grey);
+    font-size: 0.95rem;
+}
+
+.totalRow {
+    display: flex;
+    justify-content: space-between;
+    margin-top: auto; /* Pushes to bottom if we want */
+    padding-top: 1.5rem;
+    border-top: 2px dashed #e2e8f0;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+}
+
+/* Reusing your EXACT Button Style */
+.checkoutBtn {
+    width: 100%;
+    padding: 16px;
+    background: var(--primary-teal);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 180, 216, 0.2);
+}
+
+.checkoutBtn:hover {
+    background: #0096c7;
+}
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+    .cartCard {
+        flex-direction: column;
+        height: auto;
+    }
+    .itemsSection, .summarySection {
+        padding: 2rem;
+        width: 100%;
+    }
+}
