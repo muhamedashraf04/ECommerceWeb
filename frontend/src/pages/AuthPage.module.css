@@ -1,0 +1,275 @@
+/* src/pages/AuthPage.module.css */
+
+/* --- COLOR PALETTE (Based on your Teal Image) --- */
+:root {
+    --primary-teal: #00B4D8; /* The main Button color */
+    --teal-bg-gradient: linear-gradient(135deg,#fff, #ccf3f3 , #90E0EF); /* Soft Cyan Background */
+    --card-glass: rgba(255, 255, 255, 0.4); /* The semi-transparent big card */
+    --primary-teal: #00B4D8; /* The main Button color */
+    --text-dark: #1E293B;
+    --text-grey: #475569;
+}
+
+/* 1. Full Screen Background */
+.container {
+    min-height: 100vh;
+    width: 100%;
+    background: var(--teal-bg-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 2. The Main Big Card (Glass Effect) */
+.mainCard {
+    background: var(--card-glass); /* See-through white */
+    backdrop-filter: blur(10px);   /* Frosted glass effect */
+    border-radius: 30px;
+    width: 100%;
+    max-width: 1100px;
+    min-height: 600px;
+    display: flex; /* Puts Info and Form side-by-side inside the card */
+    align-items: center;
+    justify-content: space-between;
+    padding: 3rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255,255,255,0.5);
+}
+
+/* --- LEFT SIDE: Info Section --- */
+.infoSection {
+    flex: 1;
+    padding: 3rem;
+    color: var(--text-dark);
+    
+    /* FLEXBOX SETTINGS */
+    display: flex;
+    flex-direction: column; 
+    justify-content: center; /* Keeps the whole group centered vertically */
+    align-items: flex-start; /* Aligns text/logo to the left */
+    gap: 1.5rem; /* This controls the distance between Logo, Title, and Subtitle */
+}
+
+.brand {
+    /* Remove margins here so 'gap' controls the spacing */
+    margin: 0; 
+    line-height: 0; /* Prevents extra height from the div wrapper */
+}
+
+.logoImage {
+    /* 1. Set a size you like (try 350px) */
+    width: 350px; 
+    max-width: 100%; /* Ensures it doesn't overflow on small screens */
+    height: auto;
+    
+    /* 2. Remove negative margins that shift it off-screen */
+    margin-left: -7px; 
+    
+    /* Optional: If your image file has empty space on the left, use a small negative margin like -10px */
+    /* margin-left: -10px; */ 
+}
+
+.heroTitle {
+    font-size: 3rem;
+    line-height: 1.1;
+    font-weight: 800;
+    color: var(--text-dark);
+    
+    /* CRITICAL FIX: Set this to 0. The parent 'gap' handles the space now. */
+    margin-bottom: 0; 
+}
+
+.heroSubtitle {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-grey);
+    max-width: 450px;
+    margin-top: 0; /* Reset margin */
+}
+/* --- RIGHT SIDE: Form Section --- */
+.formSection {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+/* The White Login Box */
+.whiteFormCard {
+    background: #ffffff;
+    padding: 2.5rem;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    background: #f1f5f9;
+    padding: 5px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.tab {
+    background: none;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.2s;
+}
+
+.activeTab {
+    background: white;
+    color: var(--primary-teal);
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.whiteFormCard h2 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}
+
+.subText {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 1.5rem;
+}
+
+/* Form Inputs */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.inputGroup {
+    position: relative;
+}
+
+.inputIcon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #cbd5e1;
+}
+
+.inputGroup input {
+    width: 100%;
+    padding: 14px 14px 14px 45px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background-color: #f8fafc;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.inputGroup input:focus {
+    background: white;
+    border-color: var(--primary-teal);
+    box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+}
+
+.forgotPass {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    color: var(--primary-teal);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.rememberRow {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-left: 5px;
+}
+
+/* Button */
+.submitBtn {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary-teal);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.2s;
+}
+
+.submitBtn:hover {
+    background: #0096c7;
+}
+
+/* Socials */
+.divider {
+    text-align: center;
+    color: #cbd5e1;
+    font-size: 0.8rem;
+    margin: 1.5rem 0;
+}
+
+.socialButtons {
+    display: flex;
+    gap: 1rem;
+}
+
+.socialBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 10px;
+    color: #475569;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.socialBtn:hover {
+    background: #f1f5f9;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 900px) {
+.mainCard {
+    flex-direction: column; /* Stack them */
+    text-align: center;
+    padding: 2rem 1rem;
+    gap: 2rem;
+}
+.infoSection {
+    padding: 0;
+}
+.brand {
+    display: flex;
+    justify-content: center; /* Center logo on mobile */
+}
+.formSection {
+    width: 100%;
+}
+}
