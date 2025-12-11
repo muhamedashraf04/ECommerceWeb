@@ -81,21 +81,20 @@ namespace ECommerceWeb.Application.Service.CartService
         public async Task RemoveItemFromCartAsync(int userId, int productId)
         {
             var customer = await _uow.CustomerRepository.GetAsync(c => c.Id == userId);
-            if (customer?.Cart == null)
-            {
-                throw new Exception("Cart not found");
-            }
+            if (customer == null)
+                throw new Exception("Customer not found");
 
-            var cart = customer.Cart;
-            var item = cart.CartItems!.FirstOrDefault(ci => ci.ProductId == productId);
-            if (item == null)
-            {
-                throw new Exception("Product not found in cart");
-            }
+            var cart = await _uow.CartRepository.GetAsync(c => c.UserId == userId);
+            if (cart == null)
+                throw new Exception("Cart not found");
+
             if (cart.CartItems == null)
-            {
-                cart.CartItems = new List<CartItem>();
-            }
+                throw new Exception("No cart items found");
+
+            var item = cart.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
+            if (item == null)
+                throw new Exception("Product not found in cart");
+
             cart.CartItems.Remove(item);
             cart.NumOfItems = cart.CartItems.Sum(ci => ci.Quantity);
 
