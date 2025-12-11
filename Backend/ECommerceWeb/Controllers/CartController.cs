@@ -48,5 +48,12 @@ namespace ECommerceWeb.Controllers
             await _CartService.ClearCartAsync(userId);
             return Ok("Cart cleared");
         }
+        [HttpPost]
+        public async Task<IActionResult> PlaceOrder(PlaceOrderDTO address)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await _CartService.PlaceOrderAsync(userId , address);
+            return Ok("Order placed successfully");
+        }
     }
 }

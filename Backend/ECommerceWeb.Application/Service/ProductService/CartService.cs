@@ -118,5 +118,45 @@ namespace ECommerceWeb.Application.Service.CartService
             await _uow.CartRepository.EditAsync(cart);
             await _uow.SaveChangesAsync();
         }
+        public async Task PlaceOrderAsync(int userId, PlaceOrderDTO placeOrder)
+        {
+            var cart = await _uow.CartRepository.GetAsync(c => c.UserId == userId);
+            if (cart == null)
+                throw new Exception("Cart not found");
+
+            var cartItems = await _uow.CartItemRepository.GetAllAsync(ci => ci.CartId == cart.Id);
+            if (cartItems == null || !cartItems.Any())
+                throw new Exception("Cart is empty");
+
+            var orderItems = new List<OrderItem>();
+            foreach (var ci in cartItems)
+            {
+                var product = await _uow.ProductRepository.GetAsync(p => p.Id == ci.ProductId);
+                if (product == null)
+                    throw new Exception($"Product not found for ID {ci.ProductId}");
+
+                orderItems.Add(new OrderItem
+                {
+                    ProductId = ci.ProductId,
+                    Quantity = ci.Quantity,
+                    PriceATM = product.Price
+                });
+            }
+
+            var order = new Order
+            {
+                UserId = userId,
+                Address = placeOrder.Address,
+                OrderStatus = "Pending",
+                OrderItems = orderItems
+            };
+
+            await _uow.OrderRepository.CreateAsync(order);
+            await _uow.SaveChangesAsync();
+
+            await ClearCartAsync(userId);
+        }
+
+
     }
 }
