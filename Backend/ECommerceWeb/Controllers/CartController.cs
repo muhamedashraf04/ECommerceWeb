@@ -1,0 +1,53 @@
+﻿using System.Security.Claims;
+using ECommerceWeb.Application.DTOs.CartDTOs;
+using ECommerceWeb.Application.Service.CartS;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ECommerceWeb.Controllers
+{
+
+    [Authorize]
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CartController : ControllerBase
+    {
+        private readonly CartService _CartService;
+
+        public CartController(CartService cartService)
+        {
+            _CartService = cartService;
+        }
+        [HttpGet("ShowCart")]
+        public async Task<IActionResult> ShowCart()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var cart = await _CartService.GetCartByUserIdAsync(userId);
+            return Ok(cart);
+        }
+        [HttpPost("add")]
+        public async Task<IActionResult> UpsertToCart(CartItemDTO item)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            await _CartService.AddItemToCartAsync(item, userId);
+
+            return Ok("Item added to cart");
+        }
+        [HttpDelete("remove/{productId}")]
+        public async Task<IActionResult> RemoveFromCart(int productId)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await _CartService.RemoveItemFromCartAsync(userId, productId);
+            return Ok("Item removed from cart");
+        }
+        [HttpDelete("clear")]
+        public async Task<IActionResult> ClearCart()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await _CartService.ClearCartAsync(userId);
+            return Ok("Cart cleared");
+        }
+        
+    }
+}
