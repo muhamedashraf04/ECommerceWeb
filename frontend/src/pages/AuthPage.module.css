@@ -5,7 +5,6 @@
     --primary-teal: #00B4D8; /* The main Button color */
     --teal-bg-gradient: linear-gradient(135deg,#fff, #ccf3f3 , #90E0EF); /* Soft Cyan Background */
     --card-glass: rgba(255, 255, 255, 0.4); /* The semi-transparent big card */
-    --primary-teal: #00B4D8; /* The main Button color */
     --text-dark: #1E293B;
     --text-grey: #475569;
 }
@@ -63,12 +62,6 @@
     width: 350px; 
     max-width: 100%; /* Ensures it doesn't overflow on small screens */
     height: auto;
-    
-    /* 2. Remove negative margins that shift it off-screen */
-    margin-left: -7px; 
-    
-    /* Optional: If your image file has empty space on the left, use a small negative margin like -10px */
-    /* margin-left: -10px; */ 
 }
 
 .heroTitle {

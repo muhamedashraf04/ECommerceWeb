@@ -4,123 +4,75 @@ import styles from './AuthPage.module.css';
 import Logo from '../images/finalHighQuality.png'; 
 import axios from 'axios';
 
-const AuthPage = () => {
+export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true);
+    const [isVendor, setIsVendor] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState({});
-
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
-        password: ''
+        password: '',
+        confirmPassword: '',
+        phoneNumber: '',
+        companyName: '',
+        nationalIdImage: null
     });
+    const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value
-        }));
-        if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
+        if (e.target.type === 'file') {
+            setFormData({ ...formData, [e.target.name]: e.target.files[0] });
+        } else {
+            setFormData({ ...formData, [e.target.name]: e.target.value });
         }
+        setErrors({ ...errors, [e.target.name]: '' });
     };
 
     const validateForm = () => {
         let newErrors = {};
-        let isValid = true;
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email) {
-            newErrors.email = "Email is required";
-            isValid = false;
-        } else if (!emailRegex.test(formData.email)) {
-            newErrors.email = "Please enter a valid email address";
-            isValid = false;
+        if (!isLogin) {
+            if (!formData.fullName.trim()) newErrors.fullName = "Full Name is required";
+            if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Phone Number is required";
+            if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+            
+            if (isVendor) {
+                if (!formData.companyName.trim()) newErrors.companyName = "Company Name is required";
+                if (!formData.nationalIdImage) newErrors.nationalIdImage = "National ID Image is required";
+            }
         }
-
-        if (!formData.password) {
-            newErrors.password = "Password is required";
-            isValid = false;
-        } else if (formData.password.length < 6) {
-            newErrors.password = "Password must be at least 6 characters";
-            isValid = false;
-        }
-
-        if (!isLogin && !formData.fullName.trim()) {
-            newErrors.fullName = "Full Name is required";
-            isValid = false;
-        }
-
+        
+        if (!formData.email.trim()) newErrors.email = "Email is required";
+        else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email is invalid";
+        if (!formData.password) newErrors.password = "Password is required";
+        else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 chars";
+        
         setErrors(newErrors);
-        return isValid;
+        return Object.keys(newErrors).length === 0;
     };
 
-    // ==========================================
-    //  PHASE 4: API HANDLERS
-    // ==========================================
-
-    // --- OPTION A: FAKE BACKEND (CURRENTLY ACTIVE) ---
-    // This allows you to test the UI while waiting for the backend.
-    const apiCall = () => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                if (formData.email === "test@error.com") {
-                    reject("User not found. Please sign up.");
-                } else {
-                    resolve({ token: "fake-jwt-token-123", user: formData });
-                }
-            }, 2000); 
-        });
+    const handleSocialLogin = (provider) => {
+        console.log(`Logging in with ${provider}`);
+        // Implement social login logic here
     };
-
-    /* // --- OPTION B: REAL BACKEND (USE THIS WHEN API IS READY) ---
-    // Instructions: 
-    // 1. Comment out the "OPTION A" function above.
-    // 2. Uncomment this "OPTION B" function below.
-    // 3. Replace 'https://your-api.com' with your actual server URL.
-
-    const apiCall = async () => {
-        const endpoint = isLogin ? "/login" : "/signup";
-        const url = `https://your-api.com/api/auth${endpoint}`;
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            // Throw error message from server (e.g., "Wrong Password")
-            throw new Error(data.message || "Something went wrong");
-        }
-
-        return data; // Should return user token/data
-    };
-    */
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
         if (!validateForm()) return;
 
         setIsLoading(true);
 
         try {
-            // This calls whichever 'apiCall' function is active above
-            const response = await apiCall();
+            // Replace with your actual API endpoint
+            // const response = await axios.post(isLogin ? '/api/login' : '/api/register', formData);
+            console.log("Form Data:", formData);
             
-            console.log("API Success:", response);
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
             alert(`Success! Welcome ${isLogin ? 'back' : ''}, ${formData.email}`);
-            
-            // TODO: Save token to localStorage
-            // localStorage.setItem('token', response.token);
-            // navigate('/dashboard');
-
+            // localStorage.setItem('token', response.data.token);
         } catch (error) {
             alert(error.message || "An error occurred"); 
         } finally {
@@ -348,8 +300,22 @@ const AuthPage = () => {
                         <div className={styles.divider}>Or continue with</div>
 
                         <div className={styles.socialButtons}>
-                            <button className={styles.socialBtn}><FaGoogle /> Google</button>
-                            <button className={styles.socialBtn}><FaFacebookF /> Facebook</button>
+                            <button 
+                                type="button" 
+                                className={`${styles.socialBtn} ${styles.googleBtn}`}
+                                onClick={() => handleSocialLogin('Google')}
+                                disabled={isLoading}
+                            >
+                                <FaGoogle /> Google
+                            </button>
+                            <button 
+                                type="button" 
+                                className={`${styles.socialBtn} ${styles.facebookBtn}`}
+                                onClick={() => handleSocialLogin('Facebook')}
+                                disabled={isLoading}
+                            >
+                                <FaFacebookF /> Facebook
+                            </button>
                         </div>
 
                     </div>
@@ -358,5 +324,3 @@ const AuthPage = () => {
         </div>
     );
 }
-
-export default AuthPage;
