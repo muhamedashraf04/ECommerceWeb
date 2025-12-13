@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.26.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
@@ -22,8 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ECommerceWeb.DataAccess\ECommerceWeb.DataAccess.csproj" />
-    <ProjectReference Include="..\ECommerceWeb.Utilities\ECommerceWeb.Utilities.csproj" />
+    <ProjectReference Include="..\ECommerceWeb.Infrastructure\ECommerceWeb.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
