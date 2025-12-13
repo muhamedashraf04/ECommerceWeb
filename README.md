@@ -28,10 +28,7 @@ Example: [Live Demo](https://your-demo-link.com)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
-- [Future Enhancements](#future-enhancements)
-- [Contributing](#contributing)
-- [License](#license)
-- [Architecture](#architecture)
+
 
 ---
 
@@ -66,12 +63,3 @@ Example: [Live Demo](https://your-demo-link.com)
 - .NET SDK  
 - Node.js & npm  
 - SQL Server or other database
-
----
-
-### Installation & Commands
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/muhamedashraf04/ECommerceWeb.git
-cd ECommerceWeb
