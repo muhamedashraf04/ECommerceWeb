@@ -1,0 +1,45 @@
+name: .NET Desktop CI
+
+# Trigger on every push or pull request on any branch
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        configuration: [Debug, Release]  # Build both Debug and Release
+    runs-on: windows-latest  # Required for WPF/WinForms projects
+
+    steps:
+    # 1. Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Setup .NET SDK
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x  # Replace with your .NET version
+
+    # 3. Setup MSBuild
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    # 4. Restore NuGet dependencies
+    - name: Restore dependencies
+      run: dotnet restore
+
+    # 5. Build the solution
+    - name: Build solution
+      run: msbuild YourSolution.sln /p:Configuration=${{ matrix.configuration }}
+
+    # 6. Run all test projects (will work once you add them)
+    - name: Run tests
+      run: |
+        # Find all test projects (*.csproj) and run tests
+        Get-ChildItem -Path . -Recurse -Filter *.csproj |
+        Where-Object { $_.FullName -match "Test" } |
+        ForEach-Object { dotnet test $_.FullName --configuration ${{ matrix.configuration }} }
+      shell: powershell
