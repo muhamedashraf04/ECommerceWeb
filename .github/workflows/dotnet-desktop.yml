@@ -28,7 +28,7 @@ jobs:
 
     # 4. Restore dependencies
     - name: Restore dependencies
-      run: dotnet restore web/YourSolution.sln
+      run: dotnet restore ECommerceWeb/ECommerceWeb.sln
 
     # 5. Build solution
     - name: Build solution
