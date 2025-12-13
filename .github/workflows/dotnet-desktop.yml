@@ -1,0 +1,43 @@
+name: .NET Desktop CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    runs-on: windows-latest
+
+    steps:
+    # 1. Checkout repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Setup .NET SDK
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x  # your .NET version
+
+    # 3. Setup MSBuild
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    # 4. Restore dependencies
+    - name: Restore dependencies
+      run: dotnet restore web/YourSolution.sln
+
+    # 5. Build solution
+    - name: Build solution
+      run: msbuild ECommerceWeb/ECommerceWeb.sln /p:Configuration=${{ matrix.configuration }}
+
+    # 6. Run tests (optional, works once you add test projects)
+    - name: Run tests
+      run: |
+        Get-ChildItem -Path web -Recurse -Filter *.csproj |
+        Where-Object { $_.FullName -match "Test" } |
+        ForEach-Object { dotnet test $_.FullName --configuration ${{ matrix.configuration }} }
+      shell: powershell
