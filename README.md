@@ -27,13 +27,11 @@ Example: [Live Demo](https://your-demo-link.com)
 
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [Screenshots](#screenshots)
 - [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
 - [Future Enhancements](#future-enhancements)
 - [Contributing](#contributing)
 - [License](#license)
+- [Architecture](#architecture)
 
 ---
 
@@ -60,5 +58,20 @@ Example: [Live Demo](https://your-demo-link.com)
 
 ---
 
-## Architecture
+## Getting Started
 
+### Prerequisites
+
+- Git  
+- .NET SDK  
+- Node.js & npm  
+- SQL Server or other database
+
+---
+
+### Installation & Commands
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/muhamedashraf04/ECommerceWeb.git
+cd ECommerceWeb
