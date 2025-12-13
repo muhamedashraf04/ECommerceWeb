@@ -155,6 +155,19 @@
 }
 
 .inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.inputLabel {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-left: 4px;
+}
+
+.inputWrapper {
     position: relative;
 }
 
@@ -164,9 +177,10 @@
     top: 50%;
     transform: translateY(-50%);
     color: #cbd5e1;
+    z-index: 1;
 }
 
-.inputGroup input {
+.inputWrapper input {
     width: 100%;
     padding: 14px 14px 14px 45px;
     border: 1px solid #e2e8f0;
@@ -176,21 +190,41 @@
     transition: all 0.2s;
 }
 
-.inputGroup input:focus {
+.inputWrapper input:focus {
     background: white;
     border-color: var(--primary-teal);
     box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
 }
 
-.forgotPass {
+.eyeBtn {
     position: absolute;
     right: 16px;
     top: 50%;
     transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.eyeBtn:hover {
+    color: var(--primary-teal);
+}
+
+.forgotPass {
+    position: absolute;
+    right: 16px;
+    top: -25px; /* Move it above the input */
     font-size: 0.8rem;
     color: var(--primary-teal);
     text-decoration: none;
     font-weight: 600;
+    z-index: 1;
 }
 
 .rememberRow {
@@ -229,6 +263,11 @@
     margin: 1.5rem 0;
 }
 
+.socialButtons {
+    display: flex;
+    gap: 1rem;
+}
+
 /* Social Buttons - Restored styles */
 .socialBtn {
     flex: 1;
@@ -236,18 +275,100 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #e2e8f0;
     background: white;
-    border-radius: 10px;
+    border-radius: 12px;
     color: #475569;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
 }
 
 .socialBtn:hover {
-    background: #f1f5f9;
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.googleBtn {
+    color: #DB4437;
+    border-color: #ffebee;
+}
+
+.googleBtn:hover {
+    background: #fff5f5;
+    border-color: #ffcdd2;
+}
+
+.facebookBtn {
+    color: #4267B2;
+    border-color: #e3f2fd;
+}
+
+.facebookBtn:hover {
+    background: #f0f9ff;
+    border-color: #bbdefb;
+}
+
+/* Role Selection Styles */
+.roleSelection {
+    margin-bottom: 1rem;
+}
+
+.roleSelection label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.roleButtons {
+    display: flex;
+    gap: 1rem;
+}
+
+.roleBtn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #64748b;
+    transition: all 0.2s;
+}
+
+.activeRole {
+    background: var(--primary-teal);
+    color: white;
+    border-color: var(--primary-teal);
+}
+
+/* File Input Wrapper */
+.fileInputWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 10px 14px 10px 45px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background-color: #f8fafc;
+}
+
+.fileInputWrapper label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.fileInputWrapper input[type="file"] {
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-size: 0.9rem;
 }
 
 /* src/pages/AuthPage.module.css */
