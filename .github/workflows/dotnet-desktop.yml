@@ -37,7 +37,7 @@ jobs:
     # 6. Run tests (optional, works once you add test projects)
     - name: Run tests
       run: |
-        Get-ChildItem -Path web -Recurse -Filter *.csproj |
+        Get-ChildItem -Path ECommerceWeb -Recurse -Filter *.csproj |
         Where-Object { $_.FullName -match "Test" } |
         ForEach-Object { dotnet test $_.FullName --configuration ${{ matrix.configuration }} }
       shell: powershell
