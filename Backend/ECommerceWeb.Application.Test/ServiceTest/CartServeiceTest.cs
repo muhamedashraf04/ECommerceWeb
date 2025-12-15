@@ -5,13 +5,9 @@ using ECommerceWeb.Application.Service.CartS;
 using ECommerceWeb.Application.Interfaces;
 using ECommerceWeb.Domain.Models;
 using ECommerceWeb.Application.DTOs.CartDTOs;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System;
 using System.Linq.Expressions;
 
-namespace ECommerceWeb.Application.Test
+namespace ECommerceWeb.Application.Test.ServiceTest
 {
     public class CartServiceTests
     {
