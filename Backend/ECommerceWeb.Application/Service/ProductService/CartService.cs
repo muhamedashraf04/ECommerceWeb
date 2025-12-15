@@ -1,10 +1,11 @@
 ﻿using ECommerceWeb.Application.DTOs.CartDTOs;
 using ECommerceWeb.Application.Interfaces;
+using ECommerceWeb.Application.Interfaces.IService;
 using ECommerceWeb.Domain.Models;
 
 namespace ECommerceWeb.Application.Service.CartS
 {
-    public class CartService
+    public class CartService : ICartService 
     {
         private readonly IUnitOfWork _uow;
 
