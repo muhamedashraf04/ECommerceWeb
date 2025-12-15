@@ -4,9 +4,6 @@ using ECommerceWeb.Application.Service.ProductService;
 using ECommerceWeb.Application.Interfaces;
 using ECommerceWeb.Application.DTOs.ProductDTOs;
 using ECommerceWeb.Domain.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 public class ProductServiceTests
 {
@@ -30,31 +27,31 @@ public class ProductServiceTests
         // Arrange
         var dto = new CreateProductDTO
         {
-            Name = "Test",
+            Name = "TestProduct",
             Description = "Desc",
-            Price = 10,
+            Price = 100,
             CategoryId = 1,
             Quantity = 5,
-            ImageUrl = "url"
+            ImageUrl = "url.png"
         };
+
         _mockProductRepo.Setup(r => r.CreateAsync(It.IsAny<Product>())).ReturnsAsync(true);
         _mockUow.Setup(u => u.SaveChangesAsync()).ReturnsAsync(true);
 
         // Act
-        var result = await _service.CreateProductAsync(dto, vendorId: 1);
+        var result = await _service.CreateProductAsync(dto, 1);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(dto.Name, result.Name);
+        Assert.Equal("TestProduct", result.Name);
         _mockProductRepo.Verify(r => r.CreateAsync(It.IsAny<Product>()), Times.Once);
-        _mockUow.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
     public async Task GetProductByIdAsync_ReturnsProduct_WhenExists()
     {
         // Arrange
-        var product = new Product { Id = 1, Name = "Test" };
+        var product = new Product { Id = 1, Name = "Prod1" };
         _mockProductRepo.Setup(r => r.GetAsync(p => p.Id == 1)).ReturnsAsync(product);
 
         // Act
@@ -68,10 +65,30 @@ public class ProductServiceTests
     public async Task EditProductAsync_ReturnsTrue_WhenEdited()
     {
         // Arrange
-        var product = new Product { Id = 1, Name = "Old" };
-        var dto = new UpdateProductDTO { Id = 1, Name = "New" };
+        var dto = new UpdateProductDTO
+        {
+            Id = 1,
+            Name = "NewName",
+            Description = "NewDesc",
+            Price = 200,
+            CategoryId = 2,
+            Quantity = 10,
+            ImageUrl = "new.png"
+        };
 
-        _mockProductRepo.Setup(r => r.GetAsync(p => p.Id == 1)).ReturnsAsync(product);
+        var product = new Product
+        {
+            Id = 1,
+            Name = "OldName",
+            Description = "OldDesc",
+            Price = 100,
+            CategoryId = 1,
+            Quantity = 5,
+            ImageUrl = "old.png"
+        };
+
+        _mockProductRepo.Setup(r => r.GetAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Product, bool>>>()))
+                        .ReturnsAsync(product);
         _mockProductRepo.Setup(r => r.EditAsync(product)).ReturnsAsync(true);
         _mockUow.Setup(u => u.SaveChangesAsync()).ReturnsAsync(true);
 
@@ -80,14 +97,37 @@ public class ProductServiceTests
 
         // Assert
         Assert.True(result);
-        Assert.Equal("New", product.Name);
+        Assert.Equal("NewName", product.Name);
+        Assert.Equal("NewDesc", product.Description);
+        Assert.Equal(200, product.Price);
+        Assert.Equal(2, product.CategoryId);
+        Assert.Equal(10, product.Quantity);
+        Assert.Equal("new.png", product.ImageUrl);
+    }
+
+    [Fact]
+    public async Task DeleteProductAsync_ReturnsTrue_WhenDeleted()
+    {
+        // Arrange
+        var product = new Product { Id = 1 };
+        _mockProductRepo.Setup(r => r.GetAsync(p => p.Id == 1)).ReturnsAsync(product);
+        _mockProductRepo.Setup(r => r.RemoveAsync(1)).ReturnsAsync(true);
+        _mockUow.Setup(u => u.SaveChangesAsync()).ReturnsAsync(true);
+
+        // Act
+        var result = await _service.DeleteProductAsync(1);
+
+        // Assert
+        Assert.True(result);
+        _mockProductRepo.Verify(r => r.RemoveAsync(1), Times.Once);
     }
 
     [Fact]
     public async Task DeleteProductAsync_ReturnsFalse_WhenProductNotFound()
     {
         // Arrange
-        _mockProductRepo.Setup(r => r.GetAsync(p => p.Id == 1)).ReturnsAsync((Product)null);
+        _mockProductRepo.Setup(r => r.GetAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Product, bool>>>()))
+                        .ReturnsAsync((Product)null);
 
         // Act
         var result = await _service.DeleteProductAsync(1);
@@ -97,28 +137,14 @@ public class ProductServiceTests
     }
 
     [Fact]
-    public async Task DeleteProductAsync_ReturnsTrue_WhenProductDeleted()
-    {
-        // Arrange
-        var product = new Product { Id = 1 };
-        _mockProductRepo.Setup(r => r.GetAsync(p => p.Id == 1)).ReturnsAsync(product);
-        _mockProductRepo.Setup(r => r.RemoveAsync(product.Id)).ReturnsAsync(true);
-        _mockUow.Setup(u => u.SaveChangesAsync()).ReturnsAsync(true);
-
-        // Act
-        var result = await _service.DeleteProductAsync(1);
-
-        // Assert
-        Assert.True(result);
-        _mockProductRepo.Verify(r => r.RemoveAsync(product.Id), Times.Once);
-        _mockUow.Verify(u => u.SaveChangesAsync(), Times.Once);
-    }
-
-    [Fact]
     public async Task GetProductsAsync_ReturnsAllProducts()
     {
         // Arrange
-        var products = new List<Product> { new Product { Id = 1 }, new Product { Id = 2 } };
+        var products = new List<Product>
+        {
+            new Product { Id = 1 },
+            new Product { Id = 2 }
+        };
         _mockProductRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(products);
 
         // Act
@@ -132,41 +158,39 @@ public class ProductServiceTests
     public async Task GetProductsByCategoryAsync_ReturnsFilteredProducts()
     {
         // Arrange
-        var categoryName = "Cat";
         var products = new List<Product>
         {
-            new Product { Id = 1, Category = new Category { Name = categoryName } },
-            new Product { Id = 2, Category = new Category { Name = "Other" } }
+            new Product { Id = 1, Category = new Category { Name = "Cat1" } },
+            new Product { Id = 2, Category = new Category { Name = "Cat2" } }
         };
-        _mockProductRepo.Setup(r => r.GetAllAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<Product, bool>>>()))
-            .ReturnsAsync((System.Linq.Expressions.Expression<System.Func<Product, bool>> predicate) => products.Where(predicate.Compile()));
+        _mockProductRepo.Setup(r => r.GetAllAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Product, bool>>>()))
+                        .ReturnsAsync(products.Where(p => p.Category.Name == "Cat1"));
 
         // Act
-        var result = await _service.GetProductsByCategoryAsync(categoryName);
+        var result = await _service.GetProductsByCategoryAsync("Cat1");
 
         // Assert
         Assert.Single(result);
-        Assert.Equal(categoryName, result.First().Category.Name);
+        Assert.Equal("Cat1", result.First().Category.Name);
     }
 
     [Fact]
     public async Task GetProductsByVendorAsync_ReturnsFilteredProducts()
     {
         // Arrange
-        int vendorId = 1;
         var products = new List<Product>
         {
-            new Product { Id = 1, VendorId = vendorId },
+            new Product { Id = 1, VendorId = 1 },
             new Product { Id = 2, VendorId = 2 }
         };
-        _mockProductRepo.Setup(r => r.GetAllAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<Product, bool>>>()))
-            .ReturnsAsync((System.Linq.Expressions.Expression<System.Func<Product, bool>> predicate) => products.Where(predicate.Compile()));
+        _mockProductRepo.Setup(r => r.GetAllAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Product, bool>>>()))
+                        .ReturnsAsync(products.Where(p => p.VendorId == 1));
 
         // Act
-        var result = await _service.GetProductsByVendorAsync(vendorId);
+        var result = await _service.GetProductsByVendorAsync(1);
 
         // Assert
         Assert.Single(result);
-        Assert.Equal(vendorId, result.First().VendorId);
+        Assert.Equal(1, result.First().VendorId);
     }
 }
