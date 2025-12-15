@@ -5,33 +5,24 @@ on:
   pull_request:
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the repository
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    # Step 2: Setup .NET 9 SDK
-    - name: Setup .NET 9 SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.x
-        include-prerelease: true
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+          include-prerelease: true
 
-    # Step 3: Restore dependencies
-    - name: Restore dependencies
-      run: dotnet restore Backend/ECommerceWeb/ECommerceWeb.sln
+      - name: Restore dependencies
+        run: dotnet restore Backend/ECommerceWeb/ECommerceWeb.sln
 
-    # Step 4: Build the solution
-    - name: Build solution
-      run: dotnet build Backend/ECommerceWeb/ECommerceWeb.sln --configuration Release --no-restore
+      - name: Build solution
+        run: dotnet build Backend/ECommerceWeb/ECommerceWeb.sln --configuration Release --no-restore
 
-    # Step 5: Debug: list files to confirm paths
-    - name: List Backend/ECommerceWeb directories
-      run: ls -R Backend/ECommerceWeb
-
-    # Step 6: Run tests
-    - name: Run tests
-      run: dotnet test Backend/ECommerceWeb/ECommerceWeb.Application.Test/ECommerceWeb.Application.Test.csproj --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
+      - name: Run tests
+        run: dotnet test Backend/ECommerceWeb/ECommerceWeb.Application.Test/ECommerceWeb.Application.Test.csproj --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
