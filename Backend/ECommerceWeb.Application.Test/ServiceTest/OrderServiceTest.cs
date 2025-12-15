@@ -54,14 +54,18 @@ public class OrderServiceTests
         var userId = 1;
         var cart = new Cart { Id = 1, UserId = userId };
         var cartItems = new List<CartItem>
-        {
-            new CartItem { CartId = 1, ProductId = 10, Quantity = 2 }
-        };
+    {
+        new CartItem { CartId = 1, ProductId = 10, Quantity = 2 }
+    };
         var product = new Product { Id = 10, Price = 50 };
 
         _mockUow.Setup(u => u.CartRepository.GetAsync(c => c.UserId == userId)).ReturnsAsync(cart);
         _mockUow.Setup(u => u.CartItemRepository.GetAllAsync(ci => ci.CartId == cart.Id)).ReturnsAsync(cartItems);
-        _mockUow.Setup(u => u.ProductRepository.GetAsync(p => p.Id == 10)).ReturnsAsync(product);
+
+        // FIX: Use It.IsAny for expression
+        _mockUow.Setup(u => u.ProductRepository.GetAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Product, bool>>>()))
+                .ReturnsAsync(product);
+
         _mockUow.Setup(u => u.OrderRepository.CreateAsync(It.IsAny<Order>())).ReturnsAsync(true);
         _mockUow.Setup(u => u.SaveChangesAsync()).ReturnsAsync(true);
 
@@ -69,6 +73,7 @@ public class OrderServiceTests
 
         _mockCartService.Verify(c => c.ClearCartAsync(userId), Times.Once);
     }
+
 
     [Fact]
     public async Task CancelOrder_ReturnsTrue_WhenOrderPending()
