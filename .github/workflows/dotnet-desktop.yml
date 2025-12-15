@@ -23,3 +23,6 @@ jobs:
 
     - name: Build
       run: dotnet build Backend/ECommerceWeb/ECommerceWeb.sln --configuration Release --no-restore
+
+    - name: Run tests
+      run: dotnet test Backend/ECommerceWeb/ECommerceWeb.Application.Test/ECommerceWeb.Application.Test.csproj --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
