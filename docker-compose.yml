@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # 1. BACKEND API SERVICE (.NET Core)
+  backend:
+    image: ecommerceweb-backend:latest
+    build:
+      context: .
+      dockerfile: Backend/ECommerceWeb/Dockerfile
+    ports:
+      - "5193:8080"
+    # CRITICAL FIX: Load all environment variables from a separate file
+    env_file:
+      - ./backend.env
+    networks:
+      - ecommerce-network
+
+  # 2. FRONTEND WEB SERVICE (React/Vite via Node Server)
+  frontend:
+    build:
+      context: . 
+      dockerfile: frontend/DockerFile
+    container_name: ecommerce_frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - ecommerce-network
+    environment:
+      VITE_API_URL: "http://localhost:5193/api"
+    depends_on:
+      - backend
+
+networks:
+  ecommerce-network:
+    driver: bridge

@@ -1,30 +1,43 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
-
-# This stage is used to build the service project
+# --- Stage 1: Build (Uses full SDK image) ---
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["ECommerceWeb.csproj", "."]
-RUN dotnet restore "./ECommerceWeb.csproj"
+# Set the Working Directory to the root of the source files
+WORKDIR /src 
+
+# 1. Copy Solution and Main Project (copied to /src root)
+# Main project path is resolved, so keep these here.
+COPY Backend/ECommerceWeb/ECommerceWeb.sln .
+COPY Backend/ECommerceWeb/ECommerceWeb.csproj .
+
+# 2. **WORKAROUND:** Create and copy library projects to the CONTAINER ROOT (/) 
+#    to satisfy the absolute paths defined in your local .sln file.
+
+# Create project directories at the container root /
+RUN mkdir -p /ECommerceWeb.Application \
+           /ECommerceWeb.Domain \
+           /ECommerceWeb.Infrastructure
+
+# Copy the .csproj files directly into those absolute root directories
+COPY Backend/ECommerceWeb.Application/ECommerceWeb.Application.csproj /ECommerceWeb.Application/
+COPY Backend/ECommerceWeb.Domain/ECommerceWeb.Domain.csproj /ECommerceWeb.Domain/
+COPY Backend/ECommerceWeb.Infrastructure/ECommerceWeb.Infrastructure.csproj /ECommerceWeb.Infrastructure/
+
+# 3. Restore dependencies
+# This should now find the projects at the root (/) and the main project at /src.
+RUN dotnet restore ECommerceWeb.sln
+
+# 4. Copy the rest of the source code for building
 COPY . .
-WORKDIR "/src/."
-RUN dotnet build "./ECommerceWeb.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./ECommerceWeb.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+# 5. Publish the main Web API project
+RUN dotnet publish Backend/ECommerceWeb/ECommerceWeb.csproj -c Release -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
-FROM base AS final
+# --- Stage 2: Final (Uses smaller Runtime image) ---
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+
+# Copy published output from the build stage
+COPY --from=build /app/publish .
+
+EXPOSE 8080 
+
 ENTRYPOINT ["dotnet", "ECommerceWeb.dll"]
