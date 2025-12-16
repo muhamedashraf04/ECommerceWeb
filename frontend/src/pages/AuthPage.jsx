@@ -1,127 +1,80 @@
 import { useState } from 'react';
-import { FaGoogle, FaFacebookF, FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
+import { FaGoogle, FaFacebookF, FaEnvelope, FaLock, FaUser, FaPhone, FaBuilding, FaIdCard, FaEye, FaEyeSlash } from 'react-icons/fa';
 import styles from './AuthPage.module.css';
 import Logo from '../images/finalHighQuality.png'; 
+import axios from 'axios';
 
-const AuthPage = () => {
+export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true);
+    const [isVendor, setIsVendor] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState({});
-
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
-        password: ''
+        password: '',
+        confirmPassword: '',
+        phoneNumber: '',
+        companyName: '',
+        nationalIdImage: null
     });
+    const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value
-        }));
-        if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
+        if (e.target.type === 'file') {
+            setFormData({ ...formData, [e.target.name]: e.target.files[0] });
+        } else {
+            setFormData({ ...formData, [e.target.name]: e.target.value });
         }
+        setErrors({ ...errors, [e.target.name]: '' });
     };
 
     const validateForm = () => {
         let newErrors = {};
-        let isValid = true;
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email) {
-            newErrors.email = "Email is required";
-            isValid = false;
-        } else if (!emailRegex.test(formData.email)) {
-            newErrors.email = "Please enter a valid email address";
-            isValid = false;
+        if (!isLogin) {
+            if (!formData.fullName.trim()) newErrors.fullName = "Full Name is required";
+            if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Phone Number is required";
+            if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+            
+            if (isVendor) {
+                if (!formData.companyName.trim()) newErrors.companyName = "Company Name is required";
+                if (!formData.nationalIdImage) newErrors.nationalIdImage = "National ID Image is required";
+            }
         }
-
-        if (!formData.password) {
-            newErrors.password = "Password is required";
-            isValid = false;
-        } else if (formData.password.length < 6) {
-            newErrors.password = "Password must be at least 6 characters";
-            isValid = false;
-        }
-
-        if (!isLogin && !formData.fullName.trim()) {
-            newErrors.fullName = "Full Name is required";
-            isValid = false;
-        }
-
+        
+        if (!formData.email.trim()) newErrors.email = "Email is required";
+        else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email is invalid";
+        if (!formData.password) newErrors.password = "Password is required";
+        else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 chars";
+        
         setErrors(newErrors);
-        return isValid;
+        return Object.keys(newErrors).length === 0;
     };
 
-    // ==========================================
-    //  PHASE 4: API HANDLERS
-    // ==========================================
-
-    // --- OPTION A: FAKE BACKEND (CURRENTLY ACTIVE) ---
-    // This allows you to test the UI while waiting for the backend.
-    const apiCall = () => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                if (formData.email === "test@error.com") {
-                    reject("User not found. Please sign up.");
-                } else {
-                    resolve({ token: "fake-jwt-token-123", user: formData });
-                }
-            }, 2000); 
-        });
+    const handleSocialLogin = (provider) => {
+        console.log(`Logging in with ${provider}`);
+        // Implement social login logic here
     };
-
-    /* // --- OPTION B: REAL BACKEND (USE THIS WHEN API IS READY) ---
-    // Instructions: 
-    // 1. Comment out the "OPTION A" function above.
-    // 2. Uncomment this "OPTION B" function below.
-    // 3. Replace 'https://your-api.com' with your actual server URL.
-
-    const apiCall = async () => {
-        const endpoint = isLogin ? "/login" : "/signup";
-        const url = `https://your-api.com/api/auth${endpoint}`;
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            // Throw error message from server (e.g., "Wrong Password")
-            throw new Error(data.message || "Something went wrong");
-        }
-
-        return data; // Should return user token/data
-    };
-    */
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
         if (!validateForm()) return;
 
         setIsLoading(true);
 
         try {
-            // This calls whichever 'apiCall' function is active above
-            const response = await apiCall();
+            // Replace with your actual API endpoint
+            // const response = await axios.post(isLogin ? '/api/login' : '/api/register', formData);
+            console.log("Form Data:", formData);
             
-            console.log("API Success:", response);
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
             alert(`Success! Welcome ${isLogin ? 'back' : ''}, ${formData.email}`);
-            
-            // TODO: Save token to localStorage
-            // localStorage.setItem('token', response.token);
-            // navigate('/dashboard');
-
+            // localStorage.setItem('token', response.data.token);
         } catch (error) {
-            alert(error.message || error); 
+            alert(error.message || "An error occurred"); 
         } finally {
             setIsLoading(false);
         }
@@ -168,46 +121,163 @@ const AuthPage = () => {
                         <form className={styles.form} onSubmit={handleSubmit}>
                             
                             {!isLogin && (
-                                <div className={styles.inputGroup}>
-                                    <FaUser className={styles.inputIcon} />
-                                    <input 
-                                        type="text" 
-                                        name="fullName" 
-                                        placeholder="Full Name" 
-                                        value={formData.fullName}
-                                        onChange={handleChange}
-                                        style={{ borderColor: errors.fullName ? 'red' : '#e2e8f0' }}
-                                    />
-                                    {errors.fullName && <span style={{color: 'red', fontSize: '12px', marginLeft: '5px'}}>{errors.fullName}</span>}
-                                </div>
+                                <>
+                                    <div className={styles.roleSelection}>
+                                        <label>I am a:</label>
+                                        <div className={styles.roleButtons}>
+                                            <button 
+                                                type="button" 
+                                                className={`${styles.roleBtn} ${!isVendor ? styles.activeRole : ''}`}
+                                                onClick={() => setIsVendor(false)}
+                                            >
+                                                Customer
+                                            </button>
+                                            <button 
+                                                type="button" 
+                                                className={`${styles.roleBtn} ${isVendor ? styles.activeRole : ''}`}
+                                                onClick={() => setIsVendor(true)}
+                                            >
+                                                Vendor
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.inputGroup}>
+                                        <label className={styles.inputLabel}>Full Name</label>
+                                        <div className={styles.inputWrapper}>
+                                            <FaUser className={styles.inputIcon} />
+                                            <input 
+                                                type="text" 
+                                                name="fullName" 
+                                                placeholder="Full Name" 
+                                                value={formData.fullName}
+                                                onChange={handleChange}
+                                                style={{ borderColor: errors.fullName ? 'red' : '#e2e8f0' }}
+                                            />
+                                        </div>
+                                        {errors.fullName && <span style={{color: 'red', fontSize: '12px', marginLeft: '5px'}}>{errors.fullName}</span>}
+                                    </div>
+
+                                    <div className={styles.inputGroup}>
+                                        <label className={styles.inputLabel}>Phone Number</label>
+                                        <div className={styles.inputWrapper}>
+                                            <FaPhone className={styles.inputIcon} />
+                                            <input 
+                                                type="tel" 
+                                                name="phoneNumber" 
+                                                placeholder="Phone Number" 
+                                                value={formData.phoneNumber}
+                                                onChange={handleChange}
+                                                style={{ borderColor: errors.phoneNumber ? 'red' : '#e2e8f0' }}
+                                            />
+                                        </div>
+                                        {errors.phoneNumber && <span style={{color: 'red', fontSize: '12px', marginLeft: '5px'}}>{errors.phoneNumber}</span>}
+                                    </div>
+
+                                    {isVendor && (
+                                        <>
+                                            <div className={styles.inputGroup}>
+                                                <label className={styles.inputLabel}>Company Name</label>
+                                                <div className={styles.inputWrapper}>
+                                                    <FaBuilding className={styles.inputIcon} />
+                                                    <input 
+                                                        type="text" 
+                                                        name="companyName" 
+                                                        placeholder="Company Name" 
+                                                        value={formData.companyName}
+                                                        onChange={handleChange}
+                                                        style={{ borderColor: errors.companyName ? 'red' : '#e2e8f0' }}
+                                                    />
+                                                </div>
+                                                {errors.companyName && <span style={{color: 'red', fontSize: '12px', marginLeft: '5px'}}>{errors.companyName}</span>}
+                                            </div>
+
+                                            <div className={styles.inputGroup}>
+                                                <label className={styles.inputLabel}>National ID Image</label>
+                                                <div className={styles.inputWrapper}>
+                                                    <FaIdCard className={styles.inputIcon} />
+                                                    <div className={styles.fileInputWrapper}>
+                                                        <input 
+                                                            type="file" 
+                                                            id="nationalIdImage"
+                                                            name="nationalIdImage" 
+                                                            accept="image/*"
+                                                            onChange={handleChange}
+                                                            style={{ borderColor: errors.nationalIdImage ? 'red' : '#e2e8f0' }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                {errors.nationalIdImage && <span style={{color: 'red', fontSize: '12px', marginLeft: '5px'}}>{errors.nationalIdImage}</span>}
+                                            </div>
+                                        </>
+                                    )}
+                                </>
                             )}
 
                             <div className={styles.inputGroup}>
-                                <FaEnvelope className={styles.inputIcon} />
-                                <input 
-                                    type="email" 
-                                    name="email" 
-                                    placeholder="you@example.com" 
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    style={{ borderColor: errors.email ? 'red' : '#e2e8f0' }}
-                                />
+                                <label className={styles.inputLabel}>Email Address</label>
+                                <div className={styles.inputWrapper}>
+                                    <FaEnvelope className={styles.inputIcon} />
+                                    <input 
+                                        type="email" 
+                                        name="email" 
+                                        placeholder="you@example.com" 
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        style={{ borderColor: errors.email ? 'red' : '#e2e8f0' }}
+                                    />
+                                </div>
                                 {errors.email && <span style={{color: 'red', fontSize: '12px', marginLeft: '5px'}}>{errors.email}</span>}
                             </div>
 
                             <div className={styles.inputGroup}>
-                                <FaLock className={styles.inputIcon} />
-                                <input 
-                                    type="password" 
-                                    name="password" 
-                                    placeholder="Enter your password" 
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    style={{ borderColor: errors.password ? 'red' : '#e2e8f0' }}
-                                />
+                                <label className={styles.inputLabel}>Password</label>
+                                <div className={styles.inputWrapper}>
+                                    <FaLock className={styles.inputIcon} />
+                                    <input 
+                                        type={showPassword ? "text" : "password"} 
+                                        name="password" 
+                                        placeholder="Password" 
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        style={{ borderColor: errors.password ? 'red' : '#e2e8f0' }}
+                                    />
+                                    <button 
+                                        type="button"
+                                        className={styles.eyeBtn}
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                    </button>
+                                </div>
                                 {errors.password && <span style={{color: 'red', fontSize: '12px', marginLeft: '5px'}}>{errors.password}</span>}
                                 {isLogin && <a href="#" className={styles.forgotPass}>Forgot?</a>}
                             </div>
+
+                            {!isLogin && (
+                                <div className={styles.inputGroup}>
+                                    <label className={styles.inputLabel}>Confirm Password</label>
+                                    <div className={styles.inputWrapper}>
+                                        <FaLock className={styles.inputIcon} />
+                                        <input 
+                                            type={showConfirmPassword ? "text" : "password"} 
+                                            name="confirmPassword" 
+                                            placeholder="Re-enter Password" 
+                                            value={formData.confirmPassword}
+                                            onChange={handleChange}
+                                            style={{ borderColor: errors.confirmPassword ? 'red' : '#e2e8f0' }}
+                                        />
+                                        <button 
+                                            type="button"
+                                            className={styles.eyeBtn}
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        >
+                                            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                                        </button>
+                                    </div>
+                                    {errors.confirmPassword && <span style={{color: 'red', fontSize: '12px', marginLeft: '5px'}}>{errors.confirmPassword}</span>}
+                                </div>
+                            )}
 
                             {isLogin && (
                                 <div className={styles.rememberRow}>
@@ -230,8 +300,22 @@ const AuthPage = () => {
                         <div className={styles.divider}>Or continue with</div>
 
                         <div className={styles.socialButtons}>
-                            <button className={styles.socialBtn}><FaGoogle /> Google</button>
-                            <button className={styles.socialBtn}><FaFacebookF /> Facebook</button>
+                            <button 
+                                type="button" 
+                                className={`${styles.socialBtn} ${styles.googleBtn}`}
+                                onClick={() => handleSocialLogin('Google')}
+                                disabled={isLoading}
+                            >
+                                <FaGoogle /> Google
+                            </button>
+                            <button 
+                                type="button" 
+                                className={`${styles.socialBtn} ${styles.facebookBtn}`}
+                                onClick={() => handleSocialLogin('Facebook')}
+                                disabled={isLoading}
+                            >
+                                <FaFacebookF /> Facebook
+                            </button>
                         </div>
 
                     </div>
@@ -239,6 +323,4 @@ const AuthPage = () => {
             </div>
         </div>
     );
-};
-
-export default AuthPage;
+}

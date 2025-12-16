@@ -139,21 +139,11 @@ const CartPage = () => {
     };
 
     // 4. Handle Checkout
-    const handleCheckout = async () => {
+    const handleCheckout = () => {
         if (cartItems.length === 0) return;
         
-        const confirmBuy = window.confirm(`Proceed to payment for ${formatCurrency(finalTotal)}?`);
-        if (!confirmBuy) return;
-
-        try {
-            // alert("Processing payment...");
-            const result = await api.checkout(finalTotal);
-            alert(`Order Placed Successfully! ID: ${result.orderId}`);
-            setCartItems([]); // Clear cart
-            // navigate('/orders');
-        } catch (err) {
-            alert("Checkout failed. Please try again.");
-        }
+        // Navigate to the checkout page
+        navigate('/checkout');
     };
 
     // --- CALCULATIONS ---
