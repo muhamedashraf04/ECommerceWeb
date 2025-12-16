@@ -1,0 +1,35 @@
+# --- Stage 1: Build (Requires Node for npm and Vite) ---
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# The frontend code is nested. We use the root package.json for dependencies
+# and the frontend package.json for scripts.
+# Copy root package files first for caching
+COPY package*.json ./
+# Copy frontend-specific package files
+COPY frontend/package*.json frontend/
+COPY frontend/vite.config.js frontend/
+
+# Install root dependencies (including react-router-dom and react-icons)
+RUN npm install
+
+# Run the Vite build command
+COPY frontend/. ./frontend/
+RUN npm run --prefix frontend build
+
+# --- Stage 2: Serve (Uses a simple HTTP server to serve static files) ---
+FROM node:20-alpine AS final-stage
+WORKDIR /app
+
+# Install a tiny production web server (serve)
+RUN npm install -g serve
+
+# Copy the final built files from the builder stage
+COPY --from=builder /app/frontend/dist /usr/share/nginx/html 
+
+# Expose the standard web port 
+EXPOSE 5173 
+# Use the port Vite defaults to for clarity
+
+# Command to serve the static files from the 'dist' folder
+CMD ["serve", "-s", "/usr/share/nginx/html", "-l", "5173"]
