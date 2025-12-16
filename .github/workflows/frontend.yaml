@@ -1,0 +1,37 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'frontend/**'  
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    # THIS IS THE KEY FIX: 
+    # We tell the robot to perform all steps inside the 'frontend' folder
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    # The robot is now inside ./frontend, so this works!
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Build Project
+      run: npm run build
