@@ -84,7 +84,8 @@ namespace ECommerceWeb.Application.Test
             var claims = new[] {
                 new Claim(ClaimTypes.NameIdentifier, "1"),
                 new Claim(ClaimTypes.Name, "TestUser"),
-                new Claim(ClaimTypes.Role, "Vendor") // Required for CategoryController
+                new Claim(ClaimTypes.Role, "Vendor") , // Required for CategoryController
+                new Claim(ClaimTypes.Role, "Customer")
             };
             var identity = new ClaimsIdentity(claims, "Test");
             var principal = new ClaimsPrincipal(identity);
