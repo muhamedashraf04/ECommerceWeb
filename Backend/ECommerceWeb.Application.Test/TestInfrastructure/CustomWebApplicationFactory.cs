@@ -17,7 +17,6 @@ namespace ECommerceWeb.Application.Test
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            // Force the environment to "Testing"
             builder.UseEnvironment("Testing");
 
             builder.ConfigureServices(services =>
@@ -28,12 +27,11 @@ namespace ECommerceWeb.Application.Test
                 if (descriptor != null) services.Remove(descriptor);
 
                 // 2. Add a fresh Internal Service Provider for EF In-Memory
-                // This is the crucial step to prevent the "Multiple Providers" error
                 var internalServiceProvider = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .BuildServiceProvider();
 
-                // 3. Add In-Memory DbContext using that internal provider
+                // 3. Add In-Memory DbContext
                 services.AddDbContext<ApplicationDbContext>(options =>
                 {
                     options.UseInMemoryDatabase("TestDb");
@@ -52,22 +50,23 @@ namespace ECommerceWeb.Application.Test
                 db.Database.EnsureDeleted();
                 db.Database.EnsureCreated();
 
-                // Seed a Cart for UserId 1 (matches our TestAuthHandler)
+                // Seed Carts
                 if (!db.Cart.Any())
                 {
-                    db.Cart.Add(new Cart
-                    {
-                        Id = 1,
-                        UserId = 1,
-                        TotalAmount = 0,
-                        NumOfItems = 1,
-                        CartItems = new List<CartItem>
-                        {
-                            new CartItem { Id = 1, ProductId = 1, Quantity = 1 }
-                        }
-                    });
-                    db.SaveChanges();
+                    db.Cart.Add(new Cart { Id = 1, UserId = 1, NumOfItems = 0 });
                 }
+
+                // --- NEW: Seed Categories for CategoryController tests ---
+                if (!db.Category.Any())
+                {
+                    db.Category.AddRange(new List<Category>
+                    {
+                        new Category { Id = 1, Name = "Electronics" },
+                        new Category { Id = 2, Name = "Books" }
+                    });
+                }
+
+                db.SaveChanges();
             });
         }
     }
@@ -83,8 +82,9 @@ namespace ECommerceWeb.Application.Test
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             var claims = new[] {
-                new Claim(ClaimTypes.NameIdentifier, "1"), // Matches seeded UserId
-                new Claim(ClaimTypes.Name, "TestUser")
+                new Claim(ClaimTypes.NameIdentifier, "1"),
+                new Claim(ClaimTypes.Name, "TestUser"),
+                new Claim(ClaimTypes.Role, "Vendor") // Required for CategoryController
             };
             var identity = new ClaimsIdentity(claims, "Test");
             var principal = new ClaimsPrincipal(identity);
