@@ -9,17 +9,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup .NET 9 SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.x
-        include-prerelease: true
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+          include-prerelease: true
 
-    - name: Restore dependencies
-      run: dotnet restore Backend/ECommerceWeb/ECommerceWeb.sln
+      - name: Restore dependencies
+        run: dotnet restore Backend/ECommerceWeb/ECommerceWeb.sln
 
-    - name: Build
-      run: dotnet build Backend/ECommerceWeb/ECommerceWeb.sln --configuration Release --no-restore
+      - name: Build solution
+        run: dotnet build Backend/ECommerceWeb/ECommerceWeb.sln --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test Backend/ECommerceWeb.Application.Test/ECommerceWeb.Application.Test.csproj --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
