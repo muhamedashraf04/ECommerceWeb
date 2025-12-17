@@ -14,7 +14,7 @@ namespace ECommerceWeb.Application.Service.OrderService
 {
     public class OrderService
     {
-        public readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _uow;
         private readonly CartService _cartService;
         public OrderService(IUnitOfWork uow , CartService cartService) 
         { 

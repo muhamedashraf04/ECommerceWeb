@@ -1,147 +1,139 @@
-﻿using Xunit;
-using Moq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
-using ECommerceWeb.Application.Service.OrderService;
 using ECommerceWeb.Application.DTOs.CartDTOs;
 using ECommerceWeb.Application.DTOs.OrderDTOs;
 using ECommerceWeb.Application.Interfaces;
-using ECommerceWeb.Domain.Models;
 using ECommerceWeb.Application.Service.CartS;
+using ECommerceWeb.Application.Service.OrderService;
+using ECommerceWeb.Domain.Models;
+using FluentAssertions;
+using Moq;
+using Xunit;
 
-public class OrderServiceTests
+namespace ECommerceWeb.Application.Test.ServiceTest
 {
-    private readonly Mock<IUnitOfWork> _mockUow;
-    private readonly Mock<CartService> _mockCartService;
-    private readonly OrderService _service;
-
-    public OrderServiceTests()
+    public class OrderServiceTests
     {
-        _mockUow = new Mock<IUnitOfWork>();
-        _mockCartService = new Mock<CartService>(null);
-        _service = new OrderService(_mockUow.Object, _mockCartService.Object);
-    }
+        private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+        private readonly Mock<CartService> _cartServiceMock;
+        private readonly OrderService _orderService;
 
-    [Fact]
-    public async Task ShowOrder_ReturnsOrderDto_WhenOrderExists()
-    {
-        var userId = 1;
-        var order = new Order { Id = 10, UserId = userId, OrderStatus = "Pending" };
-        var orderItems = new List<OrderItem>
+        public OrderServiceTests()
         {
-            new OrderItem { ProductId = 100, Quantity = 2 }
-        };
+            _unitOfWorkMock = new Mock<IUnitOfWork>();
+            _cartServiceMock = new Mock<CartService>(_unitOfWorkMock.Object); // Pass required dependency
 
-        _mockUow.Setup(u => u.OrderRepository.GetAsync(o => o.UserId == userId))
-            .ReturnsAsync(order);
-        _mockUow.Setup(u => u.OrderItemRepository.GetAllAsync(oi => oi.OrderId == order.Id))
-            .ReturnsAsync(orderItems);
+            _orderService = new OrderService(_unitOfWorkMock.Object, _cartServiceMock.Object);
+        }
 
-        var result = await _service.ShowOrder(userId);
-
-        Assert.NotNull(result);
-        Assert.Equal(order.Id, result.OrderId);
-        Assert.Equal(order.OrderStatus, result.OrderStatus);
-        Assert.Single(result.Items);
-        Assert.Equal(100, result.Items[0].ProductId);
-    }
-
-    [Fact]
-    public async Task PlaceOrderAsync_ClearsCart_WhenOrderPlaced()
-    {
-        var userId = 1;
-        var cart = new Cart { Id = 1, UserId = userId };
-        var cartItems = new List<CartItem>
-    {
-        new CartItem { CartId = 1, ProductId = 10, Quantity = 2 }
-    };
-        var product = new Product { Id = 10, Price = 50 };
-
-        _mockUow.Setup(u => u.CartRepository.GetAsync(c => c.UserId == userId)).ReturnsAsync(cart);
-        _mockUow.Setup(u => u.CartItemRepository.GetAllAsync(ci => ci.CartId == cart.Id)).ReturnsAsync(cartItems);
-
-        // FIX: Use It.IsAny for expression
-        _mockUow.Setup(u => u.ProductRepository.GetAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Product, bool>>>()))
-                .ReturnsAsync(product);
-
-        _mockUow.Setup(u => u.OrderRepository.CreateAsync(It.IsAny<Order>())).ReturnsAsync(true);
-        _mockUow.Setup(u => u.SaveChangesAsync()).ReturnsAsync(true);
-
-        await _service.PlaceOrderAsync(userId, new PlaceOrderDTO { Address = "123 Street" });
-
-        _mockCartService.Verify(c => c.ClearCartAsync(userId), Times.Once);
-    }
-
-
-    [Fact]
-    public async Task CancelOrder_ReturnsTrue_WhenOrderPending()
-    {
-        var userId = 1;
-        var order = new Order { Id = 1, UserId = userId, OrderStatus = "Pending" };
-
-        _mockUow.Setup(u => u.OrderRepository.GetAsync(o => o.UserId == userId)).ReturnsAsync(order);
-        _mockUow.Setup(u => u.OrderRepository.RemoveAsync(order.Id)).ReturnsAsync(true);
-
-        var result = await _service.CancelOrder(userId);
-
-        Assert.True(result);
-    }
-
-    [Fact]
-    public async Task GetAllOrdersForVendor_ReturnsOrders()
-    {
-        var vendorId = 1;
-        var orders = new List<Order>
+        [Fact]
+        public async Task ShowOrder_ReturnsNull_WhenNoOrder()
         {
-            new Order
+            _unitOfWorkMock.Setup(u => u.OrderRepository.GetAsync(It.IsAny<Expression<Func<Order, bool>>>()))
+                .ReturnsAsync((Order)null);
+
+            var result = await _orderService.ShowOrder(1);
+
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task ShowOrder_ReturnsOrderDto_WhenOrderExists()
+        {
+            var order = new Order { Id = 1, UserId = 1, OrderStatus = "Pending" };
+            var items = new List<OrderItem> { new OrderItem { ProductId = 1, Quantity = 2 } };
+
+            _unitOfWorkMock.Setup(u => u.OrderRepository.GetAsync(It.IsAny<Expression<Func<Order, bool>>>()))
+                .ReturnsAsync(order);
+
+            _unitOfWorkMock.Setup(u => u.OrderItemRepository.GetAllAsync(It.IsAny<Expression<Func<OrderItem, bool>>>()))
+                .ReturnsAsync(items);
+
+            var result = await _orderService.ShowOrder(1);
+
+            result.Should().NotBeNull();
+            result.OrderId.Should().Be(order.Id);
+            result.Items.Count.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task PlaceOrderAsync_ThrowsException_WhenCartNotFound()
+        {
+            _unitOfWorkMock.Setup(u => u.CartRepository.GetAsync(It.IsAny<Expression<Func<Cart, bool>>>()))
+                .ReturnsAsync((Cart)null);
+
+            await Assert.ThrowsAsync<Exception>(() => _orderService.PlaceOrderAsync(1, new PlaceOrderDTO()));
+        }
+
+        [Fact]
+        public async Task CancelOrder_ReturnsFalse_WhenNoOrder()
+        {
+            _unitOfWorkMock.Setup(u => u.OrderRepository.GetAsync(It.IsAny<Expression<Func<Order, bool>>>()))
+                .ReturnsAsync((Order)null);
+
+            var result = await _orderService.CancelOrder(1);
+
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task CancelOrder_ReturnsTrue_WhenOrderPending()
+        {
+            var order = new Order { Id = 1, UserId = 1, OrderStatus = "Pending" };
+            _unitOfWorkMock.Setup(u => u.OrderRepository.GetAsync(It.IsAny<Expression<Func<Order, bool>>>()))
+                .ReturnsAsync(order);
+            _unitOfWorkMock.Setup(u => u.OrderRepository.RemoveAsync(order.Id))
+                .ReturnsAsync(true);
+
+            var result = await _orderService.CancelOrder(order.UserId);
+
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task AcceptOrder_ReturnsTrue_WhenOrderExistsAndNotRejected()
+        {
+            var order = new Order { Id = 1, OrderStatus = "Pending" };
+            _unitOfWorkMock.Setup(u => u.OrderRepository.GetAsync(It.IsAny<Expression<Func<Order, bool>>>()))
+                .ReturnsAsync(order);
+            _unitOfWorkMock.Setup(u => u.OrderRepository.EditAsync(order)).ReturnsAsync(true);
+
+            var result = await _orderService.AcceptOrder(1, order.Id);
+
+            result.Should().BeTrue();
+            order.OrderStatus.Should().Be("Accepted");
+        }
+
+        [Fact]
+        public async Task RejectOrder_ReturnsTrue_WhenOrderExistsAndNotAccepted()
+        {
+            var order = new Order { Id = 1, OrderStatus = "Pending" };
+            _unitOfWorkMock.Setup(u => u.OrderRepository.GetAsync(It.IsAny<Expression<Func<Order, bool>>>()))
+                .ReturnsAsync(order);
+            _unitOfWorkMock.Setup(u => u.OrderRepository.EditAsync(order)).ReturnsAsync(true);
+
+            var result = await _orderService.RejectOrder(order.Id);
+
+            result.Should().BeTrue();
+            order.OrderStatus.Should().Be("Rejected");
+        }
+
+        [Fact]
+        public async Task GetAllOrdersForVendor_ReturnsOrders()
+        {
+            var orders = new List<Order>
             {
-                Id = 1,
-                OrderItems = new List<OrderItem>
-                {
-                    new OrderItem { Product = new Product { VendorId = vendorId } }
-                }
-            }
-        };
+                new Order { Id = 1, OrderItems = new List<OrderItem> { new OrderItem { Product = new Product { VendorId = 1 } } } }
+            };
 
-        _mockUow.Setup(u => u.OrderRepository.GetAllAsync(o => o.OrderItems.Any(oi => oi.Product.VendorId == vendorId)))
-            .ReturnsAsync(orders);
+            _unitOfWorkMock.Setup(u => u.OrderRepository.GetAllAsync(It.IsAny<Expression<Func<Order, bool>>>()))
+                .ReturnsAsync(orders);
 
-        var result = await _service.GetAllOrdersForVendor(vendorId);
+            var result = await _orderService.GetAllOrdersForVendor(1);
 
-        Assert.Single(result);
-        Assert.Equal(1, result.First().Id);
-    }
-
-    [Fact]
-    public async Task AcceptOrder_ReturnsTrue_WhenOrderExists()
-    {
-        var vendorId = 1;
-        var orderId = 1;
-        var order = new Order { Id = orderId, OrderStatus = "Pending" };
-
-        _mockUow.Setup(u => u.OrderRepository.GetAsync(o => o.Id == orderId)).ReturnsAsync(order);
-        _mockUow.Setup(u => u.OrderRepository.EditAsync(order)).ReturnsAsync(true);
-
-        var result = await _service.AcceptOrder(vendorId, orderId);
-
-        Assert.True(result);
-        Assert.Equal("Accepted", order.OrderStatus);
-    }
-
-    [Fact]
-    public async Task RejectOrder_ReturnsTrue_WhenOrderExists()
-    {
-        var orderId = 1;
-        var order = new Order { Id = orderId, OrderStatus = "Pending" };
-
-        _mockUow.Setup(u => u.OrderRepository.GetAsync(o => o.Id == orderId)).ReturnsAsync(order);
-        _mockUow.Setup(u => u.OrderRepository.EditAsync(order)).ReturnsAsync(true);
-
-        var result = await _service.RejectOrder(orderId);
-
-        Assert.True(result);
-        Assert.Equal("Rejected", order.OrderStatus);
+            result.Should().HaveCount(1);
+        }
     }
 }

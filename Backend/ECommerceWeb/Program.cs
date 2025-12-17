@@ -15,6 +15,7 @@ using System.Text;
 using ECommerceWeb.Application.Service;
 using ECommerceWeb.Infrastructure.Data;
 using ECommerceWeb.Application.Service.OrderService;
+using ECommerceWeb.Application.Interfaces.IService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 //Unit Of Work and Repository Registrations
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<CartService>();

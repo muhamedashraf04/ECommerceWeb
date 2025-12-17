@@ -13,14 +13,10 @@ namespace ECommerceWeb.Application.Service.CartS
         {
             _uow = uow;
         }
-        public bool ConfirmUser(int Id)
+        public async Task<bool> ConfirmUserAsync(int id)
         {
-            var user = _uow.CustomerRepository.GetAsync(u => u.Id == Id).Result;
-            if (user == null)
-            {
-                return false;
-            }
-            return true;
+            var user = await _uow.CustomerRepository.GetAsync(u => u.Id == id);
+            return user != null;
         }
         public async Task<CartDTO> GetCartByUserIdAsync(int userId)
         {
@@ -102,7 +98,7 @@ namespace ECommerceWeb.Application.Service.CartS
             await _uow.CartRepository.EditAsync(cart);
             await _uow.SaveChangesAsync();
         }
-            public async Task ClearCartAsync(int userId)
+        public async Task ClearCartAsync(int userId)
         {
             var cart = await _uow.CartRepository.GetAsync(c => c.UserId == userId);
             if (cart == null || cart.CartItems == null || !cart.CartItems.Any())

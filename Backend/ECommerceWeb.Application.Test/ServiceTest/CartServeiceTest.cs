@@ -39,28 +39,29 @@ namespace ECommerceWeb.Application.Test.ServiceTest
         }
 
         [Fact]
-        public void ConfirmUser_ReturnsFalse_WhenUserNotFound()
+        public async Task ConfirmUserAsync_ReturnsFalse_WhenUserNotFound()
         {
             _customerRepoMock
                 .Setup(r => r.GetAsync(It.IsAny<Expression<Func<Customer, bool>>>()))
                 .ReturnsAsync((Customer)null);
 
-            var result = _cartService.ConfirmUser(1);
+            var result = await _cartService.ConfirmUserAsync(1);
 
             result.Should().BeFalse();
         }
 
         [Fact]
-        public void ConfirmUser_ReturnsTrue_WhenUserExists()
+        public async Task ConfirmUserAsync_ReturnsTrue_WhenUserExists()
         {
             _customerRepoMock
                 .Setup(r => r.GetAsync(It.IsAny<Expression<Func<Customer, bool>>>()))
                 .ReturnsAsync(new Customer { Id = 1 });
 
-            var result = _cartService.ConfirmUser(1);
+            var result = await _cartService.ConfirmUserAsync(1);
 
             result.Should().BeTrue();
         }
+
 
         [Fact]
         public async Task GetCartByUserIdAsync_ReturnsEmptyCart_WhenCartNotFound()
