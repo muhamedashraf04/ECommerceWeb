@@ -26,16 +26,18 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 // Configure DbContext based on environment
 
+// In Program.cs
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    if (builder.Environment.IsEnvironment("Testing"))
+    // Only configure SQL Server if no other provider (like InMemory) is already configured
+    if (!options.IsConfigured)
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("TestDbConnection"));
-    }
-    else
-    {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-            sqlServerOptions => sqlServerOptions.EnableRetryOnFailure());
+        var connectionString = builder.Environment.IsEnvironment("Testing")
+            ? builder.Configuration.GetConnectionString("TestDbConnection")
+            : builder.Configuration.GetConnectionString("DefaultConnection");
+
+        options.UseSqlServer(connectionString, sqlServerOptions =>
+            sqlServerOptions.EnableRetryOnFailure());
     }
 });
 //Unit Of Work and Repository Registrations
