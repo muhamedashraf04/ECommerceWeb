@@ -5,12 +5,12 @@ import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom'; 
 
 
-//import HomePage from './pages/HomePage';
+import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import AuthPage from './pages/AuthPage';
 import CartPage from './pages/CartPage';
 import PlaceOrderPage from './pages/PlaceOrderPage';
-//import ProfilePage from './pages/ProfilePage';
+import ProfilePage from './pages/ProfilePage';
 import MainLayout from './layouts/MainLayout'; 
 
 // --- MOCKS ---
