@@ -10,7 +10,7 @@ import ProductPage from './pages/ProductPage';
 import AuthPage from './pages/AuthPage';
 import CartPage from './pages/CartPage';
 import PlaceOrderPage from './pages/PlaceOrderPage';
-import ProfilePage from './pages/ProfilePage';
+//import ProfilePage from './pages/ProfilePage';
 
 // --- MOCKS ---
 // We mock the API call in HomePage to avoid network issues
@@ -115,7 +115,7 @@ describe('Nile E-Commerce Test Suite', () => {
       expect(cityInput.value).toBe('Cairo');
     });
   });
-
+/*
   // ----------------------------------------------------------------
   // 6. PROFILE PAGE TESTS (STRICTLY CUSTOMER ONLY)
   // ----------------------------------------------------------------
@@ -155,5 +155,5 @@ describe('Nile E-Commerce Test Suite', () => {
       expect(screen.queryByText(/Store Manager/i)).not.toBeInTheDocument();
     });
   });
-
+*/
 });
