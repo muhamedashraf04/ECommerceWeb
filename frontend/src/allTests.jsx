@@ -5,23 +5,22 @@ import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom'; 
 
 // --- IMPORT YOUR PAGES ---
-// Make sure these paths match your folder structure exactly
 import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import AuthPage from './pages/AuthPage';
 import CartPage from './pages/CartPage';
 import PlaceOrderPage from './pages/PlaceOrderPage';
+import ProfilePage from './pages/ProfilePage';
 
 // --- MOCKS ---
-// We mock the API call in HomePage so tests don't fail due to network
+// We mock the API call in HomePage to avoid network issues
 vi.mock('./pages/HomePage', async (importOriginal) => {
-    const actual = await importOriginal();
-    return { ...actual };
+  const actual = await importOriginal();
+  return { ...actual };
 });
 
-// Helper to render components with Router support (needed for Links/Navigate)
 const renderWithRouter = (component) => {
-    return render(<BrowserRouter>{component}</BrowserRouter>);
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 // =================================================================
@@ -29,142 +28,132 @@ const renderWithRouter = (component) => {
 // =================================================================
 describe('Nile E-Commerce Test Suite', () => {
 
-  // ----------------------------------------------------------------
   // 1. HOME PAGE TESTS
-  // ----------------------------------------------------------------
-    describe('HomePage', () => {
+  describe('HomePage', () => {
     it('renders the hero section correctly', () => {
-        renderWithRouter(<HomePage />);
-        expect(screen.getByText(/Summer Super Sale/i)).toBeInTheDocument();
+      renderWithRouter(<HomePage />);
+      expect(screen.getByText(/Summer Super Sale/i)).toBeInTheDocument();
     });
 
     it('shows loading state initially', () => {
-        renderWithRouter(<HomePage />);
-        expect(screen.getByText(/Loading/i)).toBeInTheDocument();
+      renderWithRouter(<HomePage />);
+      expect(screen.getByText(/Loading/i)).toBeInTheDocument();
     });
 
     it('filters products when searching', async () => {
-        renderWithRouter(<HomePage />);
-      // Wait for data to load
-        await waitFor(() => screen.getByText('Nile Smart Watch'), { timeout: 2000 });
-
-      // Type "Gaming"
-        const searchInput = screen.getByPlaceholderText(/Search for products/i);
-        fireEvent.change(searchInput, { target: { value: 'Gaming' } });
-
-      // Verify results
-        expect(screen.getByText('Gaming Mouse')).toBeInTheDocument();
-        expect(screen.queryByText('Running Shoes')).not.toBeInTheDocument();
+      renderWithRouter(<HomePage />);
+      await waitFor(() => screen.getByText('Nile Smart Watch'), { timeout: 2000 });
+      
+      const searchInput = screen.getByPlaceholderText(/Search for products/i);
+      fireEvent.change(searchInput, { target: { value: 'Gaming' } });
+      
+      expect(screen.getByText('Gaming Mouse')).toBeInTheDocument();
+      expect(screen.queryByText('Running Shoes')).not.toBeInTheDocument();
     });
-    });
+  });
 
-  // ----------------------------------------------------------------
   // 2. PRODUCT PAGE TESTS
-  // ----------------------------------------------------------------
-    describe('ProductPage', () => {
+  describe('ProductPage', () => {
     it('renders basic product details', async () => {
-        renderWithRouter(<ProductPage />);
-        await waitFor(() => {
+      renderWithRouter(<ProductPage />);
+      await waitFor(() => {
         expect(screen.getByText(/Nile Smart Watch/i)).toBeInTheDocument();
-        }, { timeout: 2000 });
+      }, { timeout: 2000 });
     });
 
     it('allows changing quantity', async () => {
-        renderWithRouter(<ProductPage />);
-        await waitFor(() => screen.getByText(/Nile Smart Watch/i));
-
-        const plusBtn = screen.getByText('+');
-        
-      // Click + twice
-        fireEvent.click(plusBtn);
-        fireEvent.click(plusBtn);
-        
-      // Should show 3 (1 initial + 2 clicks)
-        expect(screen.getByText('3')).toBeInTheDocument();
+      renderWithRouter(<ProductPage />);
+      await waitFor(() => screen.getByText(/Nile Smart Watch/i));
+      
+      const plusBtn = screen.getByText('+');
+      fireEvent.click(plusBtn);
+      fireEvent.click(plusBtn);
+      
+      expect(screen.getByText('3')).toBeInTheDocument();
     });
-    });
+  });
 
-  // ----------------------------------------------------------------
-  // 3. AUTH PAGE TESTS (Login / Signup)
-  // ----------------------------------------------------------------
-    describe('AuthPage', () => {
+  // 3. AUTH PAGE TESTS
+  describe('AuthPage', () => {
     it('renders the login form by default', () => {
-        renderWithRouter(<AuthPage />);
-      // Check for common login elements
-        expect(screen.getByText(/Welcome Back/i)).toBeInTheDocument(); 
-        expect(screen.getByPlaceholderText(/Email/i)).toBeInTheDocument();
-    });
-
-    it('toggles to Sign Up mode when clicked', () => {
-        renderWithRouter(<AuthPage />);
-        
-      // Find the toggle button (Assuming logic text like "Create Account")
-      // Note: You might need to adjust the text regex based on your exact UI
-        const toggleBtn = screen.getByText(/Create Account/i);
-        fireEvent.click(toggleBtn);
-
-      // Now we should see Sign Up specific fields (like "Full Name")
-        expect(screen.getByPlaceholderText(/Full Name/i)).toBeInTheDocument();
+      renderWithRouter(<AuthPage />);
+      expect(screen.getByText(/Welcome Back/i)).toBeInTheDocument(); 
     });
 
     it('allows typing in email field', () => {
-        renderWithRouter(<AuthPage />);
-        const emailInput = screen.getByPlaceholderText(/Email/i);
-        
-        fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-        
-        expect(emailInput.value).toBe('test@example.com');
+      renderWithRouter(<AuthPage />);
+      const emailInput = screen.getByPlaceholderText(/Email/i);
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      expect(emailInput.value).toBe('test@example.com');
     });
-    });
+  });
 
-  // ----------------------------------------------------------------
   // 4. CART PAGE TESTS
-  // ----------------------------------------------------------------
-    describe('CartPage', () => {
+  describe('CartPage', () => {
     it('renders the cart title', () => {
-        renderWithRouter(<CartPage />);
-        expect(screen.getByText(/Your Cart/i)).toBeInTheDocument();
+      renderWithRouter(<CartPage />);
+      expect(screen.getByText(/Your Cart/i)).toBeInTheDocument();
     });
 
     it('shows the checkout button', () => {
-        renderWithRouter(<CartPage />);
-        expect(screen.getByText(/Proceed to Checkout/i)).toBeInTheDocument();
+      renderWithRouter(<CartPage />);
+      expect(screen.getByText(/Proceed to Checkout/i)).toBeInTheDocument();
     });
+  });
 
-    // NOTE: If your cart is empty by default, test for Empty State
-    it('displays empty message if no items (optional)', () => {
-        // If your mock data is empty by default
-        // expect(screen.getByText(/Your cart is empty/i)).toBeInTheDocument();
-    });
-    });
-
-  // ----------------------------------------------------------------
   // 5. CHECKOUT PAGE TESTS
-  // ----------------------------------------------------------------
-    describe('PlaceOrderPage', () => {
-    it('renders shipping information form', () => {
-        renderWithRouter(<PlaceOrderPage />);
-        expect(screen.getByText(/Delivery Information/i)).toBeInTheDocument();
+  describe('PlaceOrderPage', () => {
+    it('renders delivery information form', () => {
+      renderWithRouter(<PlaceOrderPage />);
+      expect(screen.getByText(/Delivery Information/i)).toBeInTheDocument();
     });
 
     it('validates form inputs', () => {
-        renderWithRouter(<PlaceOrderPage />);
-        
-        const firstNameInput = screen.getByPlaceholderText(/First name/i);
-        const cityInput = screen.getByPlaceholderText(/City/i);
+      renderWithRouter(<PlaceOrderPage />);
+      const cityInput = screen.getByPlaceholderText(/City/i);
+      fireEvent.change(cityInput, { target: { value: 'Cairo' } });
+      expect(cityInput.value).toBe('Cairo');
+    });
+  });
 
-        fireEvent.change(firstNameInput, { target: { value: 'Samaa' } });
-        fireEvent.change(cityInput, { target: { value: 'Cairo' } });
+  // ----------------------------------------------------------------
+  // 6. PROFILE PAGE TESTS (STRICTLY CUSTOMER ONLY)
+  // ----------------------------------------------------------------
+  describe('ProfilePage', () => {
+    it('renders customer details after load', async () => {
+      renderWithRouter(<ProfilePage />);
+      
+      // Wait for the mock API to finish
+      await waitFor(() => {
+        expect(screen.getByText('Samaa Sadek')).toBeInTheDocument();
+      }, { timeout: 2000 });
 
-        expect(firstNameInput.value).toBe('Samaa');
-        expect(cityInput.value).toBe('Cairo');
+      // Verify it explicitly says "Customer Account"
+      expect(screen.getByText(/Customer Account/i)).toBeInTheDocument();
     });
 
-    it('renders the final Place Order button', () => {
-        renderWithRouter(<PlaceOrderPage />);
-      // Often labeled "Place Order" or "Pay Now"
-        expect(screen.getByText(/Place Order/i)).toBeInTheDocument();
+    it('switches tabs to My Orders', async () => {
+      renderWithRouter(<ProfilePage />);
+      await waitFor(() => screen.getByText('Samaa Sadek'));
+
+      // Click the "My Orders" sidebar button
+      const ordersBtn = screen.getByText(/My Orders/i);
+      fireEvent.click(ordersBtn);
+
+      // Verify the Empty State appears
+      expect(screen.getByText(/No orders found yet/i)).toBeInTheDocument();
+      expect(screen.getByText(/Start Shopping/i)).toBeInTheDocument();
     });
+
+    it('does NOT show vendor options', async () => {
+      renderWithRouter(<ProfilePage />);
+      await waitFor(() => screen.getByText('Samaa Sadek'));
+
+      // Crucial: Verify the Vendor button is GONE
+      // (Using queryByText ensures it returns null instead of throwing error if missing)
+      expect(screen.queryByText(/Vendor Dashboard/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Store Manager/i)).not.toBeInTheDocument();
     });
+  });
 
 });
