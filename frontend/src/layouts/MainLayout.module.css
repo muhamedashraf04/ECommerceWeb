@@ -1,29 +1,78 @@
 /* src/layouts/MainLayout.module.css */
 
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    border-bottom: 1px solid #ccc;
-    background-color: #f8f9fa; /* Let's add a light grey background too */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    font-weight: bold;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+/* --- THE FIXED LOGO STYLES --- */
+.logo {
+    font-family: 'Segoe UI', sans-serif; /* Or your preferred font */
+    font-size: 2rem;      /* Bigger */
+    font-weight: 900;     /* Extra Bold */
+    color: #00B4D8;       /* Nile Teal */
+    text-transform: uppercase; /* "NILE" instead of "Nile" */
+    letter-spacing: -1px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.logo:hover {
+    transform: scale(1.05); /* Slight pop effect */
+}
+
+/* --- NAV LINKS --- */
+.navLinks {
+    display: flex;
+    gap: 2rem;
 }
 
 .navLink {
     text-decoration: none;
-    color: #333;
-    font-weight: 500;
-    margin: 0 1rem;
+    color: #64748b;
+    font-weight: 600;
     transition: color 0.2s;
+    font-size: 1rem;
 }
 
 .navLink:hover {
-    color: #007bff;
+    color: #00B4D8;
+}
+
+/* --- ICONS --- */
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.iconLink {
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.iconLink:hover {
+    color: #00B4D8;
+    transform: translateY(-2px);
 }
 
 .content {
-    padding: 0;
-    margin: 0;
+    flex: 1;
+    background-color: #f8fafc;
 }
