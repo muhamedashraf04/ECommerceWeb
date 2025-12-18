@@ -37,7 +37,7 @@ describe('Nile E-Commerce Test Suite', () => {
       expect(screen.getByText(/Home/i)).toBeInTheDocument();
     });
   });
-/*
+
   // 2. HOME PAGE
   describe('HomePage', () => {
     it('shows search bar', async () => {
@@ -71,7 +71,7 @@ describe('Nile E-Commerce Test Suite', () => {
         expect(screen.getByText('3')).toBeInTheDocument();
       });
   });
-*/
+
   // 4. AUTH PAGE
   describe('AuthPage', () => {
     it('renders the login form', () => {
@@ -133,7 +133,7 @@ describe('Nile E-Commerce Test Suite', () => {
         expect(cityInput.value).toBe('Cairo');
       });
   });
-/*
+
   // 7. PROFILE PAGE
   describe('ProfilePage', () => {
     it('renders customer details after load', async () => {
@@ -144,5 +144,5 @@ describe('Nile E-Commerce Test Suite', () => {
       expect(screen.getByText(/Customer Account/i)).toBeInTheDocument();
     });
   });
-*/
+
 });
