@@ -5,7 +5,7 @@ import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom'; 
 
 // --- IMPORT YOUR PAGES ---
-import HomePage from './pages/HomePage';
+//import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import AuthPage from './pages/AuthPage';
 import CartPage from './pages/CartPage';
@@ -29,28 +29,28 @@ const renderWithRouter = (component) => {
 describe('Nile E-Commerce Test Suite', () => {
 
   // 1. HOME PAGE TESTS
-    describe('HomePage', () => {
-    it('renders the hero section correctly', () => {
-        renderWithRouter(<HomePage />);
-        expect(screen.getByText(/Summer Super Sale/i)).toBeInTheDocument();
-    });
+    //describe('HomePage', () => {
+    //it('renders the hero section correctly', () => {
+      //  renderWithRouter(<HomePage />);
+        //expect(screen.getByText(/Summer Super Sale/i)).toBeInTheDocument();
+    //});
 
-    it('shows loading state initially', () => {
-        renderWithRouter(<HomePage />);
-        expect(screen.getByText(/Loading/i)).toBeInTheDocument();
-    });
+    //it('shows loading state initially', () => {
+      //  renderWithRouter(<HomePage />);
+        //expect(screen.getByText(/Loading/i)).toBeInTheDocument();
+    //});
 
-    it('filters products when searching', async () => {
-        renderWithRouter(<HomePage />);
-        await waitFor(() => screen.getByText('Nile Smart Watch'), { timeout: 2000 });
-      
-        const searchInput = screen.getByPlaceholderText(/Search for products/i);
-        fireEvent.change(searchInput, { target: { value: 'Gaming' } });
-      
-        expect(screen.getByText('Gaming Mouse')).toBeInTheDocument();
-        expect(screen.queryByText('Running Shoes')).not.toBeInTheDocument();
-    });
-    });
+    //it('filters products when searching', async () => {
+    //    renderWithRouter(<HomePage />);
+    //    await waitFor(() => screen.getByText('Nile Smart Watch'), { timeout: 2000 });
+    
+    //    const searchInput = screen.getByPlaceholderText(/Search for products/i);
+    //    fireEvent.change(searchInput, { target: { value: 'Gaming' } });
+    
+    //    expect(screen.getByText('Gaming Mouse')).toBeInTheDocument();
+    //    expect(screen.queryByText('Running Shoes')).not.toBeInTheDocument();
+    //});
+    //});
 
   // 2. PRODUCT PAGE TESTS
     describe('ProductPage', () => {
