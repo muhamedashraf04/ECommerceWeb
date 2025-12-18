@@ -2,15 +2,17 @@ name: Frontend CI
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches:
+      - master
+      - main
+      - 'CI/CD-front-feature'  
   pull_request:
-    branches: [ "master", "main" ]
+    types: [opened, synchronize, reopened]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
-    # It tells every "run" command to happen inside the 'frontend' folder
+    
     defaults:
       run:
         working-directory: ./frontend
@@ -23,7 +25,6 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
-        # Important: tell the cache where the lock file is
         cache-dependency-path: frontend/package-lock.json
 
     - name: Install Dependencies
