@@ -15,12 +15,12 @@ import ProfilePage from './pages/ProfilePage';
 // --- MOCKS ---
 // We mock the API call in HomePage to avoid network issues
 vi.mock('./pages/HomePage', async (importOriginal) => {
-  const actual = await importOriginal();
-  return { ...actual };
+    const actual = await importOriginal();
+    return { ...actual };
 });
 
 const renderWithRouter = (component) => {
-  return render(<BrowserRouter>{component}</BrowserRouter>);
+    return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 // =================================================================
@@ -29,36 +29,36 @@ const renderWithRouter = (component) => {
 describe('Nile E-Commerce Test Suite', () => {
 
   // 1. HOME PAGE TESTS
-  describe('HomePage', () => {
+    describe('HomePage', () => {
     it('renders the hero section correctly', () => {
-      renderWithRouter(<HomePage />);
-      expect(screen.getByText(/Summer Super Sale/i)).toBeInTheDocument();
+        renderWithRouter(<HomePage />);
+        expect(screen.getByText(/Summer Super Sale/i)).toBeInTheDocument();
     });
 
     it('shows loading state initially', () => {
-      renderWithRouter(<HomePage />);
-      expect(screen.getByText(/Loading/i)).toBeInTheDocument();
+        renderWithRouter(<HomePage />);
+        expect(screen.getByText(/Loading/i)).toBeInTheDocument();
     });
 
     it('filters products when searching', async () => {
-      renderWithRouter(<HomePage />);
-      await waitFor(() => screen.getByText('Nile Smart Watch'), { timeout: 2000 });
+        renderWithRouter(<HomePage />);
+        await waitFor(() => screen.getByText('Nile Smart Watch'), { timeout: 2000 });
       
-      const searchInput = screen.getByPlaceholderText(/Search for products/i);
-      fireEvent.change(searchInput, { target: { value: 'Gaming' } });
+        const searchInput = screen.getByPlaceholderText(/Search for products/i);
+        fireEvent.change(searchInput, { target: { value: 'Gaming' } });
       
-      expect(screen.getByText('Gaming Mouse')).toBeInTheDocument();
-      expect(screen.queryByText('Running Shoes')).not.toBeInTheDocument();
+        expect(screen.getByText('Gaming Mouse')).toBeInTheDocument();
+        expect(screen.queryByText('Running Shoes')).not.toBeInTheDocument();
     });
-  });
+    });
 
   // 2. PRODUCT PAGE TESTS
-  describe('ProductPage', () => {
+    describe('ProductPage', () => {
     it('renders basic product details', async () => {
-      renderWithRouter(<ProductPage />);
-      await waitFor(() => {
+        renderWithRouter(<ProductPage />);
+        await waitFor(() => {
         expect(screen.getByText(/Nile Smart Watch/i)).toBeInTheDocument();
-      }, { timeout: 2000 });
+        }, { timeout: 2000 });
     });
 
     it('allows changing quantity', async () => {

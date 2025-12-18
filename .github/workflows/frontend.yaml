@@ -5,7 +5,7 @@ on:
     branches:
       - master
       - main
-      - 'CI/CD-front-feature'  
+      - 'CI/CD-front-feature'
   pull_request:
     types: [opened, synchronize, reopened]
 
