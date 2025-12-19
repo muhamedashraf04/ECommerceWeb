@@ -10,4 +10,22 @@
     <ProjectReference Include="..\ECommerceWeb.Domain\ECommerceWeb.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Azure.Storage.Blobs">
+      <HintPath>..\..\..\..\..\..\..\home\mohamed\.nuget\packages\azure.storage.blobs\12.26.0\lib\net8.0\Azure.Storage.Blobs.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Http.Features">
+      <HintPath>..\..\..\..\..\..\..\home\mohamed\.nuget\packages\microsoft.aspnetcore.app.ref\9.0.11\ref\net9.0\Microsoft.AspNetCore.Http.Features.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Abstractions">
+      <HintPath>..\..\..\..\..\..\..\home\mohamed\.nuget\packages\microsoft.extensions.configuration.abstractions\9.0.10\lib\net9.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.26.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.1" />
+  </ItemGroup>
+
 </Project>

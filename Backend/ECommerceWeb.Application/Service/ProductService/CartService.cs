@@ -3,7 +3,7 @@ using ECommerceWeb.Application.Interfaces;
 using ECommerceWeb.Application.Interfaces.IService;
 using ECommerceWeb.Domain.Models;
 
-namespace ECommerceWeb.Application.Service.CartS
+namespace ECommerceWeb.Application.Service.ProductService
 {
     public class CartService : ICartService 
     {
