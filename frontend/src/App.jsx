@@ -6,7 +6,7 @@ import PlaceOrderPage from './pages/PlaceOrderPage';
 import MainLayout from './layouts/MainLayout';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
-
+import VendorPage from './pages/VendorPage';
 function App() {
   return (
     <Routes>

@@ -1,0 +1,122 @@
+.container {
+    padding: 1rem;
+}
+
+.header {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.card {
+    border: 1px solid #e5e7eb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+.cardTitle {
+    font-weight: 700;
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+}
+
+.cardText {
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+}
+
+.price {
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn {
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+.btnEdit {
+    background-color: #eab308;
+}
+
+.btnDelete {
+    background-color: #ef4444;
+}
+
+.btnAccept {
+    background-color: #16a34a;
+}
+
+.btnCancel {
+    background-color: #dc2626;
+}
+
+/* Form Styles */
+.formContainer {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #f9fafb;
+}
+
+.formGroup {
+    margin-bottom: 1rem;
+}
+
+.label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.input, .textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+}
+
+.orderItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.orderList {
+    list-style-type: disc;
+    list-style-position: inside;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
