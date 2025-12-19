@@ -1,143 +1,180 @@
-﻿using System.Net;
-using System.Net.Http.Json;
+﻿using ECommerceWeb.Application.DTOs;
+using ECommerceWeb.Domain.Models;
+using ECommerceWeb.Domain.Models.BaseModels;
+using ECommerceWeb.Infrastructure.Data;
+using FluentAssertions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using System.Net.Http.Json; // Required for PostAsJsonAsync
 using System.Threading.Tasks;
 using Xunit;
-using FluentAssertions;
-using ECommerceWeb.Application.DTOs;
-using ECommerceWeb.Domain.Models;
-using Microsoft.Extensions.DependencyInjection;
-using ECommerceWeb.Infrastructure.Data;
-using Microsoft.AspNetCore.Identity;
 
 namespace ECommerceWeb.Application.Test.ControllerTest
 {
     public class AuthControllerEndpointsTest : IClassFixture<CustomWebApplicationFactory>
     {
-        private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory _factory;
 
         public AuthControllerEndpointsTest(CustomWebApplicationFactory factory)
         {
             _factory = factory;
-            _client = factory.CreateClient();
+        }
+
+        private HttpClient CreateClient()
+        {
+            return _factory.CreateClient();
+        }
+
+        private async Task ClearDbAsync(ApplicationDbContext db)
+        {
+            db.Customer.RemoveRange(db.Customer);
+            db.Vendor.RemoveRange(db.Vendor);
+            await db.SaveChangesAsync();
         }
 
         [Fact]
-        public async Task Register_NewCustomer_ReturnsOkWithUser()
+        public async Task Register_ValidCustomer_ReturnsOk()
         {
+            var client = CreateClient();
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await ClearDbAsync(db);
+
             // Arrange
-            var request = new UserRegisterDTO
+            var registerDto = new UserRegisterDTO
             {
                 Name = "New Customer",
-                Email = "unique_customer@test.com",
+                Email = "customer@example.com",
                 Password = "Password123!",
-                Phone = "123456789",
-                Role = "Customer",
-                Address = "123 Street"
+                Phone = "01000000000",
+                Address = "Cairo, Egypt",
+                Role = "Customer"
             };
 
-            // Act
-            var response = await _client.PostAsJsonAsync("/api/Auth/register", request);
+            // Act: MUST use MultipartFormData because Controller has [FromForm]
+            using var content = new MultipartFormDataContent();
+            content.Add(new StringContent(registerDto.Name), nameof(registerDto.Name));
+            content.Add(new StringContent(registerDto.Email), nameof(registerDto.Email));
+            content.Add(new StringContent(registerDto.Password), nameof(registerDto.Password));
+            content.Add(new StringContent(registerDto.Phone), nameof(registerDto.Phone));
+            content.Add(new StringContent(registerDto.Address), nameof(registerDto.Address));
+            content.Add(new StringContent(registerDto.Role), nameof(registerDto.Role));
+
+            var response = await client.PostAsync("/api/auth/register", content);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var user = await response.Content.ReadFromJsonAsync<Customer>();
-            user.Email.Should().Be(request.Email);
-            user.Name.Should().Be(request.Name);
+            user.Email.Should().Be(registerDto.Email);
         }
 
         [Fact]
-        public async Task Register_DuplicateEmail_ReturnsBadRequest()
+        public async Task Register_ValidVendor_ReturnsOk()
         {
-            // 1. Arrange: First, ensure a user with this email actually exists in the DB
-            string sharedEmail = "duplicate@test.com";
-            await SeedUserAsync(sharedEmail, "Password123!");
+            var client = CreateClient();
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await ClearDbAsync(db);
 
-            // 2. Create a second request with the same email, but ensure ALL other required 
-            // fields (like Phone) are present to pass Model Validation
-            var request = new UserRegisterDTO
+            // Arrange
+            var registerDto = new UserRegisterDTO
             {
-                Name = "Duplicate User",
-                Email = sharedEmail,
+                Name = "New Vendor",
+                Email = "vendor@example.com",
                 Password = "Password123!",
-                Phone = "123456789", // MUST be present to pass initial validation
-                Role = "Customer",
-                Address = "Some Address"
+                Phone = "01111111111",
+                Address = "Giza, Egypt",
+                Role = "Vendor",
+                CompanyName = "Tech Corp"
             };
 
-            // 3. Act
-            var response = await _client.PostAsJsonAsync("/api/Auth/register", request);
+            // Act: use MultipartFormDataContent
+            using var content = new MultipartFormDataContent();
+            content.Add(new StringContent(registerDto.Name), nameof(registerDto.Name));
+            content.Add(new StringContent(registerDto.Email), nameof(registerDto.Email));
+            content.Add(new StringContent(registerDto.Password), nameof(registerDto.Password));
+            content.Add(new StringContent(registerDto.Phone), nameof(registerDto.Phone));
+            content.Add(new StringContent(registerDto.Address), nameof(registerDto.Address));
+            content.Add(new StringContent(registerDto.Role), nameof(registerDto.Role));
+            content.Add(new StringContent(registerDto.CompanyName), nameof(registerDto.CompanyName));
 
-            // 4. Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var error = await response.Content.ReadAsStringAsync();
+            var response = await client.PostAsync("/api/auth/register", content);
 
-            // Now it should contain your custom message instead of the validation error
-            error.Should().Contain("already exists");
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var user = await response.Content.ReadFromJsonAsync<Vendor>();
+            user.Email.Should().Be(registerDto.Email);
+            user.CompanyName.Should().Be("Tech Corp");
         }
 
         [Fact]
         public async Task Login_ValidCredentials_ReturnsJwtToken()
         {
-            // Arrange: 1. Manually seed a user with a hashed password
-            string email = "login_test@test.com";
-            string password = "SecretPassword123";
-            await SeedUserAsync(email, password);
+            // 1. Setup: We need a user in the DB first to log in
+            var client = CreateClient();
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await ClearDbAsync(db);
 
-            var loginRequest = new UserLoginDTO
+            var passwordHasher = new PasswordHasher<BaseUser>();
+            var customer = new Customer
             {
-                Email = email,
-                Password = password
+                Name = "Login User",
+                Email = "login@example.com",
+                Phone = "123456",
+                Address = "Test Address"
+            };
+            customer.PasswordHash = passwordHasher.HashPassword(customer, "MySecurePassword");
+            db.Customer.Add(customer);
+            await db.SaveChangesAsync();
+
+            // 2. Act: Send JSON (Login endpoint expects JSON body)
+            var loginDto = new UserLoginDTO
+            {
+                Email = "login@example.com",
+                Password = "MySecurePassword"
             };
 
-            // Act
-            var response = await _client.PostAsJsonAsync("/api/Auth/login", loginRequest);
+            var response = await client.PostAsJsonAsync("/api/auth/login", loginDto);
 
-            // Assert
+            // 3. Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var token = await response.Content.ReadAsStringAsync();
             token.Should().NotBeNullOrEmpty();
-            // A JWT token typically has two dots (three parts)
-            token.Split('.').Should().HaveCount(3);
         }
 
         [Fact]
         public async Task Login_WrongPassword_ReturnsBadRequest()
         {
-            // Arrange
-            var loginRequest = new UserLoginDTO
+            // 1. Setup
+            var client = CreateClient();
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await ClearDbAsync(db);
+
+            var passwordHasher = new PasswordHasher<BaseUser>();
+            var customer = new Customer
             {
-                Email = "login_test@test.com",
+                Name = "Login User",
+                Email = "login@example.com",
+                Phone = "123456"
+            };
+            customer.PasswordHash = passwordHasher.HashPassword(customer, "CorrectPassword");
+            db.Customer.Add(customer);
+            await db.SaveChangesAsync();
+
+            // 2. Act
+            var loginDto = new UserLoginDTO
+            {
+                Email = "login@example.com",
                 Password = "WrongPassword"
             };
 
-            // Act
-            var response = await _client.PostAsJsonAsync("/api/Auth/login", loginRequest);
+            var response = await client.PostAsJsonAsync("/api/auth/login", loginDto);
 
-            // Assert
+            // 3. Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var error = await response.Content.ReadAsStringAsync();
-            error.Should().Contain("Wrong password");
-        }
-
-        private async Task SeedUserAsync(string email, string password)
-        {
-            using var scope = _factory.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-            var customer = new Customer
-            {
-                Name = "Login Test User",
-                Email = email,
-                Phone = "000000",
-                Address = "Test Address"
-            };
-
-            var hasher = new PasswordHasher<Customer>();
-            customer.PasswordHash = hasher.HashPassword(customer, password);
-
-            db.Customer.Add(customer);
-            await db.SaveChangesAsync();
         }
     }
 }

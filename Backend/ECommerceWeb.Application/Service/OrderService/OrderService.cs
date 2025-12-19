@@ -8,7 +8,6 @@ using ECommerceWeb.Application.Interfaces;
 using ECommerceWeb.Domain.Models;
 using System.Collections;
 using ECommerceWeb.Application.DTOs.OrderDTOs;
-using ECommerceWeb.Application.Service.ProductService;
 
 namespace ECommerceWeb.Application.Service.OrderService
 {

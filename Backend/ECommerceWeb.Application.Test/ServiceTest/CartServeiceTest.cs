@@ -1,7 +1,7 @@
 ﻿using Xunit;
 using Moq;
 using FluentAssertions;
-using ECommerceWeb.Application.Service.CartS;
+using ECommerceWeb.Application.Service;
 using ECommerceWeb.Application.Interfaces;
 using ECommerceWeb.Domain.Models;
 using ECommerceWeb.Application.DTOs.CartDTOs;

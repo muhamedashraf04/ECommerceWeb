@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using ECommerceWeb.Application.DTOs.CartDTOs;
 using ECommerceWeb.Application.DTOs.OrderDTOs;
 using ECommerceWeb.Application.Interfaces;
-using ECommerceWeb.Application.Service.CartS;
+using ECommerceWeb.Application.Service;
 using ECommerceWeb.Application.Service.OrderService;
 using ECommerceWeb.Domain.Models;
 using FluentAssertions;
