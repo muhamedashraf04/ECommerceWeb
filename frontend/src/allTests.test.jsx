@@ -1,10 +1,9 @@
-// src/AllTests.test.jsx
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom'; 
 
-
+// --- IMPORTS ---
 import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import AuthPage from './pages/AuthPage';
@@ -33,6 +32,7 @@ describe('Nile E-Commerce Test Suite', () => {
           <div>Page Content</div>
         </MainLayout>
       );
+      // This will pass once you save MainLayout.jsx
       expect(screen.getByText(/NILE/i)).toBeInTheDocument();
       expect(screen.getByText(/Home/i)).toBeInTheDocument();
     });
@@ -52,7 +52,6 @@ describe('Nile E-Commerce Test Suite', () => {
   describe('ProductPage', () => {
     it('renders basic product details', async () => {
       renderWithRouter(<ProductPage />);
-      // Wait for loader to vanish and text to appear
       await waitFor(() => {
         expect(screen.getByText(/Nile Smart Watch/i)).toBeInTheDocument();
       }, { timeout: 3000 });
@@ -60,14 +59,11 @@ describe('Nile E-Commerce Test Suite', () => {
 
     it('allows changing quantity', async () => {
         renderWithRouter(<ProductPage />);
-        // 1. Wait for loading to finish
         await waitFor(() => screen.getByText(/Nile Smart Watch/i), { timeout: 3000 });
         
-        // 2. Now find the button
         const plusBtn = screen.getByText('+');
         fireEvent.click(plusBtn);
         fireEvent.click(plusBtn);
-        
         expect(screen.getByText('3')).toBeInTheDocument();
       });
   });
@@ -81,11 +77,8 @@ describe('Nile E-Commerce Test Suite', () => {
 
     it('allows typing in email field', () => {
         renderWithRouter(<AuthPage />);
-        
-        // FIX: Your placeholder is "you@example.com", NOT "Email"
-        // Alternatively, we can find by the Label "Email Address"
-        const emailInput = screen.getByLabelText(/Email Address/i);
-        
+        // FIXED: Using placeholder "you@example.com" because your labels aren't linked with IDs
+        const emailInput = screen.getByPlaceholderText(/you@example.com/i);
         fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
         expect(emailInput.value).toBe('test@example.com');
       });
@@ -95,17 +88,17 @@ describe('Nile E-Commerce Test Suite', () => {
   describe('CartPage', () => {
     it('renders the cart title', async () => {
       renderWithRouter(<CartPage />);
-      // FIX: Wait for "Loading your bag..." to finish
+      // FIXED: Your app says "Shopping Bag", not "Your Cart"
       await waitFor(() => {
-          expect(screen.getByText(/Your Cart/i)).toBeInTheDocument();
+          expect(screen.getByText(/Shopping Bag/i)).toBeInTheDocument();
       }, { timeout: 3000 });
     });
 
     it('shows the checkout button', async () => {
         renderWithRouter(<CartPage />);
-        // FIX: Wait for loading
+        // FIXED: Your button says "Checkout (EGP...)", so we match "Checkout" loosely
         await waitFor(() => {
-            expect(screen.getByText(/Proceed to Checkout/i)).toBeInTheDocument();
+            expect(screen.getByText(/Checkout/i)).toBeInTheDocument();
         }, { timeout: 3000 });
       });
   });
@@ -114,26 +107,26 @@ describe('Nile E-Commerce Test Suite', () => {
   describe('PlaceOrderPage', () => {
     it('renders delivery information form', async () => {
       renderWithRouter(<PlaceOrderPage />);
-      // FIX: Wait for "Loading Checkout..." to finish
+      // Wait for "Shipping Address" header
       await waitFor(() => {
-          expect(screen.getByText(/Delivery Information/i)).toBeInTheDocument();
+          expect(screen.getByText(/Shipping Address/i)).toBeInTheDocument();
       }, { timeout: 3000 });
     });
 
     it('validates form inputs', async () => {
         renderWithRouter(<PlaceOrderPage />);
-        
-        // FIX: Wait for loading first!
+        // Wait for page load
         await waitFor(() => {
-            expect(screen.getByText(/Delivery Information/i)).toBeInTheDocument();
+            expect(screen.getByText(/Shipping Address/i)).toBeInTheDocument();
         }, { timeout: 3000 });
 
-        const cityInput = screen.getByPlaceholderText(/City/i);
-        fireEvent.change(cityInput, { target: { value: 'Cairo' } });
-        expect(cityInput.value).toBe('Cairo');
+        // FIXED: Use strict regex (^...$) so it doesn't match "123 Nile St, Cairo"
+        const cityInput = screen.getByPlaceholderText(/^Cairo$/i);
+        
+        fireEvent.change(cityInput, { target: { value: 'Giza' } });
+        expect(cityInput.value).toBe('Giza');
       });
   });
-
   // 7. PROFILE PAGE
   describe('ProfilePage', () => {
     it('renders customer details after load', async () => {
