@@ -134,12 +134,5 @@ namespace ECommerceWeb.Controllers.Auth
             );
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }
-
-        [Authorize(Roles = "Vendor")]
-        [HttpGet("test")]
-        public IActionResult Auth()
-        {
-            return Ok("Auth Controller is working!");
-        }
     }
 }

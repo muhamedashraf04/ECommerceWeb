@@ -40,7 +40,7 @@ public class ProductController : ControllerBase
         }
         int vendorId = int.Parse(userIdClaim);
         var product = await _ProductService.CreateProductAsync(dto, vendorId);
-
+      
         if (product == null)
         {
             return BadRequest("Could not create product.");
