@@ -68,15 +68,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
+    options.AddPolicy("AllowFrontend",
         policy => policy
-            .WithOrigins("http://localhost:5173") // Your React URL
+            .WithOrigins("http://localhost:5173") // <--- This allows your React App
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
 });
 var app = builder.Build();
-
+app.UseCors("AllowFrontend");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

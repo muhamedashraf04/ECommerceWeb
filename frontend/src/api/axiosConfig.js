@@ -1,6 +1,8 @@
+// frontend/src/api/axiosConfig.js
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5193'; 
+// The URL from your api-docs.html
+const BASE_URL = 'https://deployment.mangoisland-dd0744d7.italynorth.azurecontainerapps.io'; 
 
 const api = axios.create({
     baseURL: BASE_URL,

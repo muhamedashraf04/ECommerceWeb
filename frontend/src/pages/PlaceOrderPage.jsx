@@ -10,7 +10,7 @@ const PlaceOrderPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
-    const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
+    const [step, setStep] = useState(1); 
     
     const [shippingInfo, setShippingInfo] = useState({
         address: '',
@@ -18,7 +18,6 @@ const PlaceOrderPage = () => {
         postalCode: '',
         country: ''
     });
-
     const [paymentMethod, setPaymentMethod] = useState('Credit Card');
     const [cardInfo, setCardInfo] = useState({
         cardHolder: '',
@@ -26,41 +25,78 @@ const PlaceOrderPage = () => {
         expiryDate: '',
         cvv: ''
     });
-
-    // ==========================================
-    //  PHASE 4: API HANDLERS
-    // ==========================================
-
-    // --- OPTION A: FAKE BACKEND (CURRENTLY ACTIVE) ---
     const api = {
-        fetchCartSummary: () => {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve([
-                        { 
-                            id: 1, 
-                            name: "Nile Smart Watch", 
-                            price: 2500, 
-                            qty: 1, 
-                            image: "https://via.placeholder.com/100" 
-                        },
-                        { 
-                            id: 2, 
-                            name: "Wireless Earbuds", 
-                            price: 850, 
-                            qty: 2, 
-                            image: "https://via.placeholder.com/100" 
-                        }
-                    ]);
-                }, 1000);
-            });
+        fetchCartSummary: async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return [];
+            try {
+                const response = await fetch('/api/Cart/ShowCart', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) return [];
+                const data = await response.json();
+                const rawItems = Array.isArray(data) ? data : (data.cartItems || data.items || []);
+                const hydratedItems = await Promise.all(rawItems.map(async (item) => {
+                    const id = item.productId || item.ProductId || item.id;
+                    const qty = item.quantity || item.Quantity || 1;
+                    
+                    try {
+                        const productRes = await fetch(`/api/Product/GetProductByID?productId=${id}`);
+                        
+                        if (!productRes.ok) throw new Error("Failed");
+
+                        const productDetails = await productRes.json();
+                        
+                        return {
+                            id: id,
+                            qty: qty,
+                            name: productDetails.Name || productDetails.name || "Unknown Product",
+                            price: productDetails.Price || productDetails.price || 0,
+                            image: productDetails.ImageUrl || productDetails.imageUrl || productDetails.image || ""
+                        };
+
+                    } catch (e) {
+                        console.error(`Failed to load product ${id}`, e);
+                        return { 
+                            id, 
+                            qty, 
+                            name: "Product Unavailable", 
+                            price: 0, 
+                            image: "" 
+                        };
+                    }
+                }));
+
+                return hydratedItems;
+
+            } catch (err) {
+                console.error(err);
+                return [];
+            }
         },
-        placeOrder: (orderData) => {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve({ success: true, orderId: "ORD-12345-NILE" });
-                }, 2000);
+
+        // 2. PLACE ORDER
+        placeOrder: async (fullAddress) => {
+            const token = localStorage.getItem('token');
+            
+            const response = await fetch('/api/Order/PlaceOrder', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify({ 
+                    address: fullAddress 
+                })
             });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || "Failed to place order");
+            }
+            
+            return true; 
         }
     };
 
@@ -69,21 +105,18 @@ const PlaceOrderPage = () => {
         const loadData = async () => {
             try {
                 const data = await api.fetchCartSummary();
+                if (data.length === 0) {
+                    // Optional: You can uncomment this if you want to force redirect empty carts
+                    // alert("Your cart is empty!");
+                    // navigate('/'); 
+                }
                 setCartItems(data);
-            } catch (err) {
-                console.error("Failed to load cart", err);
             } finally {
                 setIsLoading(false);
             }
         };
         loadData();
-    }, []);
-
-    // --- CALCULATIONS ---
-    const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
-    const shippingCost = 50; // Flat rate
-    const tax = subtotal * 0.14; // 14% Tax
-    const total = subtotal + shippingCost + tax;
+    }, [navigate]);
 
     // --- HANDLERS ---
     const handleShippingChange = (e) => {
@@ -91,33 +124,39 @@ const PlaceOrderPage = () => {
         setShippingInfo(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleCardChange = (e) => {
-        const { name, value } = e.target;
-        setCardInfo(prev => ({ ...prev, [name]: value }));
-    };
-
     const handlePlaceOrder = async () => {
         setIsPlacingOrder(true);
         try {
-            const orderData = {
-                items: cartItems,
-                shipping: shippingInfo,
-                payment: paymentMethod,
-                total: total
-            };
+            const fullAddress = `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postalCode}, ${shippingInfo.country}`;
+
+            await api.placeOrder(fullAddress);
             
-            const response = await api.placeOrder(orderData);
+            alert(`Order Placed Successfully!`);
+            navigate('/'); 
             
-            if (response.success) {
-                alert(`Order Placed Successfully! Order ID: ${response.orderId}`);
-                navigate('/'); // Redirect to Home or Order Success Page
-            }
         } catch (err) {
-            alert("Failed to place order. Please try again.");
+            console.error(err);
+            alert("Failed to place order. " + err.message);
         } finally {
             setIsPlacingOrder(false);
         }
     };
+
+    // --- CALCULATIONS ---
+    const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+    const shippingCost = 50; 
+    const tax = subtotal * 0.14; 
+    const total = subtotal + shippingCost + tax;
+
+    // Helper for Image URL
+    const getImageUrl = (img) => {
+        if (!img) return "https://via.placeholder.com/100";
+        if (img.startsWith('http')) return img;
+        return `http://localhost:5193/${img}`; 
+    };
+
+    // Formatter
+    const formatCurrency = (val) => new Intl.NumberFormat('en-EG', { style: 'currency', currency: 'EGP' }).format(val);
 
     if (isLoading) {
         return (
@@ -148,47 +187,29 @@ const PlaceOrderPage = () => {
                             <div className={styles.stepBody}>
                                 <div className={styles.formGroup}>
                                     <label>Address</label>
-                                    <input 
-                                        type="text" 
-                                        name="address" 
-                                        value={shippingInfo.address} 
-                                        onChange={handleShippingChange} 
-                                        placeholder="123 Nile St, Cairo"
-                                    />
+                                    <input type="text" name="address" value={shippingInfo.address} onChange={handleShippingChange} placeholder="123 Nile St, Cairo" />
                                 </div>
                                 <div className={styles.row}>
                                     <div className={styles.formGroup}>
                                         <label>City</label>
-                                        <input 
-                                            type="text" 
-                                            name="city" 
-                                            value={shippingInfo.city} 
-                                            onChange={handleShippingChange} 
-                                            placeholder="Cairo"
-                                        />
+                                        <input type="text" name="city" value={shippingInfo.city} onChange={handleShippingChange} placeholder="Cairo" />
                                     </div>
                                     <div className={styles.formGroup}>
                                         <label>Postal Code</label>
-                                        <input 
-                                            type="text" 
-                                            name="postalCode" 
-                                            value={shippingInfo.postalCode} 
-                                            onChange={handleShippingChange} 
-                                            placeholder="11511"
-                                        />
+                                        <input type="text" name="postalCode" value={shippingInfo.postalCode} onChange={handleShippingChange} placeholder="11511" />
                                     </div>
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label>Country</label>
-                                    <input 
-                                        type="text" 
-                                        name="country" 
-                                        value={shippingInfo.country} 
-                                        onChange={handleShippingChange} 
-                                        placeholder="Egypt"
-                                    />
+                                    <input type="text" name="country" value={shippingInfo.country} onChange={handleShippingChange} placeholder="Egypt" />
                                 </div>
-                                <button className={styles.nextBtn} onClick={() => setStep(2)}>
+                                <button 
+                                    className={styles.nextBtn} 
+                                    onClick={() => {
+                                        if(!shippingInfo.address) return alert("Please enter an address");
+                                        setStep(2);
+                                    }}
+                                >
                                     Continue to Payment
                                 </button>
                             </div>
@@ -206,68 +227,20 @@ const PlaceOrderPage = () => {
                             <div className={styles.stepBody}>
                                 <div className={styles.paymentOptions}>
                                     <div 
-                                        className={`${styles.paymentOption} ${paymentMethod === 'Credit Card' ? styles.selectedPayment : ''}`}
-                                        onClick={() => setPaymentMethod('Credit Card')}
-                                    >
-                                        <CreditCard size={24} />
-                                        <span>Credit Card</span>
-                                    </div>
-                                    <div 
                                         className={`${styles.paymentOption} ${paymentMethod === 'Cash on Delivery' ? styles.selectedPayment : ''}`}
                                         onClick={() => setPaymentMethod('Cash on Delivery')}
                                     >
                                         <Truck size={24} />
                                         <span>Cash on Delivery</span>
                                     </div>
-                                </div>
-
-                                {paymentMethod === 'Credit Card' && (
-                                    <div className={styles.cardDetails}>
-                                        <div className={styles.formGroup}>
-                                            <label>Card Holder Name</label>
-                                            <input 
-                                                type="text" 
-                                                name="cardHolder" 
-                                                value={cardInfo.cardHolder} 
-                                                onChange={handleCardChange} 
-                                                placeholder="John Doe"
-                                            />
-                                        </div>
-                                        <div className={styles.formGroup}>
-                                            <label>Card Number</label>
-                                            <input 
-                                                type="text" 
-                                                name="cardNumber" 
-                                                value={cardInfo.cardNumber} 
-                                                onChange={handleCardChange} 
-                                                placeholder="0000 0000 0000 0000"
-                                            />
-                                        </div>
-                                        <div className={styles.row}>
-                                            <div className={styles.formGroup}>
-                                                <label>Expire Date</label>
-                                                <input 
-                                                    type="text" 
-                                                    name="expiryDate" 
-                                                    value={cardInfo.expiryDate} 
-                                                    onChange={handleCardChange} 
-                                                    placeholder="MM/YY"
-                                                />
-                                            </div>
-                                            <div className={styles.formGroup}>
-                                                <label>CVV</label>
-                                                <input 
-                                                    type="text" 
-                                                    name="cvv" 
-                                                    value={cardInfo.cvv} 
-                                                    onChange={handleCardChange} 
-                                                    placeholder="123"
-                                                />
-                                            </div>
-                                        </div>
+                                    <div 
+                                        className={`${styles.paymentOption} ${paymentMethod === 'Credit Card' ? styles.selectedPayment : ''}`}
+                                        onClick={() => setPaymentMethod('Credit Card')}
+                                    >
+                                        <CreditCard size={24} />
+                                        <span>Credit Card</span>
                                     </div>
-                                )}
-
+                                </div>
                                 <button className={styles.nextBtn} onClick={() => setStep(3)}>
                                     Review Order
                                 </button>
@@ -287,13 +260,17 @@ const PlaceOrderPage = () => {
                                 <div className={styles.reviewItems}>
                                     {cartItems.map(item => (
                                         <div key={item.id} className={styles.reviewItem}>
-                                            <img src={item.image} alt={item.name} />
+                                            <img 
+                                                src={getImageUrl(item.image)} 
+                                                alt={item.name} 
+                                                onError={(e) => e.target.src = "https://via.placeholder.com/100"}
+                                            />
                                             <div className={styles.reviewDetails}>
                                                 <h4>{item.name}</h4>
-                                                <p>{item.qty} x {item.price} EGP</p>
+                                                <p>{item.qty} x {formatCurrency(item.price)}</p>
                                             </div>
                                             <div className={styles.reviewPrice}>
-                                                {item.qty * item.price} EGP
+                                                {formatCurrency(item.qty * item.price)}
                                             </div>
                                         </div>
                                     ))}
@@ -301,30 +278,26 @@ const PlaceOrderPage = () => {
                             </div>
                         )}
                     </div>
-
                 </div>
-
-                {/* RIGHT SIDE: ORDER SUMMARY */}
                 <div className={styles.summarySection}>
                     <div className={styles.summaryCard}>
                         <h3>Order Summary</h3>
                         <div className={styles.summaryRow}>
-                            <span>Items ({cartItems.reduce((a, c) => a + c.qty, 0)}):</span>
-                            <span>{subtotal.toLocaleString()} EGP</span>
+                            <span>Items:</span>
+                            <span>{formatCurrency(subtotal)}</span>
                         </div>
                         <div className={styles.summaryRow}>
                             <span>Shipping:</span>
-                            <span>{shippingCost} EGP</span>
+                            <span>{formatCurrency(shippingCost)}</span>
                         </div>
                         <div className={styles.summaryRow}>
                             <span>Tax (14%):</span>
-                            <span>{tax.toLocaleString()} EGP</span>
+                            <span>{formatCurrency(tax)}</span>
                         </div>
                         <div className={`${styles.summaryRow} ${styles.totalRow}`}>
                             <span>Order Total:</span>
-                            <span>{total.toLocaleString()} EGP</span>
+                            <span>{formatCurrency(total)}</span>
                         </div>
-
                         <button 
                             className={styles.placeOrderBtn}
                             onClick={handlePlaceOrder}
@@ -334,7 +307,6 @@ const PlaceOrderPage = () => {
                         </button>
                     </div>
                 </div>
-
             </div>
         </div>
     );
