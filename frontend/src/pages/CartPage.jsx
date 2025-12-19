@@ -1,108 +1,133 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Loader } from 'lucide-react';
+import { Trash2, Loader, ShoppingCart } from 'lucide-react';
 import styles from './CartPage.module.css';
 
 const CartPage = () => {
     const navigate = useNavigate();
 
-    // --- STATE ---
     const [cartItems, setCartItems] = useState([]); 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
     // ==========================================
-    //  PHASE 4: API HANDLERS
+    //  API HANDLERS
     // ==========================================
-
-    // --- OPTION A: FAKE BACKEND (CURRENTLY ACTIVE) ---
-    // Simulates database delay and response
     const api = {
-        fetchCart: () => {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve([
-                        { 
-                            id: 1, 
-                            name: "Nile Smart Watch", 
-                            category: "Electronics - Black", 
-                            price: 2500, 
-                            qty: 1, 
-                            image: "https://via.placeholder.com/100" 
-                        },
-                        { 
-                            id: 2, 
-                            name: "Wireless Earbuds", 
-                            category: "Audio - White", 
-                            price: 850, 
-                            qty: 2, 
-                            image: "https://via.placeholder.com/100" 
-                        }
-                    ]);
-                }, 1500); // 1.5s delay to show loading spinner
-            });
-        },
-        removeItem: (id) => {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve({ success: true, message: "Item removed" });
-                }, 500);
-            });
-        },
-        checkout: (total) => {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve({ success: true, orderId: "ORD-998877" });
-                }, 2000);
-            });
-        }
-    };
-
-    /* // --- OPTION B: REAL BACKEND (USE THIS WHEN API IS READY) ---
-    const api = {
+        // 1. GET CART + HYDRATE PRODUCT DETAILS
         fetchCart: async () => {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/cart', {
-                headers: { 'Authorization': `Bearer ${token}` }
+            if (!token) return [];
+
+            // STEP A: Get the list of IDs from the Cart
+            // URL from CartController
+            const cartResponse = await fetch('/api/Cart/ShowCart', {
+                method: 'GET',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                }
             });
-            if (!response.ok) throw new Error("Failed to fetch cart");
-            const data = await response.json();
-            return data.items;
+
+            if (!cartResponse.ok) {
+                if (cartResponse.status === 404) return [];
+                throw new Error("Failed to fetch cart");
+            }
+
+            const cartData = await cartResponse.json();
+            
+            // Handle different array structures
+            const rawItems = Array.isArray(cartData) ? cartData : (cartData.cartItems || cartData.items || []);
+
+            // STEP B: Fetch details for every product ID found
+            const hydratedItems = await Promise.all(rawItems.map(async (item) => {
+                // Handle naming mismatch (productId vs productID vs id)
+                const id = item.productId || item.ProductId || item.id;
+                const qty = item.quantity || item.Quantity || 1;
+
+                try {
+                    // --- CRITICAL FIX HERE ---
+                    // OLD URL: /api/Product/${id}  <-- This was wrong
+                    // NEW URL: /api/Product/GetProductByID?productId=${id} <-- Matches your Controller
+                    const productRes = await fetch(`/api/Product/GetProductByID?productId=${id}`);
+                    
+                    if (!productRes.ok) throw new Error("Product fetch failed");
+                    
+                    const productDetails = await productRes.json();
+
+                    // MERGE: Combine Cart Qty with Product Name/Price
+                    return {
+                        id: id,
+                        qty: qty,
+                        // Backend usually sends PascalCase (Name, Price)
+                        name: productDetails.Name || productDetails.name || "Unknown Product",
+                        price: productDetails.Price || productDetails.price || 0,
+                        image: productDetails.ImageUrl || productDetails.imageUrl || productDetails.image || "",
+                        category: productDetails.Category || productDetails.category || "General"
+                    };
+
+                } catch (err) {
+                    console.error(`Failed to load product ${id}`, err);
+                    // Fallback so the cart doesn't crash completely
+                    return {
+                        id: id,
+                        qty: qty,
+                        name: "Product Unavailable",
+                        price: 0,
+                        image: "",
+                        category: "Error"
+                    };
+                }
+            }));
+
+            return hydratedItems;
         },
+
+        // 2. REMOVE ITEM
         removeItem: async (id) => {
-             const token = localStorage.getItem('token');
-             await fetch(`http://localhost:5000/api/cart/${id}`, {
+            const token = localStorage.getItem('token');
+            // URL from CartController
+            const response = await fetch(`/api/Cart/remove/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
-             });
+            });
+            if (!response.ok) throw new Error("Failed to remove item");
+            return true;
         },
+
+        // 3. CHECKOUT
         checkout: async (total) => {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/orders', {
+            // Assuming you have an OrderController
+            const response = await fetch('/api/Order/checkout', { 
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}` 
                 },
-                body: JSON.stringify({ total })
+                body: JSON.stringify({ totalAmount: total })
             });
+
+            if (!response.ok) throw new Error("Checkout failed");
             return await response.json();
         }
     };
-    */
 
     // ==========================================
-    //  LOGIC & EVENT HANDLERS
+    //  LOGIC (No changes needed here)
     // ==========================================
 
-    // 1. Load Cart on Mount
     useEffect(() => {
         const loadData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) { setIsLoading(false); return; }
+
             try {
                 const data = await api.fetchCart();
                 setCartItems(data);
             } catch (err) {
-                setError("Could not load your cart.");
+                console.error(err);
+                setError("Could not load cart items.");
             } finally {
                 setIsLoading(false);
             }
@@ -110,7 +135,6 @@ const CartPage = () => {
         loadData();
     }, []);
 
-    // 2. Handle Quantity (Client-side logic mostly)
     const handleQuantity = (id, delta) => {
         setCartItems(currentItems => 
             currentItems.map(item => {
@@ -123,36 +147,34 @@ const CartPage = () => {
         );
     };
 
-    // 3. Handle Remove
     const handleRemove = async (id) => {
-        // Optimistic update (remove from UI first)
         const originalItems = [...cartItems];
         setCartItems(items => items.filter(item => item.id !== id));
-
         try {
             await api.removeItem(id);
         } catch (err) {
-            // Revert if server fails
             setCartItems(originalItems);
-            alert("Failed to remove item");
+            alert("Failed to delete item.");
         }
     };
 
-    // 4. Handle Checkout
     const handleCheckout = () => {
         if (cartItems.length === 0) return;
-        
-        // Navigate to the checkout page
         navigate('/checkout');
     };
 
-    // --- CALCULATIONS ---
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-EG', {
             style: 'currency',
             currency: 'EGP',
             minimumFractionDigits: 0,
-        }).format(amount);
+        }).format(amount || 0);
+    };
+
+    const getImageUrl = (img) => {
+        if (!img) return "https://via.placeholder.com/150";
+        if (img.startsWith('http')) return img;
+        return `http://localhost:5193/${img}`; 
     };
 
     const subtotal = cartItems.reduce((total, item) => total + (item.price * item.qty), 0);
@@ -168,7 +190,7 @@ const CartPage = () => {
     if (isLoading) {
         return (
             <div className={styles.container}>
-                <div style={{color: 'white', textAlign: 'center'}}>
+                <div style={{color: 'white', textAlign: 'center', marginTop: '5rem'}}>
                     <Loader className="animate-spin" size={48} />
                     <p style={{marginTop: '1rem'}}>Loading your bag...</p>
                 </div>
@@ -177,20 +199,14 @@ const CartPage = () => {
     }
 
     if (error) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.cartCard} style={{justifyContent:'center', color: 'red'}}>
-                    <p>{error}</p>
-                </div>
-            </div>
-        );
+        return <div className={styles.container} style={{color: '#ff6b6b', textAlign: 'center', padding:'2rem'}}>{error}</div>;
     }
 
     return (
         <div className={styles.container}>
             <div className={styles.cartCard}>
                 
-                {/* LEFT: Items List */}
+                {/* ITEMS SECTION */}
                 <div className={styles.itemsSection}>
                     <div className={styles.header}>
                         <h2>Shopping Bag</h2>
@@ -199,11 +215,9 @@ const CartPage = () => {
 
                     {cartItems.length === 0 ? (
                         <div style={{textAlign: 'center', padding: '3rem', color: '#64748b'}}>
+                            <ShoppingCart size={48} style={{opacity: 0.2, marginBottom: '1rem'}}/>
                             <p>Your cart is empty.</p>
-                            <button 
-                                onClick={() => navigate('/')}
-                                style={{marginTop: '1rem', color: 'var(--primary-teal)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold'}}
-                            >
+                            <button onClick={() => navigate('/')} style={{marginTop: '1rem', color: 'var(--primary-teal)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold'}}>
                                 ← Continue Shopping
                             </button>
                         </div>
@@ -211,9 +225,10 @@ const CartPage = () => {
                         cartItems.map((item) => (
                             <div key={item.id} className={styles.cartItem}>
                                 <img 
-                                    src={item.image} 
+                                    src={getImageUrl(item.image)} 
                                     alt={item.name} 
                                     className={styles.itemImage} 
+                                    onError={(e) => e.target.src = "https://via.placeholder.com/150"}
                                 />
                                 <div className={styles.itemDetails}>
                                     <h3>{item.name}</h3>
@@ -221,27 +236,16 @@ const CartPage = () => {
                                 </div>
                                 
                                 <div className={styles.quantityControls}>
-                                    <button 
-                                        className={styles.qtyBtn}
-                                        onClick={() => handleQuantity(item.id, -1)}
-                                    >-</button>
-                                    
+                                    <button className={styles.qtyBtn} onClick={() => handleQuantity(item.id, -1)}>-</button>
                                     <span>{item.qty}</span>
-                                    
-                                    <button 
-                                        className={styles.qtyBtn}
-                                        onClick={() => handleQuantity(item.id, 1)}
-                                    >+</button>
+                                    <button className={styles.qtyBtn} onClick={() => handleQuantity(item.id, 1)}>+</button>
                                 </div>
 
                                 <div className={styles.price}>
                                     {formatCurrency(item.price * item.qty)}
                                 </div>
 
-                                <button 
-                                    className={styles.removeBtn}
-                                    onClick={() => handleRemove(item.id)}
-                                >
+                                <button className={styles.removeBtn} onClick={() => handleRemove(item.id)}>
                                     <Trash2 size={20} />
                                 </button>
                             </div>
@@ -249,35 +253,27 @@ const CartPage = () => {
                     )}
                 </div>
 
-                {/* RIGHT: Order Summary */}
+                {/* SUMMARY SECTION */}
                 {cartItems.length > 0 && (
                     <div className={styles.summarySection}>
                         <h2 className={styles.summaryTitle}>Order Summary</h2>
-                        
                         <div className={styles.summaryRow}>
                             <span>Subtotal</span>
                             <span>{formatCurrency(subtotal)}</span>
                         </div>
                         <div className={styles.summaryRow}>
                             <span>Shipping</span>
-                            <span>
-                                {shippingCost === 0 ? "Free" : formatCurrency(shippingCost)}
-                            </span>
+                            <span>{shippingCost === 0 ? "Free" : formatCurrency(shippingCost)}</span>
                         </div>
                         <div className={styles.summaryRow}>
                             <span>Tax Estimate (14%)</span>
                             <span>{formatCurrency(taxAmount)}</span>
                         </div>
-
                         <div className={styles.totalRow}>
                             <span>Total</span>
                             <span>{formatCurrency(finalTotal)}</span>
                         </div>
-
-                        <button 
-                            className={styles.checkoutBtn}
-                            onClick={handleCheckout}
-                        >
+                        <button className={styles.checkoutBtn} onClick={handleCheckout}>
                             Checkout ({formatCurrency(finalTotal)})
                         </button>
                     </div>
