@@ -11,7 +11,9 @@ COPY frontend/package*.json frontend/
 COPY frontend/vite.config.js frontend/
 
 # Install root dependencies (including react-router-dom and react-icons)
+RUN rm -f package-lock.json frontend/package-lock.json
 RUN npm install
+RUN npm install --prefix frontend
 
 # Run the Vite build command
 COPY frontend/. ./frontend/

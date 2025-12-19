@@ -14,12 +14,14 @@ COPY Backend/ECommerceWeb/ECommerceWeb.csproj .
 # Create project directories at the container root /
 RUN mkdir -p /ECommerceWeb.Application \
            /ECommerceWeb.Domain \
-           /ECommerceWeb.Infrastructure
+           /ECommerceWeb.Infrastructure \
+           /ECommerceWeb.Application.Test
 
 # Copy the .csproj files directly into those absolute root directories
 COPY Backend/ECommerceWeb.Application/ECommerceWeb.Application.csproj /ECommerceWeb.Application/
 COPY Backend/ECommerceWeb.Domain/ECommerceWeb.Domain.csproj /ECommerceWeb.Domain/
 COPY Backend/ECommerceWeb.Infrastructure/ECommerceWeb.Infrastructure.csproj /ECommerceWeb.Infrastructure/
+COPY Backend/ECommerceWeb.Application.Test/ECommerceWeb.Application.Test.csproj /ECommerceWeb.Application.Test/
 
 # 3. Restore dependencies
 # This should now find the projects at the root (/) and the main project at /src.

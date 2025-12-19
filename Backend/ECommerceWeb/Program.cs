@@ -14,6 +14,7 @@ using System.Text;
 using ECommerceWeb.Application.Service;
 using ECommerceWeb.Infrastructure.Data;
 using ECommerceWeb.Application.Service.OrderService;
+using ECommerceWeb.Application.Interfaces.IService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,14 +23,25 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+// Configure DbContext based on environment
+
+// In Program.cs
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()
-    )
-);
+{
+    // Only configure SQL Server if no other provider (like InMemory) is already configured
+    if (!options.IsConfigured)
+    {
+        var connectionString = builder.Environment.IsEnvironment("Testing")
+            ? builder.Configuration.GetConnectionString("TestDbConnection")
+            : builder.Configuration.GetConnectionString("DefaultConnection");
+
+        options.UseSqlServer(connectionString, sqlServerOptions =>
+            sqlServerOptions.EnableRetryOnFailure());
+    }
+});
 //Unit Of Work and Repository Registrations
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<CartService>();
@@ -81,3 +93,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+public partial class Program { }
+

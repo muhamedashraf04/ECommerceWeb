@@ -5,7 +5,7 @@ import ProductPage from './pages/ProductPage';
 import PlaceOrderPage from './pages/PlaceOrderPage';
 import MainLayout from './layouts/MainLayout';
 import HomePage from './pages/HomePage';
-
+import ProfilePage from './pages/ProfilePage';
 function App() {
   return (
     <MainLayout>
@@ -18,8 +18,7 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/prod" element={<ProductPage />} />
         <Route path="/checkout" element={<PlaceOrderPage />} />
-
-        {/* 3. REMOVED the duplicate "/" and the "/Home" redirect */}
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </MainLayout>
   );
