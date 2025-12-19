@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using ECommerceWeb.Application.DTOs.CartDTOs;
-using ECommerceWeb.Application.Service.CartS;
+using ECommerceWeb.Application.Service.ProductService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
