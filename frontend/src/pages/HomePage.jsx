@@ -1,216 +1,149 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShoppingCart, User, ChevronLeft, ChevronRight, Loader } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Loader, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './HomePage.module.css';
 
 const HomePage = () => {
-    const navigate = useNavigate();
-
     // --- STATE ---
-    const [products, setProducts] = useState([]); // Empty start
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [activeCategory, setActiveCategory] = useState('All');
 
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("All");
+    // --- PAGINATION STATE ---
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
+    const itemsPerPage = 8; // Adjust this number as needed
 
-    // ==========================================
-    //  PHASE 4: API HANDLERS
-    // ==========================================
-
-    // --- OPTION A: FAKE BACKEND (CURRENTLY ACTIVE) ---
-    const api = {
-        fetchProducts: () => {
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    // Simulate a successful DB response
-                    resolve([
-                        { id: 1, name: "Nile Smart Watch", price: 2500, category: "Electronics", image: "https://via.placeholder.com/300" },
-                        { id: 2, name: "Wireless Earbuds", price: 850, category: "Audio", image: "https://via.placeholder.com/300" },
-                        { id: 3, name: "Running Shoes", price: 1200, category: "Fashion", image: "https://via.placeholder.com/300" },
-                        { id: 4, name: "Gaming Mouse", price: 450, category: "Gaming", image: "https://via.placeholder.com/300" },
-                        { id: 5, name: "Mechanical Keyboard", price: 1800, category: "Gaming", image: "https://via.placeholder.com/300" },
-                        { id: 6, name: "Leather Jacket", price: 3500, category: "Fashion", image: "https://via.placeholder.com/300" },
-                        { id: 7, name: "4K Monitor", price: 8000, category: "Electronics", image: "https://via.placeholder.com/300" },
-                        { id: 8, name: "Bluetooth Speaker", price: 1500, category: "Audio", image: "https://via.placeholder.com/300" },
-                        { id: 9, name: "USB-C Hub", price: 600, category: "Electronics", image: "https://via.placeholder.com/300" },
-                        { id: 10, name: "Denim Jeans", price: 900, category: "Fashion", image: "https://via.placeholder.com/300" },
-                    ]);
-                    // To test error state, uncomment next line:
-                    // reject("Server timed out");
-                }, 1000); // 1 second delay
-            });
-        }
-    };
-
-    /* // --- OPTION B: REAL BACKEND (ENABLE LATER) ---
-    import axios from 'axios';
-    const api = {
-        fetchProducts: async () => {
-            try {
-                // Replace with your actual backend URL
-                const response = await axios.get('http://localhost:5000/api/products');
-                return response.data; 
-            } catch (err) {
-                throw new Error("Failed to connect to server");
-            }
-        }
-    };
-    */
-
-    // --- EFFECT: LOAD DATA ---
+    // --- MOCK API CALL ---
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                setIsLoading(true);
-                const data = await api.fetchProducts();
-                setProducts(data);
-            } catch (err) {
-                setError("Failed to load products. Please try again later.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        loadData();
+        setTimeout(() => {
+            // Generating more dummy data to test pagination
+            const mockData = [
+                { id: 1, name: "Nile Smart Watch", price: 2500, category: "Electronics", image: "https://placehold.co/300x200?text=Smart+Watch" },
+                { id: 2, name: "Wireless Earbuds", price: 850, category: "Audio", image: "https://placehold.co/300x200?text=Earbuds" },
+                { id: 3, name: "Running Shoes", price: 1200, category: "Fashion", image: "https://placehold.co/300x200?text=Shoes" },
+                { id: 4, name: "Gaming Mouse", price: 450, category: "Gaming", image: "https://placehold.co/300x200?text=Mouse" },
+                { id: 5, name: "HD Monitor", price: 3200, category: "Electronics", image: "https://placehold.co/300x200?text=Monitor" },
+                { id: 6, name: "Mechanical Keyboard", price: 1500, category: "Gaming", image: "https://placehold.co/300x200?text=Keyboard" },
+                { id: 7, name: "Yoga Mat", price: 300, category: "Fashion", image: "https://placehold.co/300x200?text=Yoga" },
+                { id: 8, name: "Bluetooth Speaker", price: 900, category: "Audio", image: "https://placehold.co/300x200?text=Speaker" },
+                { id: 9, name: "Laptop Stand", price: 550, category: "Electronics", image: "https://placehold.co/300x200?text=Stand" },
+            ];
+            setProducts(mockData);
+            setFilteredProducts(mockData);
+            setLoading(false);
+        }, 800);
     }, []);
 
-    // --- LOGIC: FILTERING (Same as Phase 3) ---
-    // Get unique categories dynamically from the fetched data
-    const categories = ["All", ...new Set(products.map(p => p.category))];
+    // --- FILTER LOGIC ---
+    useEffect(() => {
+        let result = products;
 
-    const filteredProducts = products.filter(product => {
-        const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
-        const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
-    });
+        if (activeCategory !== 'All') {
+            result = result.filter(product => product.category === activeCategory);
+        }
 
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+        if (searchTerm) {
+            result = result.filter(product => 
+                product.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        setFilteredProducts(result);
+        setCurrentPage(1); // Reset to page 1 on filter change
+    }, [searchTerm, activeCategory, products]);
+
+    // --- PAGINATION LOGIC ---
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
-    useEffect(() => { setCurrentPage(1); }, [searchQuery, selectedCategory]);
+    if (loading) return <div className={styles.loaderContainer}><Loader className="animate-spin" /> Loading best deals...</div>;
 
-
-    // --- RENDER ---
     return (
         <div className={styles.container}>
             
-            {/* NAVBAR */}
-            <nav className={styles.navbar}>
-                <div className={styles.logo} onClick={() => navigate('/')}>NILE</div>
-                <div className={styles.searchBar}>
-                    <Search className={styles.searchIcon} size={20} />
-                    <input 
-                        type="text" 
-                        placeholder="Search for products..." 
-                        className={styles.searchInput}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
-                <div className={styles.navIcons}>
-                    <button className={styles.iconBtn} onClick={() => navigate('/cart')}>
-                        <ShoppingCart size={24} />
-                        <span className={styles.badge}>2</span>
-                    </button>
-                    <button className={styles.iconBtn} onClick={() => navigate('/auth')}>
-                        <User size={24} />
-                    </button>
-                </div>
-            </nav>
+            {/* SEARCH BAR */}
+            <div className={styles.searchContainer}>
+                <input 
+                    type="text" 
+                    placeholder="Search for products..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className={styles.searchInput}
+                />
+            </div>
 
-            {/* HERO */}
-            <header className={styles.hero}>
+            {/* HERO BANNER */}
+            <div className={styles.hero}>
                 <h1 className={styles.heroTitle}>End of Season Super Sale</h1>
                 <p className={styles.heroSubtitle}>Get up to 50% off on all electronics.</p>
-            </header>
+            </div>
 
-            {/* MAIN SECTION */}
-            <section className={styles.gridSection}>
-                
-                {/* 1. LOADING STATE */}
-                {isLoading && (
-                    <div style={{textAlign: 'center', padding: '4rem', color: '#94a3b8'}}>
-                        <Loader className="animate-spin" size={48} style={{margin: '0 auto 1rem'}}/>
-                        <p>Loading best deals...</p>
-                    </div>
-                )}
+            {/* CATEGORIES */}
+            <div className={styles.categoryTabs}>
+                {['All', 'Electronics', 'Audio', 'Fashion', 'Gaming'].map(cat => (
+                    <button 
+                        key={cat}
+                        className={`${styles.tabBtn} ${activeCategory === cat ? styles.activeTab : ''}`}
+                        onClick={() => setActiveCategory(cat)}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
 
-                {/* 2. ERROR STATE */}
-                {error && (
-                    <div style={{textAlign: 'center', padding: '4rem', color: '#ef4444'}}>
-                        <h3>Oops!</h3>
-                        <p>{error}</p>
-                        <button onClick={() => window.location.reload()} style={{marginTop:'1rem', padding:'8px 16px', cursor:'pointer'}}>Try Again</button>
-                    </div>
-                )}
+            {/* PRODUCT GRID */}
+            <div className={styles.sectionHeader}>
+                <h2>Featured Products</h2>
+            </div>
 
-                {/* 3. DATA LOADED */}
-                {!isLoading && !error && (
-                    <>
-                        <div className={styles.controlsHeader}>
-                            <h2 className={styles.sectionTitle}>Featured Products</h2>
-                            <div className={styles.categoryFilters}>
-                                {categories.map(cat => (
-                                    <button 
-                                        key={cat}
-                                        className={`${styles.catBtn} ${selectedCategory === cat ? styles.activeCat : ''}`}
-                                        onClick={() => setSelectedCategory(cat)}
-                                    >
-                                        {cat}
-                                    </button>
-                                ))}
-                            </div>
+            <div className={styles.productGrid}>
+                {currentItems.map(product => (
+                    <div key={product.id} className={styles.productCard}>
+                        <img src={product.image} alt={product.name} className={styles.productImage} />
+                        <div className={styles.cardContent}>
+                            <span className={styles.categoryTag}>{product.category}</span>
+                            <h3 className={styles.productName}>{product.name}</h3>
+                            <p className={styles.productPrice}>EGP {product.price.toLocaleString()}</p>
+                            <button className={styles.addBtn}>Add to Cart</button>
                         </div>
-                        
-                        {currentProducts.length > 0 ? (
-                            <div className={styles.productsGrid}>
-                                {currentProducts.map((product) => (
-                                    <div 
-                                        key={product.id} 
-                                        className={styles.card}
-                                        onClick={() => navigate(`/product`)}
-                                    >
-                                        <img src={product.image} alt={product.name} className={styles.cardImage} />
-                                        <div className={styles.cardBody}>
-                                            <div className={styles.cardCategory}>{product.category}</div>
-                                            <div className={styles.cardTitle}>{product.name}</div>
-                                            <div className={styles.cardPrice}>EGP {product.price.toLocaleString()}</div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className={styles.noResults}>
-                                <p>No products found matching "{searchQuery}".</p>
-                            </div>
-                        )}
+                    </div>
+                ))}
+            </div>
 
-                        {filteredProducts.length > itemsPerPage && (
-                            <div className={styles.pagination}>
-                                <button 
-                                    className={styles.pageBtn} 
-                                    disabled={currentPage === 1}
-                                    onClick={() => setCurrentPage(prev => prev - 1)}
-                                >
-                                    <ChevronLeft size={20} />
-                                </button>
-                                <span className={styles.pageInfo}>Page {currentPage} of {totalPages}</span>
-                                <button 
-                                    className={styles.pageBtn} 
-                                    disabled={currentPage === totalPages}
-                                    onClick={() => setCurrentPage(prev => prev + 1)}
-                                >
-                                    <ChevronRight size={20} />
-                                </button>
-                            </div>
-                        )}
-                    </>
-                )}
-            </section>
+            {/* NO RESULTS MESSAGE */}
+            {filteredProducts.length === 0 && (
+                <div style={{textAlign: 'center', marginTop: '3rem', color: '#888'}}>
+                    <p>No products found matching "{searchTerm}"</p>
+                </div>
+            )}
+
+            {/* --- PAGINATION CONTROLS --- */}
+            {filteredProducts.length > itemsPerPage && (
+                <div className={styles.pagination}>
+                    <button 
+                        className={styles.pageBtn} 
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                    >
+                        <ChevronLeft size={20} /> Previous
+                    </button>
+                    
+                    <span className={styles.pageInfo}>
+                        Page {currentPage} of {totalPages}
+                    </span>
+                    
+                    <button 
+                        className={styles.pageBtn} 
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next <ChevronRight size={20} />
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

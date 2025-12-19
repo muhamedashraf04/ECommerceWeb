@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using ECommerceWeb.Application.DTOs.CartDTOs;
-using ECommerceWeb.Application.Service.ProductService;
+using ECommerceWeb.Application.Interfaces.IService;
+using ECommerceWeb.Application.Service.CartS;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,9 +13,9 @@ namespace ECommerceWeb.Controllers
     [ApiController]
     public class CartController : ControllerBase
     {
-        private readonly CartService _CartService;
+        private readonly ICartService _CartService;
 
-        public CartController(CartService cartService)
+        public CartController(ICartService cartService)
         {
             _CartService = cartService;
         }
