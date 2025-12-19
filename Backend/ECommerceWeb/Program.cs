@@ -1,7 +1,6 @@
 using System.Text;
 using ECommerceWeb.Application.DTOs.ProductDTOs;
 using ECommerceWeb.Application.Interfaces;
-using ECommerceWeb.Application.Service.CartS;
 using ECommerceWeb.Application.Service.ProductService;
 using ECommerceWeb.Application.Validators.ProductValidators;
 using ECommerceWeb.Infrastructure.Data;
@@ -35,6 +34,7 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<IBlobService, BlobService>();
 builder.Services.AddScoped<IValidator<CreateProductDTO>, ProductValidator>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -54,6 +54,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
     });
 builder.Services.AddAuthorization();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy => policy
+            .WithOrigins("http://localhost:5173") // Your React URL
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

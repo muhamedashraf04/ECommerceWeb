@@ -1,15 +1,18 @@
 ﻿using ECommerceWeb.Application.DTOs.ProductDTOs;
 using ECommerceWeb.Application.Interfaces;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 
 namespace ECommerceWeb.Application.Validators.ProductValidators
 {
     public class ProductValidator : AbstractValidator<CreateProductDTO>
     {
         private readonly IUnitOfWork _uow;
+
         public ProductValidator(IUnitOfWork uow)
         {
             _uow = uow;
+
             RuleFor(p => p.Name)
                 .NotEmpty().WithMessage("Product name is required.")
                 .MaximumLength(100).WithMessage("Name must be less than 100 characters.");
@@ -24,17 +27,27 @@ namespace ECommerceWeb.Application.Validators.ProductValidators
             RuleFor(p => p.Quantity)
                 .GreaterThanOrEqualTo(0).WithMessage("Quantity cannot be negative.");
 
-            RuleFor(p => p.ImageUrl)
-                .Must(url => string.IsNullOrEmpty(url) || Uri.IsWellFormedUriString(url, UriKind.Absolute))
-                .WithMessage("Invalid image URL format.");
             RuleFor(p => p.CategoryId)
                 .MustAsync(async (categoryId, _) => await CategoryExists(categoryId))
                 .WithMessage("Invalid category.");
-        }
-        private async Task<bool> CategoryExists(int categoryId)
-        {
-            var category = await _uow.CategoryRepository.GetAsync(c => c.Id == categoryId);
-            return category != null;
+
+            // 1- Updated Check: Validate the Photo File
+            // ... inside constructor
+            RuleForEach(p => p.Images)
+                .Must(BeAValidImage).WithMessage("One or more images have an invalid format (Only JPG/PNG).")
+                .Must(BeAValidSize).WithMessage("One or more images exceed the 5MB limit.");
+
+            bool BeAValidImage(IFormFile? file) =>
+                file != null && new[] { "image/jpg", "image/jpeg", "image/png" }.Contains(file.ContentType);
+
+            bool BeAValidSize(IFormFile? file) =>
+                file != null && file.Length <= 5 * 1024 * 1024;
+
+            async Task<bool> CategoryExists(int categoryId)
+            {
+                var category = await _uow.CategoryRepository.GetAsync(c => c.Id == categoryId);
+                return category != null;
+            }
         }
     }
 }

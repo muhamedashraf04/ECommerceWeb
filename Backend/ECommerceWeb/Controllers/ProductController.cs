@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using ECommerceWeb.Application.DTOs.ProductDTOs;
+using ECommerceWeb.Application.Interfaces;
 using ECommerceWeb.Application.Service.ProductService;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -13,19 +14,21 @@ public class ProductController : ControllerBase
 {
     private readonly IValidator<CreateProductDTO> _validator;
     private readonly ProductService _ProductService;
+    private readonly IBlobService _blobService;
 
-    public ProductController(IValidator<CreateProductDTO> validator, ProductService productService)
+    public ProductController(IValidator<CreateProductDTO> validator, ProductService productService,IBlobService blobService)
     {
         _validator = validator;
         _ProductService = productService;
+        _blobService = blobService;
     }
 
     [Authorize(Roles = "Vendor")]
     [HttpPost("create")]
-    public async Task<IActionResult> CreateAsync(CreateProductDTO dto)
+    public async Task<IActionResult> CreateAsync([FromForm] CreateProductDTO dto)
     {
         var validationResult = await _validator.ValidateAsync(dto);
-
+        
         if (!validationResult.IsValid)
         {
             return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
@@ -83,7 +86,7 @@ public class ProductController : ControllerBase
     }
     [Authorize(Roles = "Vendor")]
     [HttpPut("edit")]
-    public async Task<IActionResult> EditAsync([FromBody] UpdateProductDTO dto)
+    public async Task<IActionResult> EditAsync([FromForm] UpdateProductDTO dto)
     {
 
         var product = await _ProductService.GetProductByIdAsync(dto.Id);
