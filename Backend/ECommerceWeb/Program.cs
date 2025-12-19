@@ -66,23 +66,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
     });
 builder.Services.AddAuthorization();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp",
-        policy => policy
-            .WithOrigins("http://localhost:5173") // Your React URL
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowAll", policy => {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
 });
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+app.UseRouting();
+
+app.UseCors("AllowAll");
+
+app.MapOpenApi();
+app.MapScalarApiReference();
+
 
 app.UseHttpsRedirection();
 
