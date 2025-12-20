@@ -8,7 +8,7 @@ export default defineConfig({
     proxy: {
       // Any request starting with /api will be forwarded to Azure
       '/api': {
-        target: 'https://deployment.mangoisland-dd0744d7.italynorth.azurecontainerapps.io/',
+        target: 'https://deployment.mangoisland-dd0744d7.italynorth.azurecontainerapps.io',
         changeOrigin: true,
         secure: false,
       }
