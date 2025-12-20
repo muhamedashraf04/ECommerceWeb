@@ -1,15 +1,15 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-    baseURL: '', // Defaults to proxy
+    // Use environment variable; fall back to '/api' for local proxy
+    baseURL: import.meta.env.VITE_API_BASE_URL || '/api', 
     headers: {
         "Content-type": "application/json"
     }
 });
 
-// Add a request interceptor to include the Auth token
 apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token'); // Or however you store your JWT
+    const token = localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
