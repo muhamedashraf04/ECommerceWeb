@@ -3,10 +3,13 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    css: true,
-    // No setupFiles line needed anymore!
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://deployment.mangoisland-dd0744d7.italynorth.azurecontainerapps.io', // Your Docker Backend Port
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
-});
+})

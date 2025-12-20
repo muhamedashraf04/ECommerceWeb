@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { FaGoogle, FaFacebookF, FaEnvelope, FaLock, FaUser, FaPhone, FaBuilding, FaIdCard, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import styles from './AuthPage.module.css';
 import Logo from '../images/finalHighQuality.png'; 
-import axios from 'axios';
+import api from '../api/axiosConfig';
 
 export default function AuthPage() {
+    const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [isVendor, setIsVendor] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -54,7 +57,6 @@ export default function AuthPage() {
 
     const handleSocialLogin = (provider) => {
         console.log(`Logging in with ${provider}`);
-        // Implement social login logic here
     };
 
     const handleSubmit = async (e) => {
@@ -64,17 +66,51 @@ export default function AuthPage() {
         setIsLoading(true);
 
         try {
-            // Replace with your actual API endpoint
-            // const response = await axios.post(isLogin ? '/api/login' : '/api/register', formData);
-            console.log("Form Data:", formData);
-            
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            alert(`Success! Welcome ${isLogin ? 'back' : ''}, ${formData.email}`);
-            // localStorage.setItem('token', response.data.token);
+            if (isLogin) {
+                const response = await api.post('/api/Auth/login', {
+                    email: formData.email,
+                    password: formData.password
+                });
+
+                const token = response.data.token || response.data; 
+                
+                if (token) {
+                    localStorage.setItem('token', typeof token === 'string' ? token : JSON.stringify(token));
+                    alert(`Welcome back!`);
+                    navigate('/'); 
+                } else {
+                    throw new Error("No token received from server");
+                }
+
+            } else {
+                const registerData = new FormData();
+                registerData.append('Name', formData.fullName);
+                registerData.append('Email', formData.email);
+                registerData.append('Password', formData.password);
+                registerData.append('Phone', formData.phoneNumber);
+                registerData.append('Address', 'Not Provided');
+                registerData.append('Role', isVendor ? 'Vendor' : 'Customer');
+
+                if (isVendor) {
+                    registerData.append('CompanyName', formData.companyName);
+                    if (formData.nationalIdImage) {
+                        registerData.append('NationalIdImage', formData.nationalIdImage);
+                    }
+                }
+
+                await api.post('/api/Auth/register', registerData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+
+                alert("Account created successfully! Please sign in.");
+                setIsLogin(true);
+                setFormData(prev => ({ ...prev, password: '', confirmPassword: '' }));
+            }
+
         } catch (error) {
-            alert(error.message || "An error occurred"); 
+            console.error("Auth Error:", error);
+            const msg = error.response?.data?.message || error.response?.data || "Authentication failed. Please try again.";
+            alert(typeof msg === 'string' ? msg : JSON.stringify(msg));
         } finally {
             setIsLoading(false);
         }
@@ -251,7 +287,7 @@ export default function AuthPage() {
                                     </button>
                                 </div>
                                 {errors.password && <span style={{color: 'red', fontSize: '12px', marginLeft: '5px'}}>{errors.password}</span>}
-                                {isLogin && <a href="#" className={styles.forgotPass}>Forgot?</a>}
+                                {/* REMOVED FORGOT LINK FROM HERE */}
                             </div>
 
                             {!isLogin && (
