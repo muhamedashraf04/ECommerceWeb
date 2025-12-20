@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiClient } from '../lib/axios';
+import apiClient from '../api/axiosConfig';
 import styles from './Vendor.module.css';
 
 export default function VendorOrders() {
