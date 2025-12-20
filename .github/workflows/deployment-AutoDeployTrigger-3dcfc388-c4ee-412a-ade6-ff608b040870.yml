@@ -1,16 +1,13 @@
 name: Trigger auto deployment for deployment
 
-# When this action will be executed
 on:
-  # Automatically trigger it when detected changes in repo
   push:
     branches: 
-      [ master ]
+      - master
     paths:
-    - '**'
-    - '.github/workflows/deployment-AutoDeployTrigger-3dcfc388-c4ee-412a-ade6-ff608b040870.yml'
+      - '**'
+      - '.github/workflows/deployment-AutoDeployTrigger-*.yml'
 
-  # Allow manual trigger 
   workflow_dispatch:
       
 jobs:
@@ -19,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout to the branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4 # Updated to v4 for better performance
 
       - name: Azure Login
         uses: azure/login@v2
@@ -29,18 +26,18 @@ jobs:
       - name: Build and push container image to registry
         uses: azure/container-apps-deploy-action@v2
         with:
+          # 1. Start build from the root of the repo
           appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: Backend/ECommerceWeb/Dockerfile
-          _targetLabelKey_: _targetLabel_
+          
+          # 2. Correct parameter name for Dockerfile
+          dockerfilePath: Backend/ECommerceWeb/Dockerfile
+          
+          # 3. Registry credentials
           registryUrl: docker.io
           registryUsername: ${{ secrets.DEPLOYMENT_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.DEPLOYMENT_REGISTRY_PASSWORD }}
+          
+          # 4. Azure target details
           containerAppName: deployment
           resourceGroup: Ashraf
           imageToBuild: muhammedashraf04/deployment:${{ github.sha }}
-          
-            
-
-     
-
-
