@@ -29,8 +29,8 @@ jobs:
       - name: Build and push container image to registry
         uses: azure/container-apps-deploy-action@v2
         with:
-          appSourcePath: ${{ github.workspace }}/Backend/ECommerceWeb
-          _dockerfilePathKey_: _dockerfilePath_
+          appSourcePath: ${{ github.workspace }}
+          _dockerfilePathKey_: Backend/ECommerceWeb/Dockerfile
           _targetLabelKey_: _targetLabel_
           registryUrl: docker.io
           registryUsername: ${{ secrets.DEPLOYMENT_REGISTRY_USERNAME }}
@@ -42,4 +42,5 @@ jobs:
             
 
      
+
 
