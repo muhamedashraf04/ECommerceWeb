@@ -1,7 +1,8 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { describe, it, expect, vi } from 'vitest';
-import '@testing-library/jest-dom'; 
+import * as matchers from '@testing-library/jest-dom/matchers';
+expect.extend(matchers);
 
 // --- IMPORTS ---
 import HomePage from './pages/HomePage';
