@@ -8,7 +8,7 @@ import * as matchers from '@testing-library/jest-dom/matchers';
 // --- 1. SETUP & IMPORTS ---
 expect.extend(matchers);
 
-// IMPORTS (Assuming files are in src/ root)
+// IMPORTS
 import HomePage from './pages/HomePage.jsx';
 import ProductPage from './pages/ProductPage.jsx';
 import AuthPage from './pages/AuthPage.jsx';
@@ -17,17 +17,17 @@ import PlaceOrderPage from './pages/PlaceOrderPage.jsx';
 
 // --- 2. GLOBAL MOCKS (The "Anti-Crash" Layer) ---
 
-// A. Mock Navigation (Prevent actual URL changes)
+// A. Mock Navigation
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
     const actual = await vi.importActual('react-router-dom');
     return { ...actual, useNavigate: () => mockNavigate };
 });
 
-// B. Mock LocalStorage (Force "Logged In" state)
+// B. Mock LocalStorage
 Object.defineProperty(window, 'localStorage', {
     value: {
-        getItem: () => 'fake-test-token', // Always return a token
+        getItem: () => 'fake-test-token',
         setItem: vi.fn(),
         removeItem: vi.fn(),
         clear: vi.fn(),
@@ -36,7 +36,6 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 // C. The "Super Mock" Data
-// This object has BOTH lowercase and Uppercase keys. It cannot fail.
 const SAFE_PRODUCT = {
     id: 1, Id: 1, productId: 1, ProductId: 1,
     name: "Test Product", Name: "Test Product",
@@ -48,34 +47,31 @@ const SAFE_PRODUCT = {
     qty: 1, Qty: 1, quantity: 1, Quantity: 1
 };
 
-// D. Mock Network Calls (Fetch & Axios)
-// We hijack ALL network requests and return our SAFE_PRODUCT
-const networkMock = () => Promise.resolve({
-    ok: true,
-    json: async () => [SAFE_PRODUCT], // Default: Return list
-    data: [SAFE_PRODUCT] // For Axios users
-});
-
-// Mock Global Fetch
-global.fetch = vi.fn(async (url) => {
-    // If asking for a specific ID, return one object instead of a list
-    if (url.includes('/GetProductByID') || url.includes('/Product/1')) {
-        return { ok: true, json: async () => SAFE_PRODUCT };
-    }
-    if (url.includes('/ShowCart')) {
-        return { ok: true, json: async () => ({ cartItems: [SAFE_PRODUCT] }) };
-    }
-    return { ok: true, json: async () => [SAFE_PRODUCT] };
-});
-
-// Mock Axios (api/axiosConfig)
+// D. Mock Axios (The Critical Fix)
 vi.mock('./api/axiosConfig', () => ({
     default: {
-        get: () => Promise.resolve({ data: [SAFE_PRODUCT] }),
+        get: vi.fn((url) => {
+            // FIX: If the URL is for a specific product, return an OBJECT
+            if (url && (url.includes('GetProductByID') || url.includes('/Product/GetProductByID'))) {
+                return Promise.resolve({ data: SAFE_PRODUCT });
+            }
+            // Default: Return an ARRAY for lists (HomePage, ShowCart, etc.)
+            return Promise.resolve({ data: [SAFE_PRODUCT] });
+        }),
         post: () => Promise.resolve({ data: {} }),
+        put: () => Promise.resolve({ data: {} }),
+        delete: () => Promise.resolve({ data: {} }),
+        patch: () => Promise.resolve({ data: {} }),
     }
 }));
 
+// E. Mock Global Fetch (Backup)
+global.fetch = vi.fn(async (url) => {
+    if (url.includes('/GetProductByID')) {
+        return { ok: true, json: async () => SAFE_PRODUCT };
+    }
+    return { ok: true, json: async () => [SAFE_PRODUCT] };
+});
 
 // --- 3. THE TESTS ---
 
@@ -90,9 +86,7 @@ describe('Nile E-Commerce Simple Test Suite', () => {
                 <HomePage />
             </MemoryRouter>
         );
-        // It should show the Logo
         expect(screen.getByText(/NILE/i)).toBeInTheDocument();
-        // It should eventually show the product name
         await waitFor(() => {
             const items = screen.getAllByText(/Test Product/i);
             expect(items.length).toBeGreaterThan(0);
@@ -102,15 +96,12 @@ describe('Nile E-Commerce Simple Test Suite', () => {
     // TEST 2: PRODUCT PAGE
     it('ProductPage: Loads product details', async () => {
         render(
-            // We pretend we are visiting /prod/1
             <MemoryRouter initialEntries={['/prod/1']}>
                 <Routes>
                     <Route path="/prod/:id" element={<ProductPage />} />
                 </Routes>
             </MemoryRouter>
         );
-
-        // Wait for loading to stop
         await waitFor(() => {
             expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
         });
@@ -123,11 +114,8 @@ describe('Nile E-Commerce Simple Test Suite', () => {
                 <AuthPage />
             </MemoryRouter>
         );
-        // Find the email input safely
         const inputs = screen.getAllByPlaceholderText(/you@example.com/i);
         expect(inputs.length).toBeGreaterThan(0);
-        
-        // Type into it
         fireEvent.change(inputs[0], { target: { value: 'test@test.com' } });
         expect(inputs[0].value).toBe('test@test.com');
     });
@@ -140,15 +128,18 @@ describe('Nile E-Commerce Simple Test Suite', () => {
             </MemoryRouter>
         );
 
+        // Wait for "Unknown Product" to disappear or "Test Product" to appear
         await waitFor(() => {
             expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
         });
 
-        // Should see "Test Product" in the cart
+        // Debug: Log what is actually rendered if it fails
+        // screen.debug(); 
+
+        // Now this should pass because the Mock returns an Object for ID calls
         const items = screen.getAllByText(/Test Product/i);
         expect(items[0]).toBeInTheDocument();
         
-        // Should see Checkout button
         const checkout = screen.getAllByText(/Checkout/i);
         expect(checkout.length).toBeGreaterThan(0);
     });
@@ -160,12 +151,9 @@ describe('Nile E-Commerce Simple Test Suite', () => {
                 <PlaceOrderPage />
             </MemoryRouter>
         );
-
         await waitFor(() => {
             expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
         });
-
-        // Check for an input (City)
         const cityInputs = screen.getAllByPlaceholderText(/Cairo/i);
         expect(cityInputs.length).toBeGreaterThan(0);
     });
