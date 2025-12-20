@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '../api/axiosConfig'; // Renamed for consistency
+import api from '../api/axiosConfig'; // Ensure this matches your file path
 import { getVendorId } from '../lib/auth';
 import styles from './Vendor.module.css';
 
@@ -28,9 +28,7 @@ export default function VendorProducts() {
     const fetchProducts = async () => {
         const vendorId = getVendorId();
         if (!vendorId) {
-            // Optional: You could rely on the backend to know the vendor from the Token
-            // But if your API requires the ID in the URL, this check is good.
-            console.warn("No vendor ID found.");
+            console.warn("No vendor ID found. Waiting for login...");
             setLoading(false);
             return;
         }
@@ -60,7 +58,7 @@ export default function VendorProducts() {
             setProducts(products.filter(p => p.id !== id));
         } catch (error) {
             console.error("Error deleting product:", error);
-            alert("Failed to delete product");
+            alert("Failed to delete product.");
         }
     };
 
@@ -70,6 +68,9 @@ export default function VendorProducts() {
     };
 
     const handleAddClick = () => {
+        // Default to first category if available
+        const defaultCat = categories.length > 0 ? categories[0].id : '';
+        
         setIsAdding(true);
         setEditingProduct(null);
         setNewProduct({
@@ -77,7 +78,7 @@ export default function VendorProducts() {
             description: '',
             price: '',
             quantity: '',
-            categoryId: categories.length > 0 ? categories[0].id : '',
+            categoryId: defaultCat,
             images: []
         });
     };
@@ -85,14 +86,23 @@ export default function VendorProducts() {
     const handleAddSubmit = async (e) => {
         e.preventDefault();
         
+        const vendorId = getVendorId();
+        if (!vendorId) {
+            alert("Session invalid. Please log in again.");
+            return;
+        }
+
         const formData = new FormData();
+        // 1. Append VendorId (Critical for Backend Validation)
+        formData.append('VendorId', vendorId);
+        
         formData.append('Name', newProduct.name);
         formData.append('Description', newProduct.description);
         formData.append('Price', newProduct.price);
         formData.append('CategoryId', newProduct.categoryId);
         formData.append('Quantity', newProduct.quantity);
         
-        // Append Images
+        // 2. Append Images
         if (newProduct.images && newProduct.images.length > 0) {
             for (let i = 0; i < newProduct.images.length; i++) {
                 formData.append('Images', newProduct.images[i]);
@@ -100,16 +110,17 @@ export default function VendorProducts() {
         }
 
         try {
-            // CRITICAL FIX: Do NOT set "Content-Type": "multipart/form-data" manually!
-            // Axios detects FormData and sets the correct boundary automatically.
+            // 3. FIX: Do NOT set "Content-Type" manually. Axios handles it.
             await api.post('/api/Product/create', formData);
             
-            alert("Product added successfully");
+            alert("Product added successfully!");
             setIsAdding(false);
             fetchProducts();
         } catch (error) {
             console.error("Error adding product:", error);
-            alert("Failed to add product. Ensure all fields are valid.");
+            // Show exact backend error message
+            const serverMsg = error.response?.data || "Unknown error";
+            alert(`Failed to add product: ${serverMsg}`);
         }
     };
 
@@ -124,7 +135,7 @@ export default function VendorProducts() {
         formData.append('CategoryId', editingProduct.categoryId);
         formData.append('Quantity', editingProduct.quantity);
 
-        // Only append new images if the user selected them
+        // Only append images if new files were selected
         if (editingProduct.images && editingProduct.images instanceof FileList) {
             for (let i = 0; i < editingProduct.images.length; i++) {
                 formData.append('Images', editingProduct.images[i]);
@@ -132,16 +143,16 @@ export default function VendorProducts() {
         }
 
         try {
-            // CRITICAL FIX: Let Axios handle the Content-Type boundary
+            // FIX: Let Axios handle boundary
             await api.put('/api/Product/edit', formData);
             
-            // Re-fetch to get the updated image URLs from server
-            fetchProducts(); 
-            setEditingProduct(null);
             alert("Product updated successfully");
+            setEditingProduct(null);
+            fetchProducts(); 
         } catch (error) {
             console.error("Error updating product:", error);
-            alert("Failed to update product.");
+            const serverMsg = error.response?.data || "Unknown error";
+            alert(`Failed to update product: ${serverMsg}`);
         }
     };
 
@@ -208,7 +219,7 @@ export default function VendorProducts() {
                                 className={styles.input}
                                 required
                             >
-                                <option value="">Select Category</option>
+                                <option value="" disabled>Select Category</option>
                                 {categories.map(cat => (
                                     <option key={cat.id} value={cat.id}>{cat.name}</option>
                                 ))}
