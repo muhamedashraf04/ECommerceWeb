@@ -1,146 +1,282 @@
 import React, { useState, useEffect } from 'react';
-import { Loader, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader, Search, ChevronLeft, ChevronRight, ShoppingCart, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import styles from './HomePage.module.css';
+import api from '../api/axiosConfig';
 
 const HomePage = () => {
-    // --- STATE ---
-    const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
+    // --- Navigation Hook ---
+    const navigate = useNavigate();
+
+    // --- Data States ---
+    const [allProducts, setAllProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [activeCategory, setActiveCategory] = useState('All');
+    const [error, setError] = useState(null);
 
-    // --- PAGINATION STATE ---
+    // --- UI States ---
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('All');
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8; // Adjust this number as needed
+    const itemsPerPage = 8;
+    
+    // Track which product is currently being added (for loading spinner on button)
+    const [addingToCartId, setAddingToCartId] = useState(null);
 
-    // --- MOCK API CALL ---
+    // --- Derived Data (Categories) ---
+    const [categories, setCategories] = useState(['All']);
+
+    // --- 1. FETCH DATA (Products + Categories) ---
     useEffect(() => {
-        setTimeout(() => {
-            // Generating more dummy data to test pagination
-            const mockData = [
-                { id: 1, name: "Nile Smart Watch", price: 2500, category: "Electronics", image: "https://placehold.co/300x200?text=Smart+Watch" },
-                { id: 2, name: "Wireless Earbuds", price: 850, category: "Audio", image: "https://placehold.co/300x200?text=Earbuds" },
-                { id: 3, name: "Running Shoes", price: 1200, category: "Fashion", image: "https://placehold.co/300x200?text=Shoes" },
-                { id: 4, name: "Gaming Mouse", price: 450, category: "Gaming", image: "https://placehold.co/300x200?text=Mouse" },
-                { id: 5, name: "HD Monitor", price: 3200, category: "Electronics", image: "https://placehold.co/300x200?text=Monitor" },
-                { id: 6, name: "Mechanical Keyboard", price: 1500, category: "Gaming", image: "https://placehold.co/300x200?text=Keyboard" },
-                { id: 7, name: "Yoga Mat", price: 300, category: "Fashion", image: "https://placehold.co/300x200?text=Yoga" },
-                { id: 8, name: "Bluetooth Speaker", price: 900, category: "Audio", image: "https://placehold.co/300x200?text=Speaker" },
-                { id: 9, name: "Laptop Stand", price: 550, category: "Electronics", image: "https://placehold.co/300x200?text=Stand" },
-            ];
-            setProducts(mockData);
-            setFilteredProducts(mockData);
-            setLoading(false);
-        }, 800);
+        const fetchData = async () => {
+            try {
+                const [productResponse, categoryResponse] = await Promise.all([
+                    api.get('/api/Product/GetAllProducts'),
+                    api.get('/api/Category') 
+                ]);
+
+                // Create a "Lookup Map" from the categories
+                const categoryLookup = {};
+                categoryResponse.data.forEach(cat => {
+                    categoryLookup[cat.id] = cat.name;
+                });
+
+                // Process the Products
+                const mappedData = productResponse.data.map(item => {
+                    let displayImage = "https://placehold.co/300x200?text=No+Image";
+                    if (item.images && item.images.length > 0) {
+                        displayImage = item.images[0]; 
+                    } else if (item.imageUrl) {
+                        const splits = item.imageUrl.split(',');
+                        if (splits.length > 0 && splits[0].trim() !== "") {
+                            displayImage = splits[0].trim();
+                        }
+                    }
+
+                    const catName = categoryLookup[item.categoryId] || 'General';
+
+                    return {
+                        ...item,
+                        image: displayImage,
+                        category: catName
+                    };
+                });
+
+                setAllProducts(mappedData);
+                const uniqueCats = ['All', ...Object.values(categoryLookup)];
+                setCategories(uniqueCats);
+                setLoading(false);
+
+            } catch (err) {
+                console.error("Fetch error:", err);
+                setError("Could not load data.");
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
 
-    // --- FILTER LOGIC ---
-    useEffect(() => {
-        let result = products;
-
-        if (activeCategory !== 'All') {
-            result = result.filter(product => product.category === activeCategory);
+    // --- 2. ADD TO CART HANDLER ---
+// --- 2. ADD TO CART HANDLER (SMART VERSION) ---
+    const handleAddToCart = async (e, productId) => {
+        e.stopPropagation(); 
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert("Please log in to add items.");
+            navigate('/auth');
+            return;
         }
 
-        if (searchTerm) {
-            result = result.filter(product => 
-                product.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
+        setAddingToCartId(productId); 
+
+        try {
+            const response = await fetch('/api/Cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                // Use PascalCase to match backend DTO
+                body: JSON.stringify({
+                    ProductId: productId, 
+                    Quantity: 1
+                })
+            });
+
+            if (response.ok) {
+                // SUCCESS
+                setTimeout(() => setAddingToCartId(null), 500);
+                alert("Item added to bag!");
+            } else {
+                // FAILURE - LET'S SEE WHY
+                const errorText = await response.text();
+                
+                // CHECK FOR DUPLICATE ITEM ERROR
+                if (errorText.includes("Product already exists")) {
+                    alert("You already have this item in your cart!");
+                } else {
+                    // Some other error
+                    console.error("Server Error:", errorText);
+                    alert("Something went wrong. Please try again.");
+                }
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("Network error. Check your connection.");
+        } finally {
+            setAddingToCartId(null);
         }
+    };
 
-        setFilteredProducts(result);
-        setCurrentPage(1); // Reset to page 1 on filter change
-    }, [searchTerm, activeCategory, products]);
+    // --- 3. FILTERING LOGIC ---
+    const filteredProducts = allProducts.filter(product => {
+        const nameMatch = product.name?.toLowerCase().includes(searchQuery.toLowerCase());
+        const categoryMatch = selectedCategory === 'All' || product.category === selectedCategory;
+        return nameMatch && categoryMatch;
+    });
 
-    // --- PAGINATION LOGIC ---
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+    // --- 4. PAGINATION LOGIC ---
+    const indexOfLastProduct = currentPage * itemsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
+    const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
-    if (loading) return <div className={styles.loaderContainer}><Loader className="animate-spin" /> Loading best deals...</div>;
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    if (loading) return (
+        <div className={styles.loaderContainer}>
+            <Loader className="animate-spin" size={48} />
+            <p>Loading Nile Store...</p>
+        </div>
+    );
+
+    if (error) return <div className={styles.errorContainer}>{error}</div>;
 
     return (
         <div className={styles.container}>
-            
-            {/* SEARCH BAR */}
+            {/* HERO SECTION */}
+            <div className={styles.hero}>
+                <h1 className={styles.heroTitle}>End of Season Super Sale</h1>
+                <p className={styles.heroSubtitle}>Get up to 50% off on all electronics today.</p>
+            </div>
+
+            {/* SEARCH SECTION */}
             <div className={styles.searchContainer}>
                 <input 
                     type="text" 
                     placeholder="Search for products..." 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
                     className={styles.searchInput}
+                    value={searchQuery}
+                    onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setCurrentPage(1); 
+                    }}
                 />
-            </div>
-
-            {/* HERO BANNER */}
-            <div className={styles.hero}>
-                <h1 className={styles.heroTitle}>End of Season Super Sale</h1>
-                <p className={styles.heroSubtitle}>Get up to 50% off on all electronics.</p>
             </div>
 
             {/* CATEGORIES */}
             <div className={styles.categoryTabs}>
-                {['All', 'Electronics', 'Audio', 'Fashion', 'Gaming'].map(cat => (
+                {categories.map((cat, index) => (
                     <button 
-                        key={cat}
-                        className={`${styles.tabBtn} ${activeCategory === cat ? styles.activeTab : ''}`}
-                        onClick={() => setActiveCategory(cat)}
+                        key={index}
+                        className={`${styles.tabBtn} ${selectedCategory === cat ? styles.activeTab : ''}`}
+                        onClick={() => {
+                            setSelectedCategory(cat);
+                            setCurrentPage(1);
+                        }}
                     >
                         {cat}
                     </button>
                 ))}
             </div>
+            
+            {/* GRID HEADER */}
+            <div className={styles.sectionHeader}>
+                <h3>Showing {filteredProducts.length} Results</h3>
+            </div>
 
             {/* PRODUCT GRID */}
-            <div className={styles.sectionHeader}>
-                <h2>Featured Products</h2>
-            </div>
-
             <div className={styles.productGrid}>
-                {currentItems.map(product => (
-                    <div key={product.id} className={styles.productCard}>
-                        <img src={product.image} alt={product.name} className={styles.productImage} />
-                        <div className={styles.cardContent}>
-                            <span className={styles.categoryTag}>{product.category}</span>
-                            <h3 className={styles.productName}>{product.name}</h3>
-                            <p className={styles.productPrice}>EGP {product.price.toLocaleString()}</p>
-                            <button className={styles.addBtn}>Add to Cart</button>
+                {currentProducts.length > 0 ? (
+                    currentProducts.map(product => (
+                        <div 
+                            key={product.id} 
+                            className={styles.productCard}
+                            onClick={() => navigate(`/prod/${product.id}`)}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <div className={styles.imageWrapper}>
+                                <img 
+                                    src={product.image} 
+                                    alt={product.name} 
+                                    className={styles.productImage} 
+                                    onError={(e) => { e.target.src = "https://placehold.co/300x200?text=Image+Error"; }}
+                                />
+                            </div>
+                            <div className={styles.cardContent}>
+                                <span className={styles.categoryTag}>{product.category}</span>
+                                <h3 className={styles.productName}>{product.name}</h3>
+                                <p className={styles.productPrice}>
+                                    {product.price ? `EGP ${product.price.toLocaleString()}` : 'N/A'}
+                                </p>
+                                
+                                {/* Add to Cart Button */}
+                                <button 
+                                    className={styles.addBtn}
+                                    disabled={addingToCartId === product.id} // Disable if currently adding this specific item
+                                    onClick={(e) => handleAddToCart(e, product.id)}
+                                >
+                                    {addingToCartId === product.id ? (
+                                        <>
+                                            <Loader className="animate-spin" size={18} style={{ marginRight: '8px' }} /> 
+                                            Adding...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ShoppingCart size={18} style={{ marginRight: '8px' }} /> 
+                                            Add to Cart
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </div>
+                    ))
+                ) : (
+                    <div className={styles.noResults}>
+                        <h3>No products found.</h3>
+                        <p>Try adjusting your search or category.</p>
                     </div>
-                ))}
+                )}
             </div>
 
-            {/* NO RESULTS MESSAGE */}
-            {filteredProducts.length === 0 && (
-                <div style={{textAlign: 'center', marginTop: '3rem', color: '#888'}}>
-                    <p>No products found matching "{searchTerm}"</p>
-                </div>
-            )}
-
-            {/* --- PAGINATION CONTROLS --- */}
-            {filteredProducts.length > itemsPerPage && (
+            {/* PAGINATION */}
+            {totalPages > 1 && (
                 <div className={styles.pagination}>
                     <button 
-                        className={styles.pageBtn} 
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        onClick={() => handlePageChange(currentPage - 1)} 
                         disabled={currentPage === 1}
+                        className={styles.pageBtn}
                     >
-                        <ChevronLeft size={20} /> Previous
+                        <ChevronLeft size={18} /> Previous
                     </button>
                     
                     <span className={styles.pageInfo}>
                         Page {currentPage} of {totalPages}
                     </span>
-                    
+
                     <button 
-                        className={styles.pageBtn} 
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        onClick={() => handlePageChange(currentPage + 1)} 
                         disabled={currentPage === totalPages}
+                        className={styles.pageBtn}
                     >
-                        Next <ChevronRight size={20} />
+                        Next <ChevronRight size={18} />
                     </button>
                 </div>
             )}

@@ -13,10 +13,6 @@ const MainLayout = ({ children }) => {
                 <div className={styles.logo} onClick={() => navigate('/')}>
                     NILE
                 </div>
-                <div className={styles.navLinks}>
-                    <Link to="/" className={styles.navLink}>Home</Link>
-                    <Link to="/profile" className={styles.navLink}>Profile</Link>
-                </div>
                 <div className={styles.actions}>
                     <Link to="/cart" className={styles.iconLink}>
                         <ShoppingBag size={24} />
