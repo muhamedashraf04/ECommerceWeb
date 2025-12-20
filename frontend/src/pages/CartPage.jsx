@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trash2, Loader, ShoppingCart } from 'lucide-react';
 import styles from './CartPage.module.css';
+// 1. IMPORT YOUR AXIOS INSTANCE
+import api from '../api/axiosConfig';
 
 const CartPage = () => {
     const navigate = useNavigate();
@@ -11,119 +13,105 @@ const CartPage = () => {
     const [error, setError] = useState(null);
 
     // ==========================================
-    //  API HANDLERS
+    //  API HANDLERS (UPDATED TO USE AXIOS)
     // ==========================================
-    const api = {
+    const cartApi = {
         // 1. GET CART + HYDRATE PRODUCT DETAILS
         fetchCart: async () => {
-            const token = localStorage.getItem('token');
-            if (!token) return [];
+            // Note: We don't need to manually get 'token' here, 
+            // because api/axiosConfig.js handles the interceptor automatically.
 
-            // STEP A: Get the list of IDs from the Cart
-            // URL from CartController
-            const cartResponse = await fetch('/api/Cart/ShowCart', {
-                method: 'GET',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
+            try {
+                // STEP A: Get the list of IDs from the Cart
+                // Using api.get() instead of fetch() ensures we hit the Azure Backend
+                const cartResponse = await api.get('/api/Cart/ShowCart');
+                
+                // Axios returns data in .data, not need for .json()
+                const cartData = cartResponse.data; 
+                
+                // Handle different array structures
+                const rawItems = Array.isArray(cartData) ? cartData : (cartData.cartItems || cartData.items || []);
+
+                // STEP B: Fetch details for every product ID found
+                const hydratedItems = await Promise.all(rawItems.map(async (item) => {
+                    // Handle naming mismatch (productId vs productID vs id)
+                    const id = item.productId || item.ProductId || item.id;
+                    const qty = item.quantity || item.Quantity || 1;
+
+                    try {
+                        // Use api.get for the product details
+                        const productRes = await api.get(`/api/Product/GetProductByID?productId=${id}`);
+                        const productDetails = productRes.data;
+
+                        // Image Logic (Matching HomePage logic)
+                        let displayImage = "https://placehold.co/300x200?text=No+Image";
+                        if (productDetails.images && productDetails.images.length > 0) {
+                            displayImage = productDetails.images[0];
+                        } else if (productDetails.imageUrl) {
+                            displayImage = productDetails.imageUrl.split(',')[0].trim();
+                        }
+
+                        // MERGE: Combine Cart Qty with Product Name/Price
+                        return {
+                            id: id,
+                            qty: qty,
+                            name: productDetails.Name || productDetails.name || "Unknown Product",
+                            price: productDetails.Price || productDetails.price || 0,
+                            image: displayImage,
+                            category: productDetails.Category || productDetails.category || "General"
+                        };
+
+                    } catch (err) {
+                        console.error(`Failed to load product ${id}`, err);
+                        return {
+                            id: id,
+                            qty: qty,
+                            name: "Product Unavailable",
+                            price: 0,
+                            image: "",
+                            category: "Error"
+                        };
+                    }
+                }));
+
+                return hydratedItems;
+            } catch (err) {
+                // Check for 404 (Cart empty/not found)
+                if (err.response && err.response.status === 404) {
+                    return [];
                 }
-            });
-
-            if (!cartResponse.ok) {
-                if (cartResponse.status === 404) return [];
-                throw new Error("Failed to fetch cart");
+                throw err;
             }
-
-            const cartData = await cartResponse.json();
-            
-            // Handle different array structures
-            const rawItems = Array.isArray(cartData) ? cartData : (cartData.cartItems || cartData.items || []);
-
-            // STEP B: Fetch details for every product ID found
-            const hydratedItems = await Promise.all(rawItems.map(async (item) => {
-                // Handle naming mismatch (productId vs productID vs id)
-                const id = item.productId || item.ProductId || item.id;
-                const qty = item.quantity || item.Quantity || 1;
-
-                try {
-                    // --- CRITICAL FIX HERE ---
-                    // OLD URL: /api/Product/${id}  <-- This was wrong
-                    // NEW URL: /api/Product/GetProductByID?productId=${id} <-- Matches your Controller
-                    const productRes = await fetch(`/api/Product/GetProductByID?productId=${id}`);
-                    
-                    if (!productRes.ok) throw new Error("Product fetch failed");
-                    
-                    const productDetails = await productRes.json();
-
-                    // MERGE: Combine Cart Qty with Product Name/Price
-                    return {
-                        id: id,
-                        qty: qty,
-                        // Backend usually sends PascalCase (Name, Price)
-                        name: productDetails.Name || productDetails.name || "Unknown Product",
-                        price: productDetails.Price || productDetails.price || 0,
-                        image: productDetails.ImageUrl || productDetails.imageUrl || productDetails.image || "",
-                        category: productDetails.Category || productDetails.category || "General"
-                    };
-
-                } catch (err) {
-                    console.error(`Failed to load product ${id}`, err);
-                    // Fallback so the cart doesn't crash completely
-                    return {
-                        id: id,
-                        qty: qty,
-                        name: "Product Unavailable",
-                        price: 0,
-                        image: "",
-                        category: "Error"
-                    };
-                }
-            }));
-
-            return hydratedItems;
         },
 
         // 2. REMOVE ITEM
         removeItem: async (id) => {
-            const token = localStorage.getItem('token');
-            // URL from CartController
-            const response = await fetch(`/api/Cart/remove/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!response.ok) throw new Error("Failed to remove item");
+            // using api.delete automatically adds the token
+            await api.delete(`/api/Cart/remove/${id}`);
             return true;
         },
 
         // 3. CHECKOUT
         checkout: async (total) => {
-            const token = localStorage.getItem('token');
-            // Assuming you have an OrderController
-            const response = await fetch('/api/Order/checkout', { 
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
-                },
-                body: JSON.stringify({ totalAmount: total })
+            const response = await api.post('/api/Order/checkout', { 
+                totalAmount: total 
             });
-
-            if (!response.ok) throw new Error("Checkout failed");
-            return await response.json();
+            return response.data;
         }
     };
 
     // ==========================================
-    //  LOGIC (No changes needed here)
+    //  LOGIC
     // ==========================================
 
     useEffect(() => {
         const loadData = async () => {
+            // We can still check token existence to avoid useless calls if user isn't logged in
             const token = localStorage.getItem('token');
             if (!token) { setIsLoading(false); return; }
 
             try {
-                const data = await api.fetchCart();
+                const data = await cartApi.fetchCart();
                 setCartItems(data);
             } catch (err) {
                 console.error(err);
@@ -151,8 +139,9 @@ const CartPage = () => {
         const originalItems = [...cartItems];
         setCartItems(items => items.filter(item => item.id !== id));
         try {
-            await api.removeItem(id);
+            await cartApi.removeItem(id);
         } catch (err) {
+            console.error(err);
             setCartItems(originalItems);
             alert("Failed to delete item.");
         }
@@ -171,11 +160,8 @@ const CartPage = () => {
         }).format(amount || 0);
     };
 
-    const getImageUrl = (img) => {
-        if (!img) return "https://via.placeholder.com/150";
-        if (img.startsWith('http')) return img;
-        return `http://localhost:5193/${img}`; 
-    };
+    // Helper removed: We now handle image logic inside fetchCart 
+    // to match the robust logic in HomePage
 
     const subtotal = cartItems.reduce((total, item) => total + (item.price * item.qty), 0);
     const shippingCost = subtotal > 5000 ? 0 : 50; 
@@ -225,10 +211,10 @@ const CartPage = () => {
                         cartItems.map((item) => (
                             <div key={item.id} className={styles.cartItem}>
                                 <img 
-                                    src={getImageUrl(item.image)} 
+                                    src={item.image} 
                                     alt={item.name} 
                                     className={styles.itemImage} 
-                                    onError={(e) => e.target.src = "https://via.placeholder.com/150"}
+                                    onError={(e) => e.target.src = "https://placehold.co/150x150?text=No+Image"}
                                 />
                                 <div className={styles.itemDetails}>
                                     <h3>{item.name}</h3>
