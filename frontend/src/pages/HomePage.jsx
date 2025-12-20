@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Loader, Search, ChevronLeft, ChevronRight, ShoppingCart, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import styles from './HomePage.module.css';
+// 1. We already have the api client imported
 import api from '../api/axiosConfig';
 
 const HomePage = () => {
@@ -29,6 +30,7 @@ const HomePage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // These were already correct! Good job.
                 const [productResponse, categoryResponse] = await Promise.all([
                     api.get('/api/Product/GetAllProducts'),
                     api.get('/api/Category') 
@@ -76,11 +78,11 @@ const HomePage = () => {
         fetchData();
     }, []);
 
-    // --- 2. ADD TO CART HANDLER ---
-// --- 2. ADD TO CART HANDLER (SMART VERSION) ---
+    // --- 2. ADD TO CART HANDLER (UPDATED) ---
     const handleAddToCart = async (e, productId) => {
         e.stopPropagation(); 
         
+        // UX Check: Redirect immediately if not logged in
         const token = localStorage.getItem('token');
         if (!token) {
             alert("Please log in to add items.");
@@ -91,40 +93,36 @@ const HomePage = () => {
         setAddingToCartId(productId); 
 
         try {
-            const response = await fetch('/api/Cart/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                // Use PascalCase to match backend DTO
-                body: JSON.stringify({
-                    ProductId: productId, 
-                    Quantity: 1
-                })
+            // FIX: Replaced fetch with api.post
+            // 1. Auto-attaches Base URL (Azure)
+            // 2. Auto-attaches Auth Header
+            await api.post('/api/Cart/add', {
+                ProductId: productId, 
+                Quantity: 1
             });
 
-            if (response.ok) {
-                // SUCCESS
-                setTimeout(() => setAddingToCartId(null), 500);
-                alert("Item added to bag!");
-            } else {
-                // FAILURE - LET'S SEE WHY
-                const errorText = await response.text();
-                
-                // CHECK FOR DUPLICATE ITEM ERROR
-                if (errorText.includes("Product already exists")) {
-                    alert("You already have this item in your cart!");
-                } else {
-                    // Some other error
-                    console.error("Server Error:", errorText);
-                    alert("Something went wrong. Please try again.");
-                }
-            }
+            // If we get here, it succeeded (Axios throws on error)
+            setTimeout(() => setAddingToCartId(null), 500);
+            alert("Item added to bag!");
 
         } catch (err) {
             console.error(err);
-            alert("Network error. Check your connection.");
+            
+            // Handle Axios Error Response
+            if (err.response) {
+                // Check for duplicate item message from backend
+                const errorData = err.response.data;
+                if (typeof errorData === 'string' && errorData.includes("Product already exists")) {
+                    alert("You already have this item in your cart!");
+                } else if (err.response.status === 401) {
+                    alert("Session expired. Please log in again.");
+                    navigate('/auth');
+                } else {
+                    alert("Failed to add item. Please try again.");
+                }
+            } else {
+                alert("Network error. Check your connection.");
+            }
         } finally {
             setAddingToCartId(null);
         }

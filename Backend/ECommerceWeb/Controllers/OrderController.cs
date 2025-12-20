@@ -31,7 +31,7 @@ namespace ECommerceWeb.Controllers
             return Ok(Order);
         }
         [HttpPost("PlaceOrder")]
-        [Authorize(Roles = "Customer")]
+        [Authorize]
         public async Task<IActionResult> PlaceOrder(PlaceOrderDTO address)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
