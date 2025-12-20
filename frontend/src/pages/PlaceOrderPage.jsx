@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, MapPin, Truck, CheckCircle, Loader } from 'lucide-react';
 import styles from './PlaceOrderPage.module.css';
+// 1. Import the configured Axios instance
+import api from '../api/axiosConfig';
 
 const PlaceOrderPage = () => {
     const navigate = useNavigate();
@@ -19,41 +21,41 @@ const PlaceOrderPage = () => {
         country: ''
     });
     const [paymentMethod, setPaymentMethod] = useState('Credit Card');
-    const [cardInfo, setCardInfo] = useState({
-        cardHolder: '',
-        cardNumber: '',
-        expiryDate: '',
-        cvv: ''
-    });
-    const api = {
+    
+    // API Handler Object
+    const orderApi = {
+        // 1. FETCH CART SUMMARY
         fetchCartSummary: async () => {
-            const token = localStorage.getItem('token');
-            if (!token) return [];
             try {
-                const response = await fetch('/api/Cart/ShowCart', {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (!response.ok) return [];
-                const data = await response.json();
+                // Use api.get() - Token is auto-attached
+                const response = await api.get('/api/Cart/ShowCart');
+                const data = response.data;
+                
                 const rawItems = Array.isArray(data) ? data : (data.cartItems || data.items || []);
+                
                 const hydratedItems = await Promise.all(rawItems.map(async (item) => {
                     const id = item.productId || item.ProductId || item.id;
                     const qty = item.quantity || item.Quantity || 1;
                     
                     try {
-                        const productRes = await fetch(`/api/Product/GetProductByID?productId=${id}`);
+                        // Use api.get() for product details
+                        const productRes = await api.get(`/api/Product/GetProductByID?productId=${id}`);
+                        const productDetails = productRes.data;
                         
-                        if (!productRes.ok) throw new Error("Failed");
+                        // Robust Image Logic (Same as Home/Cart pages)
+                        let displayImage = "https://placehold.co/100x100?text=No+Image";
+                        if (productDetails.images && productDetails.images.length > 0) {
+                            displayImage = productDetails.images[0];
+                        } else if (productDetails.imageUrl) {
+                            displayImage = productDetails.imageUrl.split(',')[0].trim();
+                        }
 
-                        const productDetails = await productRes.json();
-                        
                         return {
                             id: id,
                             qty: qty,
                             name: productDetails.Name || productDetails.name || "Unknown Product",
                             price: productDetails.Price || productDetails.price || 0,
-                            image: productDetails.ImageUrl || productDetails.imageUrl || productDetails.image || ""
+                            image: displayImage
                         };
 
                     } catch (e) {
@@ -78,24 +80,10 @@ const PlaceOrderPage = () => {
 
         // 2. PLACE ORDER
         placeOrder: async (fullAddress) => {
-            const token = localStorage.getItem('token');
-            
-            const response = await fetch('/api/Order/PlaceOrder', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
-                },
-                body: JSON.stringify({ 
-                    address: fullAddress 
-                })
+            // Use api.post() - Token is auto-attached
+            await api.post('/api/Order/PlaceOrder', { 
+                address: fullAddress 
             });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || "Failed to place order");
-            }
-            
             return true; 
         }
     };
@@ -104,9 +92,9 @@ const PlaceOrderPage = () => {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const data = await api.fetchCartSummary();
+                const data = await orderApi.fetchCartSummary();
                 if (data.length === 0) {
-                    // Optional: You can uncomment this if you want to force redirect empty carts
+                    // Optional: Redirect if cart is empty
                     // alert("Your cart is empty!");
                     // navigate('/'); 
                 }
@@ -129,14 +117,16 @@ const PlaceOrderPage = () => {
         try {
             const fullAddress = `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.postalCode}, ${shippingInfo.country}`;
 
-            await api.placeOrder(fullAddress);
+            await orderApi.placeOrder(fullAddress);
             
             alert(`Order Placed Successfully!`);
             navigate('/'); 
             
         } catch (err) {
             console.error(err);
-            alert("Failed to place order. " + err.message);
+            // Handle Axios error message
+            const errMsg = err.response?.data || err.message;
+            alert("Failed to place order: " + errMsg);
         } finally {
             setIsPlacingOrder(false);
         }
@@ -147,13 +137,6 @@ const PlaceOrderPage = () => {
     const shippingCost = 50; 
     const tax = subtotal * 0.14; 
     const total = subtotal + shippingCost + tax;
-
-    // Helper for Image URL
-    const getImageUrl = (img) => {
-        if (!img) return "https://via.placeholder.com/100";
-        if (img.startsWith('http')) return img;
-        return `http://localhost:5193/${img}`; 
-    };
 
     // Formatter
     const formatCurrency = (val) => new Intl.NumberFormat('en-EG', { style: 'currency', currency: 'EGP' }).format(val);
@@ -261,7 +244,7 @@ const PlaceOrderPage = () => {
                                     {cartItems.map(item => (
                                         <div key={item.id} className={styles.reviewItem}>
                                             <img 
-                                                src={getImageUrl(item.image)} 
+                                                src={item.image} 
                                                 alt={item.name} 
                                                 onError={(e) => e.target.src = "https://via.placeholder.com/100"}
                                             />

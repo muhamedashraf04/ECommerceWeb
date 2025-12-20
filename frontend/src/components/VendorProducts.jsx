@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import apiClient from '../api/axiosConfig';
+import api from '../api/axiosConfig'; // Renamed for consistency
 import { getVendorId } from '../lib/auth';
 import styles from './Vendor.module.css';
 
@@ -28,12 +28,14 @@ export default function VendorProducts() {
     const fetchProducts = async () => {
         const vendorId = getVendorId();
         if (!vendorId) {
-            alert("Vendor ID not found. Please login.");
+            // Optional: You could rely on the backend to know the vendor from the Token
+            // But if your API requires the ID in the URL, this check is good.
+            console.warn("No vendor ID found.");
             setLoading(false);
             return;
         }
         try {
-            const response = await apiClient.get(`/api/Product/GetProductByVendor?vendorId=${vendorId}`);
+            const response = await api.get(`/api/Product/GetProductByVendor?vendorId=${vendorId}`);
             setProducts(response.data);
         } catch (error) {
             console.error("Error fetching products:", error);
@@ -44,7 +46,7 @@ export default function VendorProducts() {
 
     const fetchCategories = async () => {
         try {
-            const response = await apiClient.get('/api/Category');
+            const response = await api.get('/api/Category');
             setCategories(response.data);
         } catch (error) {
             console.error("Error fetching categories:", error);
@@ -54,7 +56,7 @@ export default function VendorProducts() {
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this product?")) return;
         try {
-            await apiClient.delete(`/api/Product/delete?id=${id}`);
+            await api.delete(`/api/Product/delete?id=${id}`);
             setProducts(products.filter(p => p.id !== id));
         } catch (error) {
             console.error("Error deleting product:", error);
@@ -82,6 +84,7 @@ export default function VendorProducts() {
 
     const handleAddSubmit = async (e) => {
         e.preventDefault();
+        
         const formData = new FormData();
         formData.append('Name', newProduct.name);
         formData.append('Description', newProduct.description);
@@ -89,59 +92,60 @@ export default function VendorProducts() {
         formData.append('CategoryId', newProduct.categoryId);
         formData.append('Quantity', newProduct.quantity);
         
-        if (newProduct.images) {
+        // Append Images
+        if (newProduct.images && newProduct.images.length > 0) {
             for (let i = 0; i < newProduct.images.length; i++) {
                 formData.append('Images', newProduct.images[i]);
             }
         }
 
         try {
-            await apiClient.post('/api/Product/create', formData, {
-                headers: { "Content-Type": "multipart/form-data" }
-            });
+            // CRITICAL FIX: Do NOT set "Content-Type": "multipart/form-data" manually!
+            // Axios detects FormData and sets the correct boundary automatically.
+            await api.post('/api/Product/create', formData);
+            
             alert("Product added successfully");
             setIsAdding(false);
             fetchProducts();
         } catch (error) {
             console.error("Error adding product:", error);
-            alert("Failed to add product");
+            alert("Failed to add product. Ensure all fields are valid.");
         }
     };
 
    const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Create FormData instead of a plain object
-    const formData = new FormData();
-    formData.append('Id', editingProduct.id);
-    formData.append('Name', editingProduct.name);
-    formData.append('Description', editingProduct.description);
-    formData.append('Price', editingProduct.price);
-    formData.append('CategoryId', editingProduct.categoryId);
-    formData.append('Quantity', editingProduct.quantity);
-
-    if (editingProduct.images) {
-        for (let i = 0; i < editingProduct.images.length; i++) {
-            formData.append('Images', editingProduct.images[i]);
-        }
-    }
-
-    try {
-        // multipart/form-data is required for IFormFile/Images
-        await apiClient.put('/api/Product/edit', formData, {
-            headers: { "Content-Type": "multipart/form-data" }
-        });
+        e.preventDefault();
         
-        setProducts(products.map(p => p.id === editingProduct.id ? editingProduct : p));
-        setEditingProduct(null);
-        alert("Product updated successfully");
-    } catch (error) {
-        console.error("Error updating product:", error);
-        alert("Failed to update product. Check if the CategoryId is valid.");
-    }
-};
+        const formData = new FormData();
+        formData.append('Id', editingProduct.id);
+        formData.append('Name', editingProduct.name);
+        formData.append('Description', editingProduct.description);
+        formData.append('Price', editingProduct.price);
+        formData.append('CategoryId', editingProduct.categoryId);
+        formData.append('Quantity', editingProduct.quantity);
 
-    if (loading) return <div>Loading products...</div>;
+        // Only append new images if the user selected them
+        if (editingProduct.images && editingProduct.images instanceof FileList) {
+            for (let i = 0; i < editingProduct.images.length; i++) {
+                formData.append('Images', editingProduct.images[i]);
+            }
+        }
+
+        try {
+            // CRITICAL FIX: Let Axios handle the Content-Type boundary
+            await api.put('/api/Product/edit', formData);
+            
+            // Re-fetch to get the updated image URLs from server
+            fetchProducts(); 
+            setEditingProduct(null);
+            alert("Product updated successfully");
+        } catch (error) {
+            console.error("Error updating product:", error);
+            alert("Failed to update product.");
+        }
+    };
+
+    if (loading) return <div style={{padding:'2rem', textAlign:'center'}}>Loading products...</div>;
 
     return (
         <div>
@@ -152,6 +156,7 @@ export default function VendorProducts() {
                 </button>
             </div>
             
+            {/* ADD FORM */}
             {isAdding && (
                 <div className={styles.formContainer}>
                     <h3 className={styles.cardTitle}>Add New Product</h3>
@@ -226,6 +231,7 @@ export default function VendorProducts() {
                 </div>
             )}
 
+            {/* EDIT FORM */}
             {editingProduct && (
                 <div className={styles.formContainer}>
                     <h3 className={styles.cardTitle}>Edit Product</h3>
@@ -266,7 +272,7 @@ export default function VendorProducts() {
                             />
                         </div>
                         <div className={styles.formGroup}>
-                            <label className={styles.label}>Images</label>
+                            <label className={styles.label}>New Images (Optional)</label>
                             <input 
                                 type="file" 
                                 multiple
@@ -282,11 +288,13 @@ export default function VendorProducts() {
                 </div>
             )}
 
+            {/* PRODUCT GRID */}
             <div className={styles.grid}>
+                {products.length === 0 && !loading && <p>No products found.</p>}
                 {products.map(product => (
                     <div key={product.id} className={styles.card}>
                         <h3 className={styles.cardTitle}>{product.name}</h3>
-                        <p className={styles.cardText}>{product.description}</p>
+                        <p className={styles.cardText} style={{minHeight:'40px'}}>{product.description?.substring(0, 50)}...</p>
                         <p className={styles.price}>${product.price}</p>
                         <p className={styles.cardText}>Qty: {product.quantity}</p>
                         <div className={styles.actions}>
@@ -309,4 +317,3 @@ export default function VendorProducts() {
         </div>
     );
 }
-
