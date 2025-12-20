@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '../api/axiosConfig'; // Ensure this matches your file path
+import api from '../api/axiosConfig'; 
 import { getVendorId } from '../lib/auth';
 import styles from './Vendor.module.css';
 
@@ -68,7 +68,6 @@ export default function VendorProducts() {
     };
 
     const handleAddClick = () => {
-        // Default to first category if available
         const defaultCat = categories.length > 0 ? categories[0].id : '';
         
         setIsAdding(true);
@@ -83,6 +82,7 @@ export default function VendorProducts() {
         });
     };
 
+    // --- 1. HANDLE ADD SUBMIT (FIXED) ---
     const handleAddSubmit = async (e) => {
         e.preventDefault();
         
@@ -93,16 +93,13 @@ export default function VendorProducts() {
         }
 
         const formData = new FormData();
-        // 1. Append VendorId (Critical for Backend Validation)
         formData.append('VendorId', vendorId);
-        
         formData.append('Name', newProduct.name);
         formData.append('Description', newProduct.description);
         formData.append('Price', newProduct.price);
         formData.append('CategoryId', newProduct.categoryId);
         formData.append('Quantity', newProduct.quantity);
         
-        // 2. Append Images
         if (newProduct.images && newProduct.images.length > 0) {
             for (let i = 0; i < newProduct.images.length; i++) {
                 formData.append('Images', newProduct.images[i]);
@@ -110,21 +107,23 @@ export default function VendorProducts() {
         }
 
         try {
-            // 3. FIX: Do NOT set "Content-Type" manually. Axios handles it.
-            await api.post('/api/Product/create', formData);
+            // FIX: Override the default 'application/json' header so browser sets multipart boundary
+            await api.post('/api/Product/create', formData, {
+                headers: { "Content-Type": undefined }
+            });
             
             alert("Product added successfully!");
             setIsAdding(false);
             fetchProducts();
         } catch (error) {
             console.error("Error adding product:", error);
-            // Show exact backend error message
             const serverMsg = error.response?.data || "Unknown error";
-            alert(`Failed to add product: ${serverMsg}`);
+            alert(`Failed to add product: ${JSON.stringify(serverMsg)}`);
         }
     };
 
-   const handleEditSubmit = async (e) => {
+    // --- 2. HANDLE EDIT SUBMIT (FIXED) ---
+    const handleEditSubmit = async (e) => {
         e.preventDefault();
         
         const formData = new FormData();
@@ -135,7 +134,6 @@ export default function VendorProducts() {
         formData.append('CategoryId', editingProduct.categoryId);
         formData.append('Quantity', editingProduct.quantity);
 
-        // Only append images if new files were selected
         if (editingProduct.images && editingProduct.images instanceof FileList) {
             for (let i = 0; i < editingProduct.images.length; i++) {
                 formData.append('Images', editingProduct.images[i]);
@@ -143,8 +141,10 @@ export default function VendorProducts() {
         }
 
         try {
-            // FIX: Let Axios handle boundary
-            await api.put('/api/Product/edit', formData);
+            // FIX: Also applied here for Updates
+            await api.put('/api/Product/edit', formData, {
+                headers: { "Content-Type": undefined }
+            });
             
             alert("Product updated successfully");
             setEditingProduct(null);
@@ -152,7 +152,7 @@ export default function VendorProducts() {
         } catch (error) {
             console.error("Error updating product:", error);
             const serverMsg = error.response?.data || "Unknown error";
-            alert(`Failed to update product: ${serverMsg}`);
+            alert(`Failed to update product: ${JSON.stringify(serverMsg)}`);
         }
     };
 
