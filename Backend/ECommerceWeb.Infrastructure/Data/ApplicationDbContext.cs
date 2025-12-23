@@ -93,35 +93,7 @@ namespace ECommerceWeb.Infrastructure.Data
                     Phone = "01000000002",
                     Address = "Cairo, Egypt"
                 }
-            );
-
-            modelBuilder.Entity<Product>().HasData(
-                new Product
-                {
-                    Id = 1,
-                    Name = "Laptop",
-                    Description = "Gaming Laptop",
-                    Price = 1500,
-                    Quantity = 5,
-                    VendorId = 1,
-                    CategoryId = 1,
-                    Discount = 0.1m,
-                    Ratings = 4.8m,
-                    ImageUrl = "https://example.com/laptop.jpg"
-                },
-                new Product
-                {
-                    Id = 2,
-                    Name = "T-Shirt",
-                    Description = "Cotton T-Shirt",
-                    Price = 20,
-                    Quantity = 50,
-                    VendorId = 1,
-                    CategoryId = 2,
-                    Discount = 0,
-                    Ratings = 4.5m,
-                    ImageUrl = "https://example.com/tshirt.jpg"
-                }
+         
             );
 
             modelBuilder.Entity<Cart>().HasData(
