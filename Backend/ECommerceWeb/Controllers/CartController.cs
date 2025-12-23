@@ -31,9 +31,9 @@ namespace ECommerceWeb.Controllers
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            await _CartService.AddItemToCartAsync(item, userId);
+            string x = await _CartService.AddItemToCartAsync(item, userId);
 
-            return Ok("Item added to cart");
+            return Ok(x);
         }
         [HttpDelete("remove/{productId}")]
         public async Task<IActionResult> RemoveFromCart(int productId)
