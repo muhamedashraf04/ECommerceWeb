@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ECommerceWeb.Application.DTOs.AuthDTOs;
 
 namespace ECommerceWeb.Controllers.Auth
 {
@@ -20,7 +21,6 @@ namespace ECommerceWeb.Controllers.Auth
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromForm] UserRegisterDTO request)
         {
-            // ... (Existing checks for duplicate email) ...
             var Excustomer = await uow.CustomerRepository.GetAsync(u => u.Email == request.Email);
             var Exvendor = await uow.VendorRepository.GetAsync(u => u.Email == request.Email);
 
@@ -133,6 +133,44 @@ namespace ECommerceWeb.Controllers.Auth
                 signingCredentials: cred
             );
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+        }
+        [HttpGet("profile-basic")]
+        [Authorize]
+        public async Task<ActionResult<UserBasicProfileDTO>> GetBasicProfile()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+
+            if (userIdClaim == null || roleClaim == null) 
+                return Unauthorized("Invalid token session.");
+
+            int userId = int.Parse(userIdClaim.Value);
+            string role = roleClaim.Value;
+
+            if (role == "Customer")
+            {
+                var user = await uow.CustomerRepository.GetAsync(u => u.Id == userId);
+                if (user == null) return NotFound();
+
+                return Ok(new UserBasicProfileDTO {
+                    Name = user.Name,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    Address = user.Address
+                });
+            }
+            else 
+            {
+                var user = await uow.VendorRepository.GetAsync(u => u.Id == userId);
+                if (user == null) return NotFound();
+
+                return Ok(new UserBasicProfileDTO {
+                    Name = user.Name,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    Address = user.Address
+                });
+            }
         }
     }
 }

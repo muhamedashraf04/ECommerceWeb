@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
-namespace ECommerceWeb.Application.DTOs
+namespace ECommerceWeb.Application.DTOs.AuthDTOs
 {
     public class UserRegisterDTO
     {
