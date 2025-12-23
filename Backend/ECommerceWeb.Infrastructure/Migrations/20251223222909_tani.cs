@@ -7,7 +7,7 @@
 namespace ECommerceWeb.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Intial : Migration
+    public partial class tani : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -173,8 +173,7 @@ namespace ECommerceWeb.Infrastructure.Migrations
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     OrderId = table.Column<int>(type: "int", nullable: false),
-                    PriceATM = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PriceATM = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -238,8 +237,8 @@ namespace ECommerceWeb.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "OrderItem",
-                columns: new[] { "Id", "OrderId", "PriceATM", "ProductId", "Quantity", "Status" },
-                values: new object[] { 1, 1, 1500m, 1, 1, "Pending" });
+                columns: new[] { "Id", "OrderId", "PriceATM", "ProductId", "Quantity" },
+                values: new object[] { 1, 1, 1500m, 1, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cart_UserId",

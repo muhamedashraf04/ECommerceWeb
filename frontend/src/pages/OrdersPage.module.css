@@ -1,0 +1,79 @@
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.pageTitle {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.loaderContainer, .errorContainer, .noResults {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  text-align: center;
+  color: #64748b;
+  font-weight: bold;
+}
+
+.ordersList {
+  list-style: none;
+  padding: 0;
+}
+
+.orderItem {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1rem 0;
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.statusBadge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.itemsList {
+  list-style: none;
+  padding-left: 1rem;
+  margin-bottom: 0.5rem;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+}
+
+.itemRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+}
+
+.cancelBtn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cancelBtn:hover {
+  background: #dc2626;
+}
