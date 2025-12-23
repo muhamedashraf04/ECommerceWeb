@@ -37,16 +37,22 @@ namespace ECommerceWeb.Application.Service
         }
 
 
-        public async Task AddItemToCartAsync(CartItemDTO item, int userId)
+        public async Task<string> AddItemToCartAsync(CartItemDTO item, int userId)
         {
-            var customer = await _uow.CustomerRepository.GetAsync(c => c.Id == userId);
-            if (customer == null)
-                throw new Exception("Customer not found");
+            // Get the product
+            var product = await _uow.ProductRepository.GetAsync(p => p.Id == item.ProductId);
+            if (product == null)
+                return "Product not found";
 
+            if (product.Quantity < item.Quantity)
+                return "Can't order this item";
+
+            // Get the cart
             var cart = await _uow.CartRepository.GetAsync(c => c.UserId == userId);
 
             if (cart == null)
             {
+                // Create a new cart if it doesn't exist
                 cart = new Cart
                 {
                     UserId = userId,
@@ -55,25 +61,53 @@ namespace ECommerceWeb.Application.Service
                 await _uow.CartRepository.CreateAsync(cart);
                 await _uow.SaveChangesAsync();
             }
-
-            cart.CartItems ??= new List<CartItem>();
-
-            var existing = cart.CartItems.FirstOrDefault(ci => ci.ProductId == item.ProductId);
-            if (existing != null)
-                throw new Exception("Product already exists in cart");
-
-            cart.CartItems.Add(new CartItem
+            else
             {
-                ProductId = item.ProductId,
-                Quantity = item.Quantity,
-                CartId = cart.Id
-            });
+                // Initialize CartItems if null
+                if (cart.CartItems == null)
+                    cart.CartItems = new List<CartItem>();
+            }
 
+            // Check if item already exists in cart
+            var existing = cart.CartItems.FirstOrDefault(ci => ci.ProductId == item.ProductId);
+
+            if (existing != null)
+            {
+                existing.Quantity += item.Quantity;
+            }
+            else
+            {
+                cart.CartItems.Add(new CartItem
+                {
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    CartId = cart.Id
+                });
+            }
+
+            // Reduce product stock
+            product.Quantity -= item.Quantity;
+
+            // Update number of items
             cart.NumOfItems = cart.CartItems.Sum(ci => ci.Quantity);
 
+            // Recalculate total amount
+            cart.TotalAmount = 0;
+            foreach (var ci in cart.CartItems)
+            {
+                var prod = await _uow.ProductRepository.GetAsync(p => p.Id == ci.ProductId);
+                if (prod != null)
+                    cart.TotalAmount += prod.Price * ci.Quantity;
+            }
+
+            // Save cart changes
             await _uow.CartRepository.EditAsync(cart);
             await _uow.SaveChangesAsync();
+
+            // Return a consistent message
+            return "Item added to cart";
         }
+
 
         public async Task RemoveItemFromCartAsync(int userId, int productId)
         {
@@ -110,6 +144,7 @@ namespace ECommerceWeb.Application.Service
             }
 
             cart.CartItems.Clear();
+            cart.TotalAmount = 0;
             cart.NumOfItems = 0;
 
             await _uow.CartRepository.EditAsync(cart);

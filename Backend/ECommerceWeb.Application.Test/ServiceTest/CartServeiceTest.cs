@@ -89,14 +89,25 @@ namespace ECommerceWeb.Application.Test.ServiceTest
                 .Setup(r => r.GetAsync(It.IsAny<Expression<Func<Cart, bool>>>()))
                 .ReturnsAsync(cart);
 
+            // Mock ProductRepository to return a product
+            var product = new Product { Id = 100, Price = 50, Quantity = 10 };
+            _uowMock.Setup(u => u.ProductRepository.GetAsync(It.IsAny<Expression<Func<Product, bool>>>()))
+                    .ReturnsAsync(product);
+
             var itemDto = new CartItemDTO { ProductId = 100, Quantity = 2 };
 
-            await _cartService.AddItemToCartAsync(itemDto, 1);
+            var result = await _cartService.AddItemToCartAsync(itemDto, 1);
 
+            // Assert the returned string
+            result.Should().Be("Item added to cart");
+
+            // Assert cart updated correctly
             cart.CartItems.Count.Should().Be(1);
             cart.CartItems.First().ProductId.Should().Be(100);
             cart.NumOfItems.Should().Be(2);
+            cart.TotalAmount.Should().Be(100); // 50 * 2
         }
+
 
         [Fact]
         public async Task RemoveItemFromCartAsync_RemovesItem_WhenExists()
