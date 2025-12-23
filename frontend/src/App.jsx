@@ -7,6 +7,7 @@ import MainLayout from './layouts/MainLayout';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import VendorPage from './pages/VendorPage';
+import OrdersPage from './pages/OrdersPage';
 function App() {
   return (
     <MainLayout>
@@ -21,6 +22,7 @@ function App() {
         <Route path="/checkout" element={<PlaceOrderPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/vendor" element={<VendorPage />} />
+        <Route path = "/Order" element={<OrdersPage />} />
       </Routes>
     </MainLayout>
   );
