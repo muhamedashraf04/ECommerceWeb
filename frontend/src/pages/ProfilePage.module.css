@@ -115,7 +115,116 @@
     color: var(--primary-teal); background: none; border: none;
     font-weight: bold; cursor: pointer; margin-top: 0.5rem;
 }
+/* ... (Keep all your existing CSS) ... */
 
+/* --- ORDERS TAB STYLING --- */
+.ordersList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.orderCard {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.orderCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 180, 216, 0.15); /* Soft Teal Glow */
+    border-color: var(--primary-teal);
+}
+
+.orderHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.orderHeader h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    font-weight: 700;
+}
+
+.statusBadge {
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.itemsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.itemRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #f1f5f9;
+}
+
+.itemRow span:first-child {
+    font-weight: 600;
+    color: var(--text-grey);
+}
+
+.itemRow span:last-child {
+    font-weight: 700;
+    color: var(--primary-teal);
+    background: #e0f2fe;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.orderFooter {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.5rem;
+}
+
+.cancelBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fee2e2;
+    color: var(--danger-red);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cancelBtn:hover {
+    background: #fecaca;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
 /* Mobile */
 @media (max-width: 900px) {
     .profileCard { flex-direction: column; height: auto; }

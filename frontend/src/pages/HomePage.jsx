@@ -93,9 +93,6 @@ const HomePage = () => {
         setAddingToCartId(productId); 
 
         try {
-            // FIX: Replaced fetch with api.post
-            // 1. Auto-attaches Base URL (Azure)
-            // 2. Auto-attaches Auth Header
             await api.post('/api/Cart/add', {
                 ProductId: productId, 
                 Quantity: 1
