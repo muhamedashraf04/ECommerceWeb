@@ -42,21 +42,29 @@ namespace ECommerceWeb.Application.Test
                 services.AddAuthentication("Test")
                         .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
 
-                // 5. Seed the Database
+                // 5. Build Service Provider and Seed Database
                 var sp = services.BuildServiceProvider();
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+                // Ensure a fresh database for every test run
                 db.Database.EnsureDeleted();
                 db.Database.EnsureCreated();
 
-                // Seed Carts
-                if (!db.Cart.Any())
+                // --- SEED CUSTOMERS ---
+                // Prevents "Only customers can have a shopping cart" failure
+                if (!db.Customer.Any())
                 {
-                    db.Cart.Add(new Cart { Id = 1, UserId = 1, NumOfItems = 0 });
+                    db.Customer.Add(new Customer 
+                    { 
+                        Id = 1, 
+                        Name = "TestUser", 
+                        Email = "test@test.com", 
+                        PasswordHash = "fake_hash" 
+                    });
                 }
 
-                // --- NEW: Seed Categories for CategoryController tests ---
+                // --- SEED CATEGORIES ---
                 if (!db.Category.Any())
                 {
                     db.Category.AddRange(new List<Category>
@@ -64,6 +72,27 @@ namespace ECommerceWeb.Application.Test
                         new Category { Id = 1, Name = "Electronics" },
                         new Category { Id = 2, Name = "Books" }
                     });
+                }
+
+                // --- SEED PRODUCTS ---
+                // Required to fix "Product not found" in Cart and Order tests
+                if (!db.Product.Any())
+                {
+                    db.Product.AddRange(new List<Product>
+                    {
+                        new Product { Id = 1, Name = "Laptop", Price = 1000, Quantity = 50, CategoryId = 1 },
+                        new Product { Id = 2, Name = "Mouse", Price = 25, Quantity = 100, CategoryId = 1 }
+                    });
+                }
+
+                // --- SEED CARTS & ITEMS ---
+                if (!db.Cart.Any())
+                {
+                    var cart = new Cart { Id = 1, UserId = 1, NumOfItems = 1, TotalAmount = 1000 };
+                    db.Cart.Add(cart);
+                    
+                    // Seeding an item ensures "ShowCart_ReturnsCartWithItems" doesn't return empty
+                    db.CartItem.Add(new CartItem { Id = 1, CartId = 1, ProductId = 1, Quantity = 1 });
                 }
 
                 db.SaveChanges();
@@ -81,10 +110,11 @@ namespace ECommerceWeb.Application.Test
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
+            // We provide both roles so the mock user can test Vendor and Customer features
             var claims = new[] {
                 new Claim(ClaimTypes.NameIdentifier, "1"),
                 new Claim(ClaimTypes.Name, "TestUser"),
-                new Claim(ClaimTypes.Role, "Vendor") , // Required for CategoryController
+                new Claim(ClaimTypes.Role, "Vendor"),
                 new Claim(ClaimTypes.Role, "Customer")
             };
             var identity = new ClaimsIdentity(claims, "Test");
