@@ -20,3 +20,8 @@ export const getVendorId = () => {
     // Usually it's "nameid" or "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
     return decoded ? (decoded.nameid || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]) : null;
 };
+
+export const getUserRole = () => {
+    const decoded = getDecodedToken();
+    return decoded ? (decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]) : null;
+};

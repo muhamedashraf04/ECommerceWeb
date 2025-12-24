@@ -15,6 +15,11 @@ RUN rm -f package-lock.json frontend/package-lock.json
 RUN npm install
 RUN npm install --prefix frontend
 
+# Define build argument for API URL
+ARG VITE_API_BASE_URL
+# Set it as an environment variable so Vite can pick it up
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 # Run the Vite build command
 COPY frontend/. ./frontend/
 RUN npm run --prefix frontend build

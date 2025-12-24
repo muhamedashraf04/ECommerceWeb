@@ -20,13 +20,13 @@ services:
     build:
       context: . 
       dockerfile: frontend/DockerFile
+      args:
+        - VITE_API_BASE_URL=http://localhost:5193
     container_name: ecommerce_frontend
     ports:
       - "5173:5173"
     networks:
       - ecommerce-network
-    environment:
-      VITE_API_URL: "http://localhost:5193/api"
     depends_on:
       - backend
 
