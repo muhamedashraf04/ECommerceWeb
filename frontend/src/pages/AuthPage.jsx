@@ -59,7 +59,7 @@ export default function AuthPage() {
         console.log(`Logging in with ${provider}`);
     };
 
-    const handleSubmit = async (e) => {
+   const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
 
@@ -67,22 +67,33 @@ export default function AuthPage() {
 
         try {
             if (isLogin) {
+                // --- LOGIN LOGIC ---
                 const response = await api.post('/api/Auth/login', {
                     email: formData.email,
                     password: formData.password
                 });
 
+                console.log("Server Response:", response.data); // See what we actually got
+
+                // 1. SAFETY CHECK: Check if the server returned HTML garbage
+                if (typeof response.data === 'string' && response.data.trim().startsWith('<')) {
+                    throw new Error("Login failed: Server Error (Received HTML instead of Token)");
+                }
+
+                // 2. Extract Token
                 const token = response.data.token || response.data; 
                 
-                if (token) {
-                    localStorage.setItem('token', typeof token === 'string' ? token : JSON.stringify(token));
+                if (token && typeof token === 'string') {
+                    // 3. Save Valid Token
+                    localStorage.setItem('token', token);
                     alert(`Welcome back!`);
                     navigate('/'); 
                 } else {
-                    throw new Error("No token received from server");
+                    throw new Error("Invalid token received from server");
                 }
 
             } else {
+                // --- REGISTER LOGIC (Kept exactly the same) ---
                 const registerData = new FormData();
                 registerData.append('Name', formData.fullName);
                 registerData.append('Email', formData.email);
@@ -109,8 +120,12 @@ export default function AuthPage() {
 
         } catch (error) {
             console.error("Auth Error:", error);
-            const msg = error.response?.data?.message || error.response?.data || "Authentication failed. Please try again.";
-            alert(typeof msg === 'string' ? msg : JSON.stringify(msg));
+            // Handle error message safely
+            const msg = error.response?.data?.message || error.message || "Authentication failed.";
+            alert(msg);
+            
+            // If the token was bad, clear it so the app doesn't crash again
+            localStorage.removeItem('token'); 
         } finally {
             setIsLoading(false);
         }
