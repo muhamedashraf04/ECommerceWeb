@@ -8,23 +8,31 @@ import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import VendorPage from './pages/VendorPage';
 import OrdersPage from './pages/OrdersPage';
+
 function App() {
   return (
-    <MainLayout>
       <Routes>
-        {/* 1. Make HomePage the default "/" path */}
-        <Route path="/" element={<HomePage />} />
-        
-        {/* 2. Other Pages */}
+        {/* 1. Auth Page (NO Layout, NO Navigation Bar) */}
         <Route path="/auth" element={<AuthPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/prod/:id" element={<ProductPage />} />
-        <Route path="/checkout" element={<PlaceOrderPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/vendor" element={<VendorPage />} />
-        <Route path = "/Order" element={<OrdersPage />} />
+
+        {/* 2. All Other Pages (Wrapped in MainLayout) */}
+        <Route
+          path="/*"
+          element={
+            <MainLayout>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/prod/:id" element={<ProductPage />} />
+                <Route path="/checkout" element={<PlaceOrderPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/vendor" element={<VendorPage />} />
+                <Route path="/Order" element={<OrdersPage />} />
+              </Routes>
+            </MainLayout>
+          }
+        />
       </Routes>
-    </MainLayout>
   );
 }
 
