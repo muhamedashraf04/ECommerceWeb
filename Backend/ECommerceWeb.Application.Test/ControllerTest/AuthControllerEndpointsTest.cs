@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json; // Required for PostAsJsonAsync
 using System.Threading.Tasks;
+using ECommerceWeb.Application.DTOs.AuthDTOs;
 using Xunit;
 
 namespace ECommerceWeb.Application.Test.ControllerTest
