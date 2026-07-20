@@ -27,6 +27,7 @@ function App() {
                 <Route path="/checkout" element={<PlaceOrderPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/vendor" element={<VendorPage />} />
+                <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/Order" element={<OrdersPage />} />
               </Routes>
             </MainLayout>

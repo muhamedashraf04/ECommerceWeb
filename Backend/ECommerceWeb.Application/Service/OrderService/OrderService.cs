@@ -1,13 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ECommerceWeb.Application.DTOs.CartDTOs;
+using ECommerceWeb.Application.DTOs.OrderDTOs;
 using ECommerceWeb.Application.Interfaces;
 using ECommerceWeb.Domain.Models;
-using System.Collections;
-using ECommerceWeb.Application.DTOs.OrderDTOs;
 
 namespace ECommerceWeb.Application.Service.OrderService
 {
@@ -15,13 +13,14 @@ namespace ECommerceWeb.Application.Service.OrderService
     {
         private readonly IUnitOfWork _uow;
         private readonly CartService _cartService;
-        public OrderService(IUnitOfWork uow , CartService cartService) 
+
+        public OrderService(IUnitOfWork uow, CartService cartService) 
         { 
             _uow = uow;
             _cartService = cartService;
         }
 
-        public async Task<OrderDto> ShowOrder(int userId)
+        public async Task<OrderDto?> ShowOrder(int userId)
         {
             var order = await _uow.OrderRepository.GetAsync(o => o.UserId == userId);
             if (order == null)
@@ -41,6 +40,7 @@ namespace ECommerceWeb.Application.Service.OrderService
                 }).ToList()
             };
         }
+
         public async Task PlaceOrderAsync(int userId, PlaceOrderDTO placeOrder)
         {
             // 1️⃣ Get the user's cart
@@ -52,21 +52,7 @@ namespace ECommerceWeb.Application.Service.OrderService
             if (!cartItems.Any())
                 throw new Exception("Cart is empty");
 
-            // 2️⃣ Delete any existing order for the user
-            var existingOrder = await _uow.OrderRepository.GetAsync(o => o.UserId == userId);
-            if (existingOrder != null)
-            {
-                var existingItems = await _uow.OrderItemRepository.GetAllAsync(oi => oi.OrderId == existingOrder.Id);
-                foreach (var item in existingItems)
-                {
-                    await _uow.OrderItemRepository.RemoveAsync(item.Id);
-                }
-
-                await _uow.OrderRepository.RemoveAsync(existingOrder.Id);
-                await _uow.SaveChangesAsync();
-            }
-
-            // 3️⃣ Prepare new order items
+            // 2️⃣ Prepare new order items & update product stock
             var orderItems = new List<OrderItem>();
             foreach (var ci in cartItems)
             {
@@ -77,8 +63,9 @@ namespace ECommerceWeb.Application.Service.OrderService
                 if (product.Quantity < ci.Quantity)
                     throw new Exception($"Insufficient stock for {product.Name}");
 
-                // Reduce stock
+                // Deduct stock on order placement
                 product.Quantity -= ci.Quantity;
+                await _uow.ProductRepository.EditAsync(product);
 
                 orderItems.Add(new OrderItem
                 {
@@ -88,7 +75,7 @@ namespace ECommerceWeb.Application.Service.OrderService
                 });
             }
 
-            // 4️⃣ Create new order
+            // 3️⃣ Create new order
             var order = new Order
             {
                 UserId = userId,
@@ -101,59 +88,53 @@ namespace ECommerceWeb.Application.Service.OrderService
             await _uow.OrderRepository.CreateAsync(order);
             await _uow.SaveChangesAsync();
 
-            // 5️⃣ Clear the cart
+            // 4️⃣ Clear the cart
             await _cartService.ClearCartAsync(userId);
         }
 
-
         public async Task<bool> CancelOrder(int userId)
         {
-            var order = await _uow.OrderRepository.GetAsync(o => o.UserId == userId);
-            if(order == null)
-            {
-                return false;
-            }
-            if(order.OrderStatus == "Pending")
-            {
-                order.OrderStatus = "Cancelled";
-                return await _uow.OrderRepository.RemoveAsync(order.Id);
-            }
-            return false;
-        }
-        public async Task<ICollection<Order>> GetAllOrdersForVendor(int VendorId)
-        {
-            
-            var Orders = await _uow.OrderRepository.GetAllAsync(o=> o.OrderItems.Any(oi => oi.Product.VendorId == VendorId));
-            
-            return (ICollection<Order>)Orders;
-        }
-        public async Task<bool> AcceptOrder(int VendorId , int orderId)
-        {
-            var order = await _uow.OrderRepository.GetAsync(o => o.Id == orderId);
+            var order = await _uow.OrderRepository.GetAsync(o => o.UserId == userId && o.OrderStatus == "Pending");
             if (order == null)
             {
                 return false;
             }
-            if (order.OrderStatus == "Rejected")
+
+            order.OrderStatus = "Cancelled";
+            await _uow.OrderRepository.EditAsync(order);
+            return await _uow.SaveChangesAsync();
+        }
+
+        public async Task<ICollection<Order>> GetAllOrdersForVendor(int vendorId)
+        {
+            var orders = await _uow.OrderRepository.GetAllAsync(o => o.OrderItems.Any(oi => oi.Product != null && oi.Product.VendorId == vendorId));
+            return orders.ToList();
+        }
+
+        public async Task<bool> AcceptOrder(int vendorId, int orderId)
+        {
+            var order = await _uow.OrderRepository.GetAsync(o => o.Id == orderId);
+            if (order == null || order.OrderStatus == "Rejected")
             {
                 return false;
             }
+
             order.OrderStatus = "Accepted";
-            return await _uow.OrderRepository.EditAsync(order);
+            await _uow.OrderRepository.EditAsync(order);
+            return await _uow.SaveChangesAsync();
         }
+
         public async Task<bool> RejectOrder(int orderId)
         {
             var order = await _uow.OrderRepository.GetAsync(o => o.Id == orderId);
-            if (order == null)
+            if (order == null || order.OrderStatus == "Accepted")
             {
                 return false;
             }
-            if(order.OrderStatus == "Accepted")
-            {
-                return false;
-            }
+
             order.OrderStatus = "Rejected";
-            return await _uow.OrderRepository.EditAsync(order);
+            await _uow.OrderRepository.EditAsync(order);
+            return await _uow.SaveChangesAsync();
         }
     }
 }

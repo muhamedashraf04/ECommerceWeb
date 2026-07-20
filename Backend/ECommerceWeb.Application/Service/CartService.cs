@@ -1,4 +1,4 @@
-﻿using ECommerceWeb.Application.DTOs.CartDTOs;
+using ECommerceWeb.Application.DTOs.CartDTOs;
 using ECommerceWeb.Application.Interfaces;
 using ECommerceWeb.Application.Interfaces.IService;
 using ECommerceWeb.Domain.Models;
@@ -85,8 +85,6 @@ namespace ECommerceWeb.Application.Service
                 });
             }
 
-            // Reduce product stock
-            product.Quantity -= item.Quantity;
 
             // Update number of items
             cart.NumOfItems = cart.CartItems.Sum(ci => ci.Quantity);

@@ -19,7 +19,7 @@ services:
   frontend:
     build:
       context: . 
-      dockerfile: frontend/DockerFile
+      dockerfile: frontend/Dockerfile
       args:
         - VITE_API_BASE_URL=http://localhost:5193
     container_name: ecommerce_frontend

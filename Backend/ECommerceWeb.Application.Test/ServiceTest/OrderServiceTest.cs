@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -84,7 +84,9 @@ namespace ECommerceWeb.Application.Test.ServiceTest
             var order = new Order { Id = 1, UserId = 1, OrderStatus = "Pending" };
             _unitOfWorkMock.Setup(u => u.OrderRepository.GetAsync(It.IsAny<Expression<Func<Order, bool>>>()))
                 .ReturnsAsync(order);
-            _unitOfWorkMock.Setup(u => u.OrderRepository.RemoveAsync(order.Id))
+            _unitOfWorkMock.Setup(u => u.OrderRepository.EditAsync(order))
+                .ReturnsAsync(true);
+            _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
                 .ReturnsAsync(true);
 
             var result = await _orderService.CancelOrder(order.UserId);
@@ -99,6 +101,7 @@ namespace ECommerceWeb.Application.Test.ServiceTest
             _unitOfWorkMock.Setup(u => u.OrderRepository.GetAsync(It.IsAny<Expression<Func<Order, bool>>>()))
                 .ReturnsAsync(order);
             _unitOfWorkMock.Setup(u => u.OrderRepository.EditAsync(order)).ReturnsAsync(true);
+            _unitOfWorkMock.Setup(u => u.SaveChangesAsync()).ReturnsAsync(true);
 
             var result = await _orderService.AcceptOrder(1, order.Id);
 
@@ -113,6 +116,7 @@ namespace ECommerceWeb.Application.Test.ServiceTest
             _unitOfWorkMock.Setup(u => u.OrderRepository.GetAsync(It.IsAny<Expression<Func<Order, bool>>>()))
                 .ReturnsAsync(order);
             _unitOfWorkMock.Setup(u => u.OrderRepository.EditAsync(order)).ReturnsAsync(true);
+            _unitOfWorkMock.Setup(u => u.SaveChangesAsync()).ReturnsAsync(true);
 
             var result = await _orderService.RejectOrder(order.Id);
 

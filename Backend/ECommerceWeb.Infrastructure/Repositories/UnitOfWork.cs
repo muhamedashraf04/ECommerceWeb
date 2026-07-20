@@ -1,4 +1,4 @@
-﻿using ECommerceWeb.Application.Interfaces;
+using ECommerceWeb.Application.Interfaces;
 using ECommerceWeb.Infrastructure.Data;
 
 namespace ECommerceWeb.Infrastructure.Repositories
@@ -37,7 +37,7 @@ namespace ECommerceWeb.Infrastructure.Repositories
         }
         public async Task<bool> SaveChangesAsync()
         {
-            return await DbContext.SaveChangesAsync() == 0;
+            return await DbContext.SaveChangesAsync() > 0;
         }
 
     }

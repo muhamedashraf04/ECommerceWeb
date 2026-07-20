@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -70,7 +70,7 @@ namespace ECommerceWeb.Application.Test.ControllerTest
             // Assert
             var result = await response.Content.ReadAsStringAsync();
             // We check for success or the failure string defined in your controller
-            result.Should().MatchRegex("Accepted Succefully|something went wrong");
+            result.Should().MatchRegex("Accepted successfully|Accepted Succefully|something went wrong");
         }
 
         [Fact]

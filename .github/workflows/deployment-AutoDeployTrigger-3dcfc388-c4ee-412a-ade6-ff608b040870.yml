@@ -4,6 +4,7 @@ on:
   push:
     branches: 
       - master
+      - main
     paths:
       - '**'
       - '.github/workflows/deployment-AutoDeployTrigger-*.yml'
@@ -16,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout to the branch
-        uses: actions/checkout@v4 # Updated to v4 for better performance
+        uses: actions/checkout@v4
 
       - name: Azure Login
         uses: azure/login@v2
@@ -40,4 +41,4 @@ jobs:
           # 4. Azure target details
           containerAppName: deployment
           resourceGroup: Ashraf
-          imageToBuild: muhammedashraf04/deployment:${{ github.sha }}
+          imageToBuild: muhamedashraf04/deployment:${{ github.sha }}

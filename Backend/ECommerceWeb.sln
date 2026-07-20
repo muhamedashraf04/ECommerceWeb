@@ -1,17 +1,16 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36603.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb", "ECommerceWeb.csproj", "{74FD1C02-4237-4686-8153-D81B9D6DE088}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb", "ECommerceWeb\ECommerceWeb.csproj", "{74FD1C02-4237-4686-8153-D81B9D6DE088}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Application", "..\ECommerceWeb.Application\ECommerceWeb.Application.csproj", "{EE4CABDD-A1EB-69BA-1064-FEB8AFBAB162}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Application", "ECommerceWeb.Application\ECommerceWeb.Application.csproj", "{EE4CABDD-A1EB-69BA-1064-FEB8AFBAB162}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Domain", "..\ECommerceWeb.Domain\ECommerceWeb.Domain.csproj", "{E258484F-BDF8-E554-98CA-8FACCA4CC95E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Domain", "ECommerceWeb.Domain\ECommerceWeb.Domain.csproj", "{E258484F-BDF8-E554-98CA-8FACCA4CC95E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Infrastructure", "..\ECommerceWeb.Infrastructure\ECommerceWeb.Infrastructure.csproj", "{62667CE9-FA2B-CBF0-54F5-6F17B8E6405D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Infrastructure", "ECommerceWeb.Infrastructure\ECommerceWeb.Infrastructure.csproj", "{62667CE9-FA2B-CBF0-54F5-6F17B8E6405D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Application.Test", "..\ECommerceWeb.Application.Test\ECommerceWeb.Application.Test.csproj", "{D3DD3DE6-2618-462B-A956-1F60F1F4B724}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceWeb.Application.Test", "ECommerceWeb.Application.Test\ECommerceWeb.Application.Test.csproj", "{D3DD3DE6-2618-462B-A956-1F60F1F4B724}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

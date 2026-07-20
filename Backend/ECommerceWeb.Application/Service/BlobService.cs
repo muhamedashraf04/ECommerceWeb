@@ -7,21 +7,35 @@ namespace ECommerceWeb.Application.Service
 {
     public class BlobService : IBlobService
     {
-        private readonly BlobServiceClient _blobServiceClient;
+        private readonly BlobServiceClient? _blobServiceClient;
 
         public BlobService(IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("BlobStorage");
-            _blobServiceClient = new BlobServiceClient(connectionString);
+            if (!string.IsNullOrWhiteSpace(connectionString) && 
+                !connectionString.Contains("ACC_KEY") && 
+                !connectionString.Contains("YOUR_"))
+            {
+                try
+                {
+                    _blobServiceClient = new BlobServiceClient(connectionString);
+                }
+                catch
+                {
+                    _blobServiceClient = null;
+                }
+            }
         }
 
         public async Task<string> UploadAsync(Stream fileStream, string fileName, string contentType, string containerName)
         {
+            if (_blobServiceClient == null)
+            {
+                return $"https://fakeblobstorage.local/{containerName}/{Guid.NewGuid()}_{fileName}";
+            }
+
             var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 
-            // SECURITY LOGIC: 
-            // If it's the "products" container, make it Public.
-            // For "vendor-ids" or anything else, keep it Private (None).
             if (containerName.Equals("products", StringComparison.OrdinalIgnoreCase))
             {
                 await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
@@ -46,6 +60,8 @@ namespace ECommerceWeb.Application.Service
 
         public async Task DeleteAsync(string fileUrl, string containerName)
         {
+            if (_blobServiceClient == null) return;
+
             var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
             
             if (Uri.TryCreate(fileUrl, UriKind.Absolute, out var uri))

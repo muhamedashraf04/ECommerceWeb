@@ -361,3 +361,18 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Environment variables and secrets
+*.env
+.env*
+backend.env
+passwords.txt
+*.crdownload
+
+# IDE and build output
+.idea/
+.vs/
+bin/
+obj/
+dist/
+node_modules/

@@ -2,7 +2,9 @@ name: .NET CI
 
 on:
   push:
+    branches: [ main, master ]
   pull_request:
+    branches: [ main, master ]
 
 jobs:
   build:
@@ -15,14 +17,13 @@ jobs:
       - name: Setup .NET 9 SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
-          include-prerelease: true
+          dotnet-version: '9.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore Backend/ECommerceWeb/ECommerceWeb.sln
+        run: dotnet restore Backend/ECommerceWeb.sln
 
       - name: Build solution
-        run: dotnet build Backend/ECommerceWeb/ECommerceWeb.sln --configuration Release --no-restore
+        run: dotnet build Backend/ECommerceWeb.sln --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test Backend/ECommerceWeb.Application.Test/ECommerceWeb.Application.Test.csproj --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
+        run: dotnet test Backend/ECommerceWeb.sln --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
