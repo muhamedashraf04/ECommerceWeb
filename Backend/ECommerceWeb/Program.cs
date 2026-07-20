@@ -61,7 +61,7 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<IBlobService, BlobService>();
 builder.Services.AddScoped<IValidator<CreateProductDTO>, ProductValidator>();
 
-var jwtTokenKey = builder.Configuration.GetValue<string>("AppSettings:Token") ?? "***REMOVED***_MustBeAtLeast64BytesLongForHS512AlgorithmSecurity";
+var jwtTokenKey = builder.Configuration.GetValue<string>("AppSettings:Token") ?? "ThisIsMySuperDuperSecureAppSettingsTokenSecureAndRandomKeyForSWE_MustBeAtLeast64BytesLongForHS512AlgorithmSecurity";
 
 var authBuilder = builder.Services.AddAuthentication(options =>
 {

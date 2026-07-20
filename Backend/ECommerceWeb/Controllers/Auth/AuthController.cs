@@ -130,7 +130,7 @@ namespace ECommerceWeb.Controllers.Auth
             var secretKey = configuration.GetValue<string>("AppSettings:Token");
             if (string.IsNullOrWhiteSpace(secretKey) || secretKey.Length < 64)
             {
-                secretKey = "***REMOVED***_MustBeAtLeast64BytesLongForHS512AlgorithmSecurity";
+                secretKey = "ThisIsMySuperDuperSecureAppSettingsTokenSecureAndRandomKeyForSWE_MustBeAtLeast64BytesLongForHS512AlgorithmSecurity";
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
